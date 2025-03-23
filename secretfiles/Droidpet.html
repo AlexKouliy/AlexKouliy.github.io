@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digipet Droid – Dynamic Bar Colors & State Updates</title>
+  <!-- Include jQuery from CDN -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #ddd;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 20px; }
+    
+    /* Canvas Frame for Digipet */
+    #digipet-canvas {
+      display: block;
+      margin: 0 auto 20px;
+      border: 2px solid #fff;
+      background: #000;
+    }
+    
+    /* State Overview */
+    #state-overview {
+      margin: 0 auto 20px;
+      max-width: 500px;
+    }
+    .state-section { margin-bottom: 10px; }
+    .bar {
+      background: #444;
+      border-radius: 5px;
+      height: 10px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      transition: width 0.5s;
+    }
+    /* Default color placeholders (dynamically overridden) */
+    #charge .bar-fill { background: #00ff66; }
+    #durability .bar-fill { background: #ffcc00; }
+    #complexity .bar-fill { background: #ff3366; }
+    
+    /* Buttons */
+    #buttons button {
+      margin: 1px 5px;
+      padding: 1px 20px;
+      background: #0066cc;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    #buttons button:hover { background: #005bb5; }
+    
+    /* Overlays for Minigames */
+    .overlay {
+      position: relative;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin-top: 30px;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .minigame-container {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: auto;
+      height: 120px;
+      text-align: center;
+      color: #fff;
+      justify-content: center;
+    }
+    .minigame-container p { margin: 5px 0; }
+    .minigame-message {
+      font-size: 1em;
+      margin: 10px 0;
+      height: 1.2em;
+      color: #00ff99;
+    }
+    
+    /* Recharge (Refuel) Minigame */
+    #battery-game {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 10px auto;
+      width: 280px;
+      height: 75px;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background: #333;
+    }
+    #full-battery, #empty-battery { font-size: 3.5em; }
+    #full-battery { color: #00ff99; }
+    #empty-battery { color: #888; }
+    
+    /* Recharge Button (Filled Style) */
+    #recharge-btn-minigame {
+      padding: 8px 16px;
+      background: #00cc66;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #recharge-btn-minigame:hover { background: #00b359; }
+    
+    /* Repair Minigame */
+    #bolt-game { margin: 10px auto; }
+    #loose-bolt {
+      font-size: 3em;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.5s;
+    }
+    #repair-arrow {
+      font-size: 2em;
+      color: #00ff99;
+      margin-top: 10px;
+    }
+    
+    /* Refactor Minigame – Stacked Code Blocks with High Contrast */
+    #blocks-game {
+      margin: 5px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .block {
+      display: block;
+      width: 100%;
+      height: 20px;
+      margin: 3px 0;
+      cursor: pointer;
+      border: 2px solid #fff;
+      border-radius: 5px;
+      text-align: left;
+      padding-left: 5px;
+      line-height: 20px;
+      font-family: "Courier New", Courier, monospace;
+      color: #000;
+      text-shadow: 1px 1px 2px #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Digipet Droid</h1>
+  
+  <!-- Canvas Frame for Digipet (Particle Emitter) -->
+  <canvas id="digipet-canvas"></canvas>
+  
+  <!-- Bot State Overview -->
+  <div id="state-overview">
+    <div id="charge" class="state-section">
+      <p>Charge: <span id="charge-text">80</span>% – (Charged / Low Power / Out of Charge)</p>
+      <div class="bar">
+        <div class="bar-fill" id="charge-bar"></div>
+      </div>
+    </div>
+    <div id="durability" class="state-section">
+      <p>Durability: <span id="durability-text">70</span>% – (Repaired / Worn / Damaged)</p>
+      <div class="bar">
+        <div class="bar-fill" id="durability-bar"></div>
+      </div>
+    </div>
+    <div id="complexity" class="state-section">
+      <p>Code Complexity: <span id="complexity-text">50</span>% – (Smooth / Glitchy / Errors)</p>
+      <div class="bar">
+        <div class="bar-fill" id="complexity-bar"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Buttons for Interactions -->
+  <div id="buttons">
+    <button id="recharge-btn">Recharge</button>
+    <button id="repair-btn">Repair</button>
+    <button id="refactor-btn">Refactor</button>
+  </div>
+  
+  <!-- Recharge Minigame Overlay -->
+  <div class="overlay" id="recharge-overlay">
+    <div class="minigame-container">
+      <h2>Recharge Minigame</h2>
+      <p>Press the button below to fully recharge your battery.</p>
+      <div id="battery-game">
+        <div id="full-battery">🔋</div>
+        <button id="recharge-btn-minigame">Recharge Now</button>
+        <div id="empty-battery">🪫</div>
+      </div>
+      <div class="minigame-message" id="recharge-message"></div>
+    </div>
+  </div>
+  
+  <!-- Repair Minigame Overlay -->
+  <div class="overlay" id="repair-overlay">
+    <div class="minigame-container">
+      <h2>Repair Minigame</h2>
+      <p>Swipe left on the wrench to tighten it.</p>
+      <div id="bolt-game">
+        <div id="loose-bolt">🔧</div>
+        <div id="repair-arrow">&#8592;</div>
+      </div>
+      <div class="minigame-message" id="repair-message"></div>
+    </div>
+  </div>
+    
+    <!-- Refactor Minigame Overlay -->
+    <div class="overlay" id="refactor-overlay">
+        <div class="minigame-container">
+        <h2>Refactor Minigame</h2>
+        <p>Tap redundant code blocks to remove duplicates.</p>
+        <div id="blocks-game"></div>
+        <div class="minigame-message" id="refactor-message"></div>
+        </div>
+    </div>
+  
+  <script>
+    /**********************************
+     * CONFIGURATION SETTINGS
+     **********************************/
+    var config = {
+      // State Settings
+      CHARGE_MAX: 100,
+      DURABILITY_MAX: 100,
+      COMPLEXITY_MAX: 100,
+      INITIAL_CHARGE: 80,
+      INITIAL_DURABILITY: 70,
+      INITIAL_COMPLEXITY: 50,
+      
+      // Boost / Improvement Settings (Minigame rewards)
+      RECHARGE_BOOST: 100,
+      REPAIR_BOOST: 20,
+      REFACTOR_IMPROVE: 20,
+      
+      // Depletion / Increase Rates (per second)
+      CHARGE_DEPLETION_RATE: 0.5,
+      DURABILITY_DEPLETION_RATE: 0.2,
+      COMPLEXITY_INCREASE_RATE: 0.5,
+      
+      // Color thresholds for dynamic interpolation:
+      CHARGE_THRESHOLD: 10,
+      DURABILITY_THRESHOLD: 20,
+      COMPLEXITY_THRESHOLD: 20,
+      
+      // Define endpoint colors as RGB arrays:
+      CHARGE_DEFAULT_RGB: [0, 255, 102],
+      CHARGE_LOW_RGB: [0, 51, 0],
+      
+      DURABILITY_DEFAULT_RGB: [255, 204, 0],
+      DURABILITY_LOW_RGB: [255, 0, 0],
+      
+      COMPLEXITY_DEFAULT_RGB: [255, 51, 102],
+      COMPLEXITY_LOW_RGB: [177, 156, 217],
+      
+      // Visual Settings for Bars
+      BAR_TRANSITION_SPEED: 0.5,
+      
+      // Recharge Minigame Settings
+      BATTERY_DRAG_THRESHOLD: 20,
+      BATTERY_START_POS: { left: 10, top: 35 },
+      
+      // Repair Minigame Settings
+      REPAIR_SWIPE_THRESHOLD: 50,
+      
+      // Refactor Minigame Settings
+      NUM_BLOCKS_MIN: 3,
+      NUM_BLOCKS_MAX: 12,
+      BLOCK_COLORS: ["orange", "cyan", "magenta", "lime"],
+      
+      // Global Minigame Timeout
+      MINIGAME_TIMEOUT: 3000,
+      
+      // Particle Emitter Settings for the Digipet canvas
+      PARTICLES: {
+        SPEED_MIN: 0.01,
+        SPEED_MAX: 0.05,
+        LIFETIME_MIN: 500,
+        LIFETIME_MAX: 900,
+        SPAWN_RATE: 90,
+        SIZE: 30,
+        OSCILLATION_AMPLITUDE: 9,
+        OSCILLATION_FREQUENCY: 1,
+        DAMPING: 0.99,
+        GRAVITY: { x: 0, y: 0.000 },
+        ROTATION_SPEED_MIN: 0.01,
+        ROTATION_SPEED_MAX: 0.3
+      }
+    };
+    
+    /**********************************
+     * PARTICLE EMITTER FOR DIGIPET CANVAS
+     **********************************/
+    (function() {
+      var canvas = document.getElementById("digipet-canvas");
+      var ctx = canvas.getContext("2d");
+      canvas.width = 500;
+      canvas.height = 300;
+      var particles = [];
+      var lastTime = performance.now();
+      
+      function spawnParticle() {
+        var angle = Math.random() * 2 * Math.PI;
+        var speed = config.PARTICLES.SPEED_MIN +
+                    Math.random() * (config.PARTICLES.SPEED_MAX - config.PARTICLES.SPEED_MIN);
+        var vx = Math.cos(angle) * speed;
+        var vy = Math.sin(angle) * speed;
+        var lifetime = config.PARTICLES.LIFETIME_MIN +
+                       Math.random() * (config.PARTICLES.LIFETIME_MAX - config.PARTICLES.LIFETIME_MIN);
+        // Compute perpendicular vector for oscillation
+        var len = Math.sqrt(vx * vx + vy * vy);
+        var perpX = -vy / len, perpY = vx / len;
+        var rotationSpeed = config.PARTICLES.ROTATION_SPEED_MIN +
+                            Math.random() * (config.PARTICLES.ROTATION_SPEED_MAX - config.PARTICLES.ROTATION_SPEED_MIN);
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: vx,
+          vy: vy,
+          life: lifetime,
+          maxLife: lifetime,
+          creationTime: performance.now(),
+          perpX: perpX,
+          perpY: perpY,
+          rotation: Math.random() * 2 * Math.PI,
+          rotationSpeed: rotationSpeed
+        });
+      }
+      
+      function updateParticles(dt) {
+        for (var i = particles.length - 1; i >= 0; i--) {
+          var p = particles[i];
+          p.vx += config.PARTICLES.GRAVITY.x * dt;
+          p.vy += config.PARTICLES.GRAVITY.y * dt;
+          p.vx *= Math.pow(config.PARTICLES.DAMPING, dt);
+          p.vy *= Math.pow(config.PARTICLES.DAMPING, dt);
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.rotation += p.rotationSpeed * dt;
+          p.life -= dt;
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+      }
+      
+      function drawParticles(currentTime) {
+        particles.forEach(function(p) {
+          var timeElapsed = (currentTime - p.creationTime) / 1000;
+          var oscillation = Math.sin(2 * Math.PI * config.PARTICLES.OSCILLATION_FREQUENCY * timeElapsed) *
+                              config.PARTICLES.OSCILLATION_AMPLITUDE;
+          var displayX = p.x + p.perpX * oscillation;
+          var displayY = p.y + p.perpY * oscillation;
+          var alpha = p.life / p.maxLife;
+          ctx.fillStyle = "rgba(0, 255, 153," + alpha + ")";
+          ctx.beginPath();
+          ctx.arc(displayX, displayY, config.PARTICLES.SIZE, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+      }
+      
+      function animate(currentTime) {
+        var dt = currentTime - lastTime;
+        lastTime = currentTime;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        updateParticles(dt);
+        drawParticles(currentTime);
+        if (Math.random() < dt / config.PARTICLES.SPAWN_RATE) spawnParticle();
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    })();
+    
+    /**********************************
+     * HELPER FUNCTIONS
+     **********************************/
+    function rgbToHex(rgb) {
+      return "#" + rgb.map(x => {
+        var hex = x.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      }).join("");
+    }
+    
+    function interpolateColorRGB(color1, color2, factor) {
+      return color1.map((c, i) => Math.round(c + factor * (color2[i] - c)));
+    }
+    
+    // Helper to update a bar (reduces code repetition)
+    function updateBar(selector, value, threshold, lowRGB, defaultRGB) {
+      var color = (value < threshold) ?
+        rgbToHex(interpolateColorRGB(lowRGB, defaultRGB, value / threshold)) :
+        rgbToHex(defaultRGB);
+      $(selector).css({ width: value + "%", background: color });
+    }
+    
+    /**********************************
+     * STATE VARIABLES & UI UPDATE
+     **********************************/
+    var state = {
+      charge: config.INITIAL_CHARGE,
+      durability: config.INITIAL_DURABILITY,
+      complexity: config.INITIAL_COMPLEXITY
+    };
+    
+    function updateStateUI() {
+      $("#charge-text").text(state.charge.toFixed(1));
+      $("#durability-text").text(state.durability.toFixed(1));
+      $("#complexity-text").text(state.complexity.toFixed(1));
+      
+      updateBar("#charge-bar", state.charge, config.CHARGE_THRESHOLD, config.CHARGE_LOW_RGB, config.CHARGE_DEFAULT_RGB);
+      updateBar("#durability-bar", state.durability, config.DURABILITY_THRESHOLD, config.DURABILITY_LOW_RGB, config.DURABILITY_DEFAULT_RGB);
+      updateBar("#complexity-bar", state.complexity, config.COMPLEXITY_THRESHOLD, config.COMPLEXITY_LOW_RGB, config.COMPLEXITY_DEFAULT_RGB);
+    }
+    updateStateUI();
+    
+    /**********************************
+     * GAME LOOP: Update State Over Time
+     **********************************/
+    setInterval(function() {
+      state.charge = Math.max(0, state.charge - config.CHARGE_DEPLETION_RATE);
+      state.durability = Math.max(0, state.durability - config.DURABILITY_DEPLETION_RATE);
+      state.complexity = Math.min(config.COMPLEXITY_MAX, state.complexity + config.COMPLEXITY_INCREASE_RATE);
+      updateStateUI();
+    }, 1000);
+    
+    /**********************************
+     * Helper: Show Minigame Message
+     **********************************/
+    function showMinigameMessage(selector, message, duration) {
+      $(selector).text(message).fadeIn();
+      setTimeout(function() { $(selector).fadeOut(); }, duration || 2000);
+    }
+    
+    /**********************************
+     * BUTTON EVENT HANDLERS
+     **********************************/
+    $("#recharge-btn").click(function() {
+      $("#recharge-overlay").fadeIn();
+    });
+    $("#repair-btn").click(function() {
+      $("#repair-overlay").fadeIn();
+    });
+    $("#refactor-btn").click(function() {
+      $("#refactor-overlay").fadeIn();
+      initRefactorGame();
+    });
+    
+    /**********************************
+     * RECHARGE MINIGAME
+     **********************************/
+    $("#recharge-btn-minigame").click(function() {
+      state.charge = config.RECHARGE_BOOST;
+      showMinigameMessage("#recharge-message", "Recharge successful!", 1500);
+      updateStateUI();
+      // Swap battery icons
+      var fullIcon = $("#full-battery").html(),
+          emptyIcon = $("#empty-battery").html();
+      $("#full-battery").html(emptyIcon);
+      $("#empty-battery").html(fullIcon);
+      setTimeout(function() { $("#recharge-overlay").fadeOut(); }, 1500);
+    });
+    
+    /**********************************
+     * REPAIR MINIGAME
+     **********************************/
+    var startX;
+    $("#loose-bolt").on("mousedown touchstart", function(e) {
+      startX = e.pageX || e.originalEvent.touches[0].pageX;
+    });
+    $("#loose-bolt").on("mouseup touchend", function(e) {
+      var endX = e.pageX || e.originalEvent.changedTouches[0].pageX;
+      if (startX - endX > config.REPAIR_SWIPE_THRESHOLD) {
+        $("#loose-bolt").css("transform", "rotate(-90deg)");
+        state.durability = Math.min(state.durability + config.REPAIR_BOOST, config.DURABILITY_MAX);
+        updateStateUI();
+        showMinigameMessage("#repair-message", "Repair successful!", 1500);
+        setTimeout(function() {
+          $("#repair-overlay").fadeOut();
+          $("#loose-bolt").css("transform", "rotate(0deg)");
+        }, 1500);
+      } else {
+        showMinigameMessage("#repair-message", "Repair failed. Swipe left faster.", 1500);
+        $("#repair-overlay").fadeOut();
+      }
+    });
+    
+    /**********************************
+     * REFACTOR MINIGAME
+     **********************************/
+    // Initialize the Refactor Minigame.
+    function initRefactorGame() {
+        $("#blocks-game").empty();
+        $("#refactor-message").hide().text("");
+        var colors = config.BLOCK_COLORS,
+            numBlocks = Math.max(config.NUM_BLOCKS_MIN,
+                        Math.min(config.NUM_BLOCKS_MAX, Math.ceil(state.complexity / 10)));
+        
+        // Create a number of blocks with random colors.
+        for (var i = 0; i < numBlocks; i++) {
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        $("<div class='block'>// " + color + "</div>")
+            .css({ background: color })
+            .data("color", color)
+            .appendTo("#blocks-game");
+        }
+        
+        // Set click event for each block.
+        $(".block").off("click").on("click", function() {
+        var color = $(this).data("color");
+        // Check for duplicates (siblings with the same color).
+        var duplicates = $(this).siblings(".block").filter(function() {
+            return $(this).data("color") === color;
+        });
+        
+        if (duplicates.length >= 1) {
+            $(this).remove();
+            state.complexity = Math.max(state.complexity - config.REFACTOR_IMPROVE, 0);
+            updateStateUI();
+            $("#refactor-message").text("Removed redundant " + color + " block")
+                                .fadeIn().delay(1000).fadeOut();
+            // Auto-close the minigame when complete.
+            if (isRefactorComplete()) {
+            $("#refactor-message").text("Refactor complete!").fadeIn();
+            setTimeout(function() {
+                $("#refactor-overlay").fadeOut();
+            }, 1500);
+            }
+        }
+        });
+    }
+    
+    // Checks if there are no duplicates remaining in the refactor game.
+    function isRefactorComplete() {
+        var complete = true;
+        $("#blocks-game .block").each(function() {
+        var color = $(this).data("color");
+        // Count how many blocks have this color.
+        var count = $("#blocks-game .block").filter(function() {
+            return $(this).data("color") === color;
+        }).length;
+        if (count > 1) { // More than one means duplicates remain.
+            complete = false;
+            return false; // Break out of the each() loop.
+        }
+        });
+        return complete;
+    }
+
+  </script>
+</body>
+</html>

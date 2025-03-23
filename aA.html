@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>accessAbility</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Load Orbitron for headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <div id="colorIndicator">
+      <img src="img/NT_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+  
+  <!-- GLOBAL SIDE NAVIGATION -->
+  <nav class="nav" id="cyberNav">
+    <a href="index.html">Home</a>
+    <a href="projectlist.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  
+  <div class="nav-buttons">
+    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+  </div>
+  <div id="settingsPanel">
+    <label for="themePicker">Theme Color:</label>
+    <input type="color" id="themePicker" value="#00ffff">
+
+    <div id="themePresets">
+      <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+      <span class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></span>
+      <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+      <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+      <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="nav-bar">
+      <a href="#overview" id="link-overview"><img src="img/overview.svg" alt="Overview Icon" class="tier-icon"></a>
+      <a href="#description" id="link-description"><img src="img/description.svg" alt="Description Icon" class="tier-icon"></a>
+      <a href="#rationale" id="link-rationale"><img src="img/rationale.svg" alt="Rationale Icon" class="tier-icon"></a>
+    </div>
+    
+    <div id="overview" class="tier">
+      <div>
+        <div class="tier-title">
+          <img src="img/overview.svg" alt="Description Icon" class="tier-icon">
+          <h1>Overview</h1>
+          <img src="img/overview.svg" alt="Description Icon" class="tier-icon">
+        </div>
+        <div class="tier-content">
+          <div class="accordion">
+            <div class="accordion-item">
+
+              <button class="accordion-header">Project Outline</button>
+              <div class="accordion-content">
+                <h3>Project Name: accessAbility</h3>
+                <img src="img/aA_site.webp" alt="accessAbility Ad">
+                <p>accessAbility is a visionary project designed to bridge the gap between technology, design, and human experience—fostering environments that are welcoming and accessible to everyone, regardless of their abilities.</p>
+              </div>
+
+              <button class="accordion-header">Video Ad</button>
+              <div class="accordion-content">
+                <h3>Project Name: accessAbility</h3>
+                <video autoplay muted playsinline><source src="vid/Screw-aA Newgif.mp4" type="video/mp4"></video>
+                <p>accessAbility is a visionary project designed to bridge the gap between technology, design, and human experience—fostering environments that are welcoming and accessible to everyone, regardless of their abilities.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="description" class="tier">
+      <div>
+        <div class="tier-title">
+          <img src="img/description.svg" alt="Description Icon" class="tier-icon">
+          <h1>Description</h1>
+          <img src="img/description.svg" alt="Description Icon" class="tier-icon">
+        </div>
+        <div class="tier-content">
+          <div class="accordion">
+            <div class="accordion-item">
+
+              <button class="accordion-header">Overview</button>
+              <div class="accordion-content">
+                <h3>Project Name: accessAbility</h3>
+                <p>accessAbility is a visionary project designed to bridge the gap between technology, design, and human experience—fostering environments that are welcoming and accessible to everyone, regardless of their abilities.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Concept and Purpose</button>
+              <div class="accordion-content">
+                <li>At its core, accessAbility is about creating a digital and physical platform where inclusivity is not just an add-on but a central design principle. The project aspires to:</li>
+                <li>Empower Users: Provide tools and resources that cater to diverse accessibility needs—from intuitive navigation for those with visual or motor impairments to customizable interfaces that respect individual cognitive styles.</li>
+                <li>Enhance Usability: Leverage design principles such as colour theory (with a nod to deep blue as a calming and stabilizing hue), gestalt psychology, and shape psychology to craft interfaces that are both aesthetically pleasing and functionally intuitive.</li>
+                <li>Foster Community: Build a collaborative space where users, designers, and developers can exchange ideas, share best practices, and co-create solutions that improve everyday accessibility.</li>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Key Features</button>
+              <div class="accordion-content">
+                <li>At its core, accessAbility is about creating a digital and physical platform where inclusivity is not just an add-on but a central design principle. The project aspires to:</li>
+                <li>User-Centric Design Tools:
+                  Integrate a suite of tools that allow for personalized adjustments—scalable fonts, adaptable colour contrasts, and simplified navigation schemes based on research from the W3C Web Accessibility Initiative and Nielsen Norman Group studies.</li>
+                <li>Inclusive Design Principles:
+                  Apply design theories such as colour theory and gestalt principles to ensure that the platform is not only accessible but also aesthetically compelling. Deep blue, as a foundational colour, is used to evoke calmness and reliability, supporting user focus and emotional well-being.</li>
+                <li>Community-Driven Innovation:
+                  Offer forums, workshops, and collaborative spaces where stakeholders can contribute their unique insights. This element encourages bottom-up innovation—empowering those with lived experiences to directly influence design iterations.</li>
+                <li>Integrated Learning Hub:
+                  Develop a grand library of resources, ranging from user stories to academic studies on accessibility, ensuring that every stakeholder has access to both practical guidelines and theoretical insights. This resource hub is curated to be digestible within a short time, making complex concepts accessible to newcomers and experts alike.</li>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Theoretical Underpinnings</button>
+              <div class="accordion-content">
+                <li>accessAbility is deeply rooted in:</li>
+                <li>Colour and Shape Psychology: Using well-researched colour palettes and shapes to create an environment that reduces stress and enhances focus. Deep blue plays a pivotal role here, reflecting a serene yet robust presence.</li>
+                <li>Gestalt Principles: Ensuring that the design is intuitive and naturally guides users through a harmonious and coherent experience.</li>
+                <li>Inclusive Technology Research: Integrating findings from peer-reviewed studies that emphasize the importance of inclusive design for societal well-being.</li>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Impact and Future Vision</button>
+              <div class="accordion-content">
+                <li>The long-term goal of accessAbility is to reshape how technology and design intersect with accessibility. By prioritizing inclusivity from the outset, the project not only meets immediate needs but also lays the foundation for a future where everyone can participate fully in digital and physical spaces. The platform envisions a world where accessibility is seamlessly integrated into everyday design, inspiring further innovations that support and celebrate human diversity.</li>
+                <li>accessAbility is more than a project—it's a commitment to ensuring that every user feels seen, heard, and valued. With a blend of advanced design principles, community input, and a deep respect for human diversity, it aims to be a beacon of positive change in the accessibility landscape.</li>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="raitionale" class="tier">
+      <div>
+        <div class="tier-title">
+          <img src="img/rationale.svg" alt="Rationale Icon" class="tier-icon">
+          <h1>Rationale</h1>
+          <img src="img/rationale.svg" alt="Rationale Icon" class="tier-icon">
+        </div>
+        <div class="tier-content">
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">The Core Problem & Project Mission</button>
+              <div class="accordion-content">
+                <p>Many individuals, especially those facing mental health challenges or diverse accessibility needs, struggle to find and use resources that are intuitive, welcoming, and stigma-free. They may encounter:
+                  <li>Complex or inaccessible interfaces that deter them from seeking help.</li>
+                  <li>Fragmented information across multiple platforms.</li>
+                  <li>Social stigma that discourages open conversations about mental well-being.</li></p>
+                <p>accessAbility, aims to streamline access to mental health resources and foster a supportive community. By combining inclusive design, clear communication, and broad outreach, we can remove barriers and empower people to seek help with confidence and dignity.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Key Touchpoints</button>
+              <div class="accordion-content">
+                <p>Mobile app:
+                  <li>Primary Interaction: Offers self-assessment tools, a resource library, and direct connections to mental health professionals.</li>
+                  <li>Design Goal: Simple, intuitive, and quick to load—particularly important for users in distress or with cognitive impairments.</li>
+                  Website:
+                  <li>Central Hub: Hosts detailed resources, interactive tools, and educational content.</li>
+                  <li>Design Goal: Accessible layout, large text options, and strong color contrast so visitors can find information easily and comfortably.</li>
+                  Social Media ads:
+                  <li>Outreach & Engagement: Quick, impactful visuals that encourage viewers to learn more or download the app.</li>
+                  <li>Design Goal: High-impact visuals using the brand's color palette to maintain consistency and stand out in busy feeds.</li>
+                  Posters and Print materials:
+                  <li>In-Person Visibility: Physical materials placed in community centers, schools, coffee shops, etc.</li>
+                  <li>Design Goal: Clear hierarchy and engaging messaging for people scanning on-the-go.</li>
+                  Mental Health Clinics:
+                  <li>Direct Community Impact: Partner with clinics to integrate your platform into their workflows, bridging digital and face-to-face support.</li>
+                  <li>Design Goal: Professional, welcoming look that resonates with both clinicians and patients, aligning with the clinic's environment.</li>
+                </p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Visual Identity Rationale</button>
+              <div class="accordion-content">
+                <img src="img/aA_style.webp" alt="accessAbility Ad">
+                
+                <h3>Logo Symbolism</h3>
+                <p>
+                  The <strong>accessAbility</strong> logo is designed with a screw and gear, symbolizing both customization and user empowerment.</li> 
+                  <li>- The gear represents systematic problem-solving, adaptability, and the ability to fine-tune experiences to fit each user's needs.</li>
+                  <li>- The screw symbolizes the deep integration of personalized support, emphasizing that the app is built for the user, by the user.
+                  <li>- Together, they illustrate the app's core purpose: helping users "tinker" with their mental performance, reframe their experiences, and optimize cognitive function.</li>
+                </p>
+            
+                <h3>Customization & Personal Growth</h3>
+                <p>
+                  <ul>
+                    Just like a well-designed mechanism, accessAbility allows users to adjust, refine, and tailor their experience in a way that works for them. 
+                    <li>- The app is more than a static tool—it's a personalized system for neurohacking, brain training, and mental wellness.</li>
+                    <li>- Whether adjusting cognitive training exercises, optimizing focus strategies, or accessing mental health resources, every interaction is designed to empower, not dictate.</li>
+                    <li>- The screw-and-gear metaphor also extends to how users build their own journey, modifying their interface, tracking progress, and developing mental resilience over time.</li>
+                  </ul>
+                </p>
+            
+                <h3>Colour Palette</h3>
+                <p>
+                  Problem-Solving via Color
+                  <li>Green hues evoke growth, renewal, and calm—particularly valuable in a mental health context where users need reassurance.</li>
+                  <li>High contrast between dark text and light backgrounds supports those with visual impairments, meeting WCAG 2.1 guidelines.</li>
+                  <li>Subtle color transitions guide users to crucial calls to action, reducing cognitive load.</li>
+            
+                  Emotional Resonance
+                  <li>Green psychologically reduces stress and fosters feelings of safety and comfort, crucial for users seeking sensitive information.</li>
+                  <li>The palette unifies digital and physical touchpoints, creating brand familiarity and trust.</li>
+                </p>
+            
+                <h3>Typography</h3>
+                <p>
+                  ITC Avante Garde Gothic
+                  <li>Use Case: Headlines (h1, h2, h3)</li>
+                  <li>Why It Works: Geometric, modern, and bold—grabs attention in busy contexts like social media ads or posters. Uppercase usage for h1 headings creates strong visual hierarchy and immediate impact.</li>
+            
+                  Quicksand
+                  <li>Use Case: Body text, subheadings, paragraphs</li>
+                  <li>Why It Works: Rounded sans-serif style is welcoming and easy to read at various sizes. Its soft letterforms contrast the geometric headings, balancing approachability with professionalism.</li>
+            
+                  Readability and Accessibility
+                  <li>Both typefaces are web-safe and accessible, ensuring that users with diverse needs can access information easily.</li>
+                  <li>Quicksand's rounded forms are particularly beneficial for users with cognitive impairments or dyslexia, reducing visual stress and enhancing readability.</li>
+                  <li>Sufficient line spacing and large font sizes (1.5rem+ for paragraphs) ensure readability, vital for neurodivergent or visually impaired users.</li>
+                  <li>Consistent typography across app, website, and printed materials helps users quickly recognize the brand.</li>
+                </p>
+              </div>
+            </div>
+            
+
+            <div class="accordion-item">
+              <button class="accordion-header">How This Design Solves the Problem</button>
+              <div class="accordion-content">
+                <p>Lowering Barriers to Help:
+                  <li>By prioritizing legibility and clear organization, users with mental health concerns or disabilities can quickly find resources without feeling overwhelmed.</li>
+                  
+                  Consistency Across Touchpoints:
+                  <li>A unified brand experience—whether online or in a clinic—reinforces trust and encourages users to take the next step in seeking help.</li>
+
+                  Inviting & Stigma-Free:
+                  <li>The calm, natural color palette and approachable typography reduce the clinical or intimidating feel sometimes associated with mental health services, making the process more inviting.</li>
+                  
+                  Facilitating Collaboration:
+                  <li>Clinicians, community centers, and online communities can all reference the same visual language, ensuring a seamless user experience that fosters collaboration and continuity of care.</li>
+                </p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-header">Conclusion</button>
+              <div class="accordion-content">
+                <p>The design choices—rooted in color psychology, inclusive typography, and accessible layout—directly address the challenges users face in finding mental health support. By presenting a consistent, welcoming interface across an app, website, social media, printed materials, and in-clinic resources, we create a holistic ecosystem where no one feels lost or excluded.
+                </p>
+                <p>accessAbility is not just a design—it's a mission. By combining thoughtful aesthetics, robust accessibility, and a warm, inclusive tone, we're setting a new standard for mental health support platforms. This is more than code or color; it's a human-centered approach that empowers every user to seek help on their own terms.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+      </a>
+      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+        <img src="img/behance.svg" alt="Behance" width="40" height="40">
+      </a>
+      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+      </a>
+      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+      </a>
+    </div>
+  </footer>
+  
+  <!-- GLOBAL JAVASCRIPT -->
+  <script src="js/main.js"></script>
+</body>
+</html>

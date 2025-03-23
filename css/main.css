@@ -1,0 +1,235 @@
+/* ================================
+   Global Variables & Resets
+================================ */
+:root {
+  /* Brand Colors */
+  --theme-color: #8df33f; /* Primary theme color */
+  --nav-hover: #EFEC8F;   /* Hover color for nav items */
+  
+  /* Base Colors */
+  --color-white: #fff;
+  --color-black: #000;
+  --color-dark: #27202B;
+  
+  /* Door Colors */
+  --door-left: #342a38;
+  --door-right: #382f41;
+  
+  /* UI Colors */
+  --text-primary: var(--color-white);
+  --text-dark: #292433;
+  --bg-primary: var(--color-dark);
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  --bg-accordion: rgba(255, 255, 255, 0.1);
+  --bg-accordion-header: #111;
+  --bg-accordion-content: #222;
+  --border-color: #444;
+  
+  /* Effects */
+  --shadow-glow: 0 0 1rem var(--theme-color);
+  --transition-standard: 0.3s ease;
+  
+  /* Layout */
+  --spacing-xs: 0.3125rem;
+  --spacing-sm: 0.625rem;
+  --spacing-md: 1.25rem;
+  --spacing-lg: 2.5rem;
+  --nav-width: 15vw;
+  --min-nav-width: 200px;
+  --border-radius: 0.3125rem;
+  
+  /* Typography */
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+}
+* {margin: 0;padding: 0;box-sizing: border-box;}
+a {display:flex;justify-content: right;color: var(--theme-color);text-decoration: none;transition: var(--transition-standard);text-align: right;margin-right:0.625em;}
+a:hover {transform: scale(1.02);color: var(--nav-hover);text-shadow: var(--shadow-glow);}
+/* ================================
+   Container & Overlay Styles
+================================ */
+#container {position: fixed;top: 0;left: 0;width: 100%;height: 100vh;overflow: hidden;z-index: 1000;background: var(--bg-primary);display: flex;flex-direction: column;align-items: center;justify-content: center;transition: opacity 0.5s ease;}
+.fade-out {opacity: 0;}
+/* ================================
+   Sliding Doors Animation
+================================ */
+.door {position: absolute;top: 0;width: 50%;height: 100%;transition: transform 1s ease;}
+#leftDoor {left: 0;background: var(--door-left);}
+#rightDoor {right: 0;background: var(--door-right);}
+/* When container is open, slide doors out */
+#container.open .door {transform: translateX(-100%);}
+#container.open #rightDoor {transform: translateX(100%);}
+/* ================================
+   Open Button & Door Logo
+================================ */
+#openButton {position: absolute;bottom: 5vh;left: 50%;transform: translateX(-50%);z-index: 10;padding: 0.625em 1.25em;font-family: "Courier New", Courier, monospace;font-size: var(--font-size-lg);font-weight: bold;background: var(--theme-color);color: var(--text-dark);border: none;cursor: crosshair;transition: var(--transition-standard);}
+#openButton:hover {background: var(--nav-hover);}
+#doorLogo {display: block;margin: 0 auto 2rem;max-width: min(90vw, 20rem);width: 100%;height: auto;z-index: 11;position: relative;}
+/* ================================
+   Global Body & Typography
+================================ */
+body {margin: 0;font-family: "Courier New", Courier, monospace;background: linear-gradient(to bottom, var(--bg-primary), #111);color: var(--text-primary);font-size: var(--font-size-base);line-height: 1.6;}
+/* Headings & Menu Toggle use Orbitron */
+h1,.menu-toggle {font-family: 'Orbitron', sans-serif;}
+h3 {margin-top:10px;}
+/* ================================
+   Global Header
+================================ */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.625em;
+    background: var(--bg-overlay);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 30;
+}
+
+.wordmark {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wordmark img {
+    height: 4rem;
+    width: auto;
+}
+
+/* Menu Toggle Button */
+.menu-toggle {cursor: crosshair;font-size: var(--font-size-xl);transition: var(--transition-standard);color: var(--text-primary);border: none;background: none;padding: 0.3125em;}
+.menu-toggle:hover,.menu-toggle:focus {color: var(--theme-color);transform: scale(1.1);}
+.menu-toggle.moved {transform: translateX(var(--nav-width));}
+/* Color Indicator (Top Right) as a bordered circle */
+#colorIndicator {width: 2.5rem;height: 2.5rem;border-radius: 50%;border: 0.125rem solid var(--theme-color);position: relative;z-index: 501;display: flex;align-items: center;justify-content: center;flex-shrink: 0;margin-right: 1.2rem;}
+#colorIndicator img {width: 60%;height: auto;pointer-events: none;}
+/* ================================
+   Global Side Navigation
+================================ */
+.nav {position: fixed;top: 0;left: 0;width: clamp(var(--min-nav-width), var(--nav-width), 25vw);height: 100vh;background: var(--bg-overlay);padding: 0.625em;z-index: 500;transition: var(--transition-standard);box-shadow: 0.125rem 0 0.625rem var(--theme-color);transform: translateX(-100%);}
+.nav.active {transform: translateX(0);}
+.nav a {display: block;padding: 10px;color: var(--text-primary);text-decoration: none;font-family: "Courier New", Courier, monospace;}
+.nav a:hover {box-shadow: 0 0 8px var(--theme-color);}
+/* ================================
+   Global Nav Buttons & Settings Panel
+================================ */
+.nav-buttons {position: fixed;bottom: var(--spacing-sm);left: var(--spacing-sm);display: flex;gap: var(--spacing-sm);z-index: 600;}
+#settingsButton {cursor: crosshair;font-size: 20px;background: none;border: none;padding: var(--spacing-xs);color: var(--text-primary);transition: var(--transition-standard);}
+#settingsButton:hover,
+#settingsButton:focus {color: var(--theme-color);transform: scale(1.1);}
+#settingsPanel {position: fixed;bottom: 4rem;left: 0.625rem;background: var(--bg-overlay);padding: 1rem;border-radius: var(--border-radius);z-index: 600;display: none;color: var(--text-primary);min-width: min(90vw, 15rem);}
+#settingsPanel label {display: block;margin-bottom: var(--spacing-sm);}
+#themePicker {width: 100%;margin-bottom: var(--spacing-sm);background: var(--bg-accordion);border: 1px solid var(--border-color);padding: var(--spacing-xs);}
+#themePresets {display: flex;gap: var(--spacing-sm);flex-wrap: wrap;justify-content: center;}
+.preset {width: 2rem;height: 2rem;border-radius: 50%;border: 0.125rem solid var(--border-color);cursor: crosshair;transition: var(--transition-standard);}
+.preset:hover,.preset:focus {transform: scale(1.1);border-color: var(--theme-color);box-shadow: var(--shadow-glow);}
+/* ================================
+   Content & Tier Sections
+================================ */
+.world-tiers {margin-top: 4rem;padding: 1rem;}
+.tier {min-height: 100vh;display: flex;flex-direction: column;align-items: center;justify-content: center;padding: 2rem 1rem;gap: 2rem;text-align: center;position: relative;overflow: hidden;}
+.tier .particle-canvas {position: absolute;top: 0;left: 0;width: 100%;height: 100%;z-index: 0;pointer-events: none;opacity: 0.3;}
+.tier::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at center,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 50%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+}
+.tier-content {position: relative;z-index: 2;background: var(--bg-overlay);padding: 1.5rem;border-radius: var(--border-radius);width: min(90vw, 70rem);text-align: left;}
+.tier-title {position: relative;z-index: 2;display: flex;align-items: center;justify-content: center;font-size: 1.5rem;padding: 1rem;width: min(90vw, 70rem);gap: 1rem;margin-bottom: var(--spacing-md);border-radius: var(--border-radius);transition: var(--transition-standard);max-width: 70vw;background: var(--bg-overlay);}
+.tier-icon {width: auto;height: 2em;margin: 0 var(--spacing-md);}
+/* Details/Summary Styles */
+details {margin-bottom: 1rem;background: var(--bg-accordion);border-radius: var(--border-radius);overflow: hidden;}
+summary {padding: 1rem;cursor: crosshair;background: var(--bg-accordion-header);transition: var(--transition-standard);}
+summary:hover {background: var(--theme-color);color: var(--text-dark);}
+details[open] summary {margin-bottom: var(--spacing-sm);}
+details p {padding: var(--spacing-sm);line-height: 1.6;}
+.learn-more {display: inline-block;margin-top: var(--spacing-md);color: var(--theme-color);text-decoration: none;transition: var(--transition-standard);}
+/* Tier Title & Hover Effects */
+.tier-title:hover {box-shadow: 0 0 20px var(--theme-color);transform: scale(1.02);cursor:crosshair;}
+.tier-content {display: none;padding: 20px;background: rgba(0, 0, 0, 0.7);margin-top: 10px;overflow-y: auto;border-radius: 5px;text-align: left;max-width: 70vw;}
+.tier.active .tier-content {display: block;padding: 20px;}
+.tier-content p {margin-bottom: 10px;}
+.tier-content img {width: 100%;height: auto;object-fit: contain;} 
+/* ================================
+   Vertical Scroll Indicator (Nav-Bar)
+================================ */
+.nav-bar {position: fixed;top: 5rem;right: 1rem;background: var(--bg-overlay);padding: 0.75rem;border-radius: var(--border-radius);z-index: 500;display: flex;flex-direction: column;gap: 1rem;}
+.nav-bar a {display: flex;justify-content: center;align-items: center;text-align: center;color: var(--text-primary);text-decoration: none;margin: 0;padding: 0.5rem;border-radius: 50%;background: rgba(0, 0, 0, 0.5);transition: all var(--transition-standard);width: 2.5rem;height: 2.5rem;}
+.nav-bar a img {width: 100%;height: 100%;object-fit: contain;opacity: 0.7;transition: all var(--transition-standard);filter: brightness(0.7);}
+.nav-bar a:hover {transform: scale(1.1);background: rgba(0, 0, 0, 0.7);box-shadow: 0 0 15px var(--theme-color);}
+.nav-bar a:hover img {opacity: 1;filter: brightness(1) drop-shadow(0 0 5px var(--theme-color));}
+.nav-bar a.active {background: rgba(0, 0, 0, 0.8);box-shadow: 0 0 20px var(--theme-color);}
+.nav-bar a.active img {opacity: 1;filter: brightness(1) drop-shadow(0 0 8px var(--theme-color));}
+/* ================================
+   Accordion Styles
+================================ */
+.accordion-item {margin-bottom: 10px;background: var(--bg-accordion);border-radius: 5px;overflow: hidden;}
+.accordion-header {background: var(--bg-accordion-header);color: var(--text-primary);padding: 10px;cursor: crosshair;border: none;width: 80vw;text-align: left;outline: none;transition: all ease;font-family: "Courier New", Courier, monospace;font-weight: bold;text-transform: uppercase;}
+.accordion-header:hover {
+background: #333;}
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background: var(--bg-accordion-content);
+    padding: 0;
+    max-width: 70vw;
+    opacity: 0;
+}
+
+.accordion-content.active {
+    max-height: 2000px;
+    padding: 10px;
+    opacity: 1;
+    transition: max-height 0.3s ease-in, opacity 0.3s ease-in, padding 0.3s ease-in;
+}
+
+.accordion-content p {padding: 10px 0;margin: 0;}
+.accordion-content li {padding: 15px 15px;text-align: left;align-items: left;text-decoration: none;list-style-type: none;}
+.accordion-content a {display: flex;justify-content: left;color: var(--theme-color);text-decoration: none;text-align: left;padding-bottom:15px;}
+.accordion img {width: 100%;height: auto;object-fit: contain;}
+.accordion video {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+/* ================================
+   Contact Form Enhancements
+================================ */
+.page-content h1 {text-align: center;font-family: 'Orbitron', sans-serif;color: #fff;}
+.page-content form {display: flex;flex-direction: column;justify-content: center;align-items: center;gap: 5px;width: 100%;}
+.page-content label {font-weight: bold;}
+.page-content input,
+.page-content textarea {padding: 10px;border: 1px solid #444;border-radius: 5px;background: #222;color: #fff;width: 100%;}
+.page-content button[type="submit"] {align-self: center;padding: 10px 20px;background: var(--theme-color);border: none;border-radius: 5px;color: #111;cursor: crosshair;font-family: "Courier New", Courier, monospace;transition: background 0.3s ease;}
+.page-content button[type="submit"]:hover {background: #009999;}
+/* ================================
+   Footer & Social Media Links
+================================ */
+.footer {background: var(--bg-overlay);padding: 2rem 0;text-align: center;margin-top: 3rem;}
+.footer .social-links {display: flex;flex-direction:row;justify-content: right;margin-right: 2rem;align-items: center;gap: 1rem;}
+.footer .social-links h2 {margin-bottom: 15px;font-family: 'Orbitron', sans-serif;color: var(--theme-color);}
+.footer .social-links a {margin: 0 10px;text-decoration: none;display: inline-block;transition: transform 0.3s ease;}
+.footer .social-links a:hover {transform: scale(1.1);}
+.footer .social-links img {height: clamp(0.5rem, 2.5vw, 1.5rem);width:auto;object-fit: contain;}
+
+/* Responsive adjustments for devices with max-width 768px */
+@media (max-width:768px){:root{--nav-width:25vw;--font-size-base:0.9rem;--font-size-lg:1.1rem;--font-size-xl:1.3rem;--spacing-xs:0.25rem;--spacing-sm:0.5rem;--spacing-md:1rem;--spacing-lg:2rem}.header{padding:0.5em}.nav{width:clamp(150px,25vw,30vw)}#openButton{font-size:var(--font-size-base)}.wordmark img{height:3rem}.tier-title,.tier-content,.accordion-header{width:90vw;max-width:90vw}.footer{padding:1rem 0}}

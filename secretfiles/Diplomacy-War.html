@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diplomacy War</title>
+  <style>
+    :root {
+      --bg: #0a0a1a;
+      --card-bg: #1a1a2a;
+      --alt-bg: #252535;
+      --text: #00ff9d;
+      --hover: #00ff9d22;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    header h1 { margin: 0; }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .stats-grid,
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 2px solid var(--text);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 15px rgba(0,255,157,0.2);
+    }
+    .profile-pic {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .stat {
+      background: var(--alt-bg);
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      position: relative;
+    }
+    .stat-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--text);
+      transition: width 0.5s ease;
+    }
+    button {
+      background: var(--card-bg);
+      border: 2px solid var(--text);
+      color: var(--text);
+      padding: 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    button:hover { background: var(--hover); transform: translateY(-2px); }
+    .log {
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 10px;
+      height: 150px;
+      overflow-y: auto;
+    }
+    .log-entry { margin: 5px 0; padding: 5px; border-radius: 3px; }
+    .success { background: var(--hover); }
+    .failure { background: #ff005522; color: #ff0055; }
+    .instructions {
+      font-size: 0.9rem;
+      background: var(--card-bg);
+      border: 2px solid var(--text);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      overflow: hidden;
+    }
+    .instructions.hidden { max-height: 0; padding: 0 15px; margin-bottom: 0; opacity: 0; }
+    .instructions.visible { max-height: 800px; opacity: 1; }
+    .instructions ul { padding-left: 20px; margin: 0; }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      button { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛡 DIPLOMACY WAR 🛡</h1>
+      <div class="header-right">
+        <div>
+          <div>Allies: <span id="allyCount">0</span> (+<span id="allyBonus">0</span>%)</div>
+          <div>Threat Level: <span id="difficultyLevel">1</span></div>
+        </div>
+        <button class="toggle-btn" id="toggleInstructions" title="Toggle Instructions">🔍</button>
+      </div>
+    </header>
+
+    <section class="card" id="gamePanel">
+      <div id="enemyPic" class="profile-pic"></div>
+      <h2 id="enemyName">TARGET</h2>
+      <div class="stats-grid" id="enemyStats"></div>
+      <div class="actions-grid" style="margin-top:10px;">
+        <button onclick="attemptConversion('deception')">🎭 Deceive</button>
+        <button onclick="attemptConversion('persuasion')">💬 Persuade</button>
+        <button onclick="attemptConversion('force')">⚔ Intimidate</button>
+        <button onclick="attemptConversion('trade')">🤝 Bribe</button>
+        <button onclick="attemptConversion('manipulation')">🕷 Manipulate</button>
+        <button onclick="attemptConversion('charm')">😊 Charm</button>
+        <button onclick="attemptConversion('inspire')">🔥 Inspire</button>
+        <button onclick="attemptConversion('befriend')">🤗 Befriend</button>
+      </div>
+      <div style="margin-top: 1rem;">Attempts: <span id="attemptCounter">0</span>/3</div>
+    </section>
+
+    <section class="instructions hidden" id="instructionsPanel">
+      <h3>Game Instructions</h3>
+      <ul>
+        <li><strong>Conversion Methods:</strong>
+          <ul>
+            <li><strong>🎭 Deceive:</strong> Reduce enemy intelligence and exploit their cunning.</li>
+            <li><strong>💬 Persuade:</strong> Use moral arguments; higher enemy morality favors persuasion.</li>
+            <li><strong>⚔ Intimidate:</strong> Overwhelm with force; works best when enemy strength is low relative to their morality.</li>
+            <li><strong>🤝 Bribe:</strong> Offer incentives; high enemy greed makes them susceptible.</li>
+            <li><strong>🕷 Manipulate:</strong> Exploit weaknesses; lower intelligence and high greed boost your odds.</li>
+            <li><strong>😊 Charm:</strong> Lower their defenses using charisma; effective if enemy willpower and suspicion are low.</li>
+            <li><strong>🔥 Inspire:</strong> Stir their spirit; enemy strength and morality can be swayed if willpower isn’t too high.</li>
+            <li><strong>🤗 Befriend:</strong> Build rapport; low greed and suspicion along with high charisma work in your favor.</li>
+          </ul>
+        </li>
+        <li><strong>Enemy Stats:</strong>
+          <ul>
+            <li><strong>🧠 Intelligence:</strong> Affects deception and manipulation.</li>
+            <li><strong>💪 Strength:</strong> Impacts force-based methods.</li>
+            <li><strong>⚖ Morality:</strong> Influences persuasion and trade.</li>
+            <li><strong>💰 Greed:</strong> Determines bribe effectiveness.</li>
+            <li><strong>🔍 Suspicion:</strong> Penalizes conversion attempts across methods.</li>
+            <li><strong>😎 Charisma:</strong> Reflects social appeal; helps charm and befriend.</li>
+            <li><strong>🧘 Willpower:</strong> Measures mental resolve; high willpower makes persuasion or charm tougher.</li>
+            <li><strong>🦊 Cunning:</strong> Indicates cleverness; higher cunning makes deception and manipulation more challenging.</li>
+          </ul>
+        </li>
+        <li><strong>Boss Battles:</strong>
+          <ul>
+            <li>Every 10th enemy is a boss—with scaled‑up stats and an extra level.</li>
+            <li>If you successfully convert a boss enemy, your progress is saved (your current ally count becomes your “last boss” baseline).</li>
+            <li>If you fail to convert a boss enemy (after three attempts), your progress resets to the last boss victory—you lose all allies gained since that boss, plus an extra loss equal to the boss’s level.</li>
+            <li>You must then face that boss again to proceed.</li>
+          </ul>
+        </li>
+        <li>As your Threat Level rises, conversion becomes more difficult.</li>
+      </ul>
+    </section>
+
+    <aside class="log" id="gameLog"></aside>
+  </div>
+
+  <script>
+    // Global variables for tracking enemy count and boss progress.
+    let allies = 0, currentDifficulty = 1;
+    let enemyCounter = 0;
+    let lastBossAllies = 0, lastBossCounter = 0;
+    let currentEnemy = generateEnemy();
+    const instructionsPanel = document.getElementById('instructionsPanel');
+    const toggleBtn = document.getElementById('toggleInstructions');
+
+    // Toggle instructions panel visibility.
+    toggleBtn.addEventListener('click', () => {
+      instructionsPanel.classList.toggle('hidden');
+      instructionsPanel.classList.toggle('visible');
+    });
+
+    function randStat() { 
+      return Math.floor(Math.random() * 10 * currentDifficulty) + 1; 
+    }
+
+    function getProfilePic(enemy) {
+      if(enemy.type === 'thief') {
+        return '🦹‍♂️';
+      }
+      const pics = ['👽','🤖','👾','💀','🧟‍♂️'];
+      return pics[Math.floor(Math.random() * pics.length)];
+    }
+
+    function generateEnemy() {
+      enemyCounter++;
+      const ranks = ['Captain','Commander','Warlord','Overlord','Director'];
+      const types = ['Xenomorph','Cyborg','Mercenary','AI','Syndicate'];
+      // Determine if this enemy is a boss (every 10th enemy).
+      let isBoss = (enemyCounter % 10 === 0);
+      let enemy = {
+        name: `${ranks[Math.floor(Math.random()*ranks.length)]} ${types[Math.floor(Math.random()*types.length)]}`,
+        attempts: 0,
+        type: Math.random() < 0.2 && !isBoss ? 'thief' : 'normal', // Only non-bosses can be thief.
+        boss: isBoss
+      };
+      if(isBoss) {
+        // Scale up stats for boss enemies.
+        enemy.level = Math.floor(currentDifficulty * 1.5);
+        enemy.intelligence = Math.floor(randStat() * 1.5);
+        enemy.strength = Math.floor(randStat() * 1.5);
+        enemy.morality = Math.floor(randStat() * 1.5);
+        enemy.greed = Math.floor(randStat() * 1.5);
+        enemy.suspicion = Math.floor(randStat() * 1.5);
+        enemy.charisma = Math.floor(randStat() * 1.5);
+        enemy.willpower = Math.floor(randStat() * 1.5);
+        enemy.cunning = Math.floor(randStat() * 1.5);
+      } else {
+        enemy.intelligence = randStat();
+        enemy.strength = randStat();
+        enemy.morality = randStat();
+        enemy.greed = randStat();
+        enemy.suspicion = randStat();
+        enemy.charisma = randStat();
+        enemy.willpower = randStat();
+        enemy.cunning = randStat();
+      }
+      enemy.profilePic = getProfilePic(enemy);
+      return enemy;
+    }
+
+    function updateDisplay() {
+      document.getElementById('enemyPic').textContent = currentEnemy.profilePic;
+      const icons = ['🧠','💪','⚖','💰','🔍','😎','🧘','🦊'];
+      const values = [
+        currentEnemy.intelligence,
+        currentEnemy.strength,
+        currentEnemy.morality,
+        currentEnemy.greed,
+        currentEnemy.suspicion,
+        currentEnemy.charisma,
+        currentEnemy.willpower,
+        currentEnemy.cunning
+      ];
+      document.getElementById('enemyStats').innerHTML = icons.map((icon, i) => {
+        // Clamp bar width so it does not exceed 100%.
+        const barWidth = Math.min(values[i] * 10, 100);
+        return `<div class="stat">${icon} ${values[i]}<div class="stat-bar" style="width:${barWidth}%"></div></div>`;
+      }).join('');
+      document.getElementById('enemyName').textContent = currentEnemy.name + (currentEnemy.type === 'thief' ? ' 🕵️' : '');
+      document.getElementById('allyCount').textContent = allies;
+      document.getElementById('allyBonus').textContent = allies * 3;
+      document.getElementById('difficultyLevel').textContent = currentDifficulty.toFixed(1);
+      document.getElementById('attemptCounter').textContent = currentEnemy.attempts;
+    }
+
+    function attemptConversion(method) {
+      const chance = calculateChance(method);
+      const success = Math.random() * 100 < chance;
+      const log = document.getElementById('gameLog');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${success ? 'success' : 'failure'}`;
+      entry.innerHTML = `${success ? '✅' : '❌'} <strong>${method.toUpperCase()}</strong> (${Math.round(chance)}%) <small>${success ? 'SUCCESS' : 'RESISTANCE +2'}</small>`;
+      
+      if(success) {
+        allies++;
+        entry.innerHTML += `<br>➕ ${currentEnemy.name} joined your cause!`;
+        // If this was a boss, update the "last boss" progress.
+        if(currentEnemy.boss) {
+          lastBossAllies = allies;
+          lastBossCounter = enemyCounter;
+        }
+        currentEnemy = generateEnemy();
+        currentDifficulty += 0.2;
+      } else {
+        currentEnemy.suspicion = Math.min(currentEnemy.suspicion + 2, 10);
+        currentEnemy.attempts++;
+        if (currentEnemy.attempts >= 3) {
+          if(currentEnemy.boss) {
+            // Boss conversion failed.
+            const extraLoss = currentEnemy.level;
+            const lostAllies = allies - lastBossAllies;
+            allies = Math.max(0, lastBossAllies - extraLoss);
+            entry.innerHTML += `<br>💀 Boss ${currentEnemy.name} defeated you! You lost ${lostAllies} allies plus an extra ${extraLoss} (boss level).<br>Progress reset to last boss.`;
+            // Reset enemyCounter to last boss and generate that boss again.
+            enemyCounter = lastBossCounter;
+          } else {
+            // Normal enemy fleeing.
+            if(currentEnemy.type === 'thief' && allies > 0) {
+              const stolen = Math.min(allies, Math.ceil(currentDifficulty));
+              allies -= stolen;
+              entry.innerHTML += `<br>💀 ${currentEnemy.name} fled and stole ${stolen} ally${stolen > 1 ? 's' : ''}!`;
+            } else {
+              entry.innerHTML += `<br>⚠️ ${currentEnemy.name} fled!`;
+            }
+          }
+          currentEnemy = generateEnemy();
+          currentDifficulty += 0.3;
+        }
+      }
+      log.prepend(entry);
+      updateDisplay();
+    }
+
+    function calculateChance(method) {
+      let base = 40 + allies * 3, mod = 0;
+      switch(method) {
+        case 'deception':
+          mod += (10 - currentEnemy.intelligence) * 2 
+                - currentEnemy.suspicion * 4 
+                - currentEnemy.cunning * 1.5;
+          break;
+        case 'persuasion':
+          mod += currentEnemy.morality * 2 
+                - currentEnemy.suspicion * 3 
+                - currentEnemy.willpower * 1.5;
+          break;
+        case 'force':
+          mod += (10 - currentEnemy.strength) * 3 
+                - currentEnemy.morality * 2;
+          break;
+        case 'trade':
+          mod += currentEnemy.greed * 4 
+                - (10 - currentEnemy.morality) * 2;
+          break;
+        case 'manipulation':
+          mod += (10 - currentEnemy.intelligence) * 2 
+                + currentEnemy.greed * 2;
+          break;
+        case 'charm':
+          mod += (10 - currentEnemy.willpower) * 2 
+                + currentEnemy.charisma * 2 
+                - currentEnemy.suspicion * 2;
+          break;
+        case 'inspire':
+          mod += currentEnemy.strength * 2 
+                + currentEnemy.morality 
+                - currentEnemy.willpower;
+          break;
+        case 'befriend':
+          mod += (10 - currentEnemy.greed) * 3 
+                - currentEnemy.suspicion * 3 
+                + currentEnemy.charisma;
+          break;
+      }
+      const difficultyPenalty = (currentDifficulty - 1) * 5;
+      return Math.max(5, Math.min(95, base + mod - difficultyPenalty));
+    }
+    updateDisplay();
+  </script>
+</body>
+</html>

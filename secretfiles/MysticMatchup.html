@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mystic Matchup</title>
+  <style>
+    /* ======================================
+       GLOBAL VARIABLES & RESET
+    ====================================== */
+    :root {
+      --theme-color: #ffd700;
+      --theme-glow: rgba(255, 215, 0, 0.4);
+      --mystic-purple: #470242;
+      --blood-red: #58021c;
+      --ancient-parchment: #e0c097;
+      --celestial-blue: #00e1ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex; flex-direction: column; align-items: center;
+      font-family: 'Cinzel Decorative', cursive;
+      background: radial-gradient(circle at center, #0a000e 0%, #1f030e 70%, #2d0515 100%);
+      color: var(--ancient-parchment);
+      padding: 20px; min-height: 100vh; overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+
+      pointer-events: none; z-index: -1;
+    }
+    h1 {
+      margin-top: 20px;
+      color: var(--theme-color);
+      text-shadow: 0 0 15px var(--theme-glow);
+      font-size: 2.5em; letter-spacing: 4px;
+      position: relative;
+    }
+    h1::before, h1::after {
+      content: '✦';
+      position: absolute; color: var(--celestial-blue);
+      filter: drop-shadow(0 0 5px var(--celestial-blue));
+      animation: star-pulse 2s infinite;
+    }
+    h1::before { left: -40px; }
+    h1::after { right: -40px; }
+    p { margin: 10px 0; font-size: 1.02em; text-shadow: #0a000e 4px 4px 8px; }
+
+    /* ======================================
+       GAME CONTAINER & GRID LAYOUT (Responsive)
+    ====================================== */
+    #game-container {
+      display: grid; gap: 15px; margin-top: 30px;
+      perspective: 1000px;
+    }
+    @media (max-width:600px) {
+      .card { width: 70px; height: 100px; font-size: 24px; }
+      h1 { font-size: 2.8em; }
+      #game-container { gap: 8px; }
+    }
+
+    /* ======================================
+       CARD STYLES WITH FLIP ANIMATION
+    ====================================== */
+    .card {
+      width: 100px; height: 140px;
+      background: linear-gradient(145deg, var(--blood-red) 30%, #3d0113 100%);
+      border: 2px solid var(--theme-color);
+      border-radius: 15px;
+      cursor: pointer; user-select: none;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 20px rgba(88, 2, 28, 0.5);
+    }
+    /* Each card has two sides */
+    .card .front, .card .back {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card .front {
+      font-size: 2em; /* initial face, shows "?" */
+    }
+    .card .back {
+      transform: rotateY(180deg);
+      font-size: 1em;
+      color: var(--theme-color);
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card.hidden { /* when flipped down (back side is up) */
+      background: linear-gradient(325deg, #3d0113 0%, var(--mystic-purple) 100%);
+    }
+    /* ======================================
+       STATUS & LEVEL INFO
+    ====================================== */
+    #message { margin-top: 20px; font-style: italic; }
+    #attempts, #level-info { margin-top: 10px; font-weight: bold; font-size: 18px; }
+    
+    /* ======================================
+       MODALS (LORE & SECRET)
+    ====================================== */
+    .modal {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(45deg, rgba(20,0,10,0.95), rgba(74,0,30,0.95));
+      color: var(--ancient-parchment);
+      padding: 30px; border-radius: 20px;
+      border: 2px solid var(--theme-color);
+      box-shadow: 0 0 40px rgba(255,215,0,0.3);
+      max-width: 600px; z-index: 1001;
+      backdrop-filter: blur(10px); text-align: center;
+    }
+    .modal::before {
+      content: '';
+      position: absolute; inset: -4px;
+      background: linear-gradient(45deg, var(--theme-color), var(--celestial-blue));
+      border-radius: 24px; z-index: -1;
+      filter: blur(20px); opacity: 0.3;
+    }
+    #start-game {
+      display: flex; justify-content: center;
+      background: var(--blood-red); color: var(--ancient-parchment);
+      margin-top: 10px; padding: 5px 30px;
+      border: none; border-radius: 5px;
+      font-size: 1.2em; cursor: pointer;
+      transition: transform 0.3s;
+    }
+    #start-game:hover {
+      transform: scale(1.05);
+      background-color: var(--theme-color); color: var(--blood-red);
+    }
+    /* ======================================
+       PARTICLE EFFECTS
+    ====================================== */
+    @keyframes particle {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(0); }
+    }
+    .particle {
+      position: absolute; width: 8px; height: 8px;
+      background: radial-gradient(var(--color1), var(--color2));
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particle 1s forwards;
+      mix-blend-mode: screen;
+    }
+    /* ======================================
+       CONSTELLATION BACKGROUND
+    ====================================== */
+    @keyframes constellation {
+      from { transform: translateY(-100vh); }
+      to { transform: translateY(100vh); }
+    }
+    .constellation {
+      position: fixed; width: 100vw; height: 100vh;
+      background: linear-gradient(to bottom, transparent 95%, rgba(255,215,0,0.05) 100%);
+      opacity: 0.3; animation: constellation 20s linear infinite;
+      pointer-events: none; z-index: -1;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="constellation"></div>
+
+<!-- LORE MODAL (Intro Dialogue) -->
+<div id="lore-modal" class="modal">
+  <p>
+    Tired from wandering the scorched surface, you finally find a small fire— a safe escape from the hollowed. As the sun sets, you approach the fire, and there, seated calmly, is a mystic with a piercing eye. He asks,
+  </p> 
+  <p><strong>"What do you know of the Eye of the Storm?"</strong></p> 
+  <p>
+    After a moment of silence, he offers you a deal: play his game, and with every level you beat you shall learn more of the ancient wisdom of the eye.
+  </p>
+  <button id="start-game">Uncover Ancient Secrets</button>
+</div>
+
+<!-- GAME ELEMENTS -->
+<h1>👁 MYSTIC MATCHUP 👁</h1>
+<div id="level-info">Level: 1</div>
+<p id="message" class="glowing-text">Prepare yourself...</p>
+<p id="attempts">Attempts: 0</p>
+<div id="game-container"></div>
+
+<!-- SECRET MODAL (Level Completion) -->
+<div id="secret-modal" class="modal" style="display:none;">
+  <p id="secret-message"></p>
+  <p>
+    <a href="https://example.com/ancient-lore" target="_blank" rel="noopener noreferrer" style="color: var(--theme-color); text-decoration: underline;">
+      View Ancient Lore
+    </a>
+  </p>
+  <button id="next-level">Next Level →</button>
+</div>
+
+<script>
+  /****************************
+   * CONFIGURATION & GLOBAL VARIABLES
+   ****************************/
+  // Use additional emojis as the base set
+  const poolSymbols = ["👁‍🗨","🔔","🔷","🔶","🔘","🎵","🔰","💠","🌐","⚜️","🔱","🔆","💮","❤️‍🔥","📓","📜","🧬","🩸","🔭","🧿","🏺","🛡","⚔️","🗡","⚙️","⚖️","💎","🕯","💡","🔌","⌛️","🧭","🛞","🧩","♟","🎲","🏵","🧘‍♂️","🌩","🌪","☄️","⚡️","💫","🪐","🌸","🪷","🪨","🐦‍🔥","🐉","🕸","🫀","👁","💀","☠️","👹","🧠","💣","🪽","🏵️","✨","🌑","🌙","🌟","🌀","🔥","🗝️","🏴"];
+  
+  let cards = [], firstCard = null, secondCard = null;
+  let attempts = 0, matches = 0;
+  let level = 1, maxLevel = 5;
+  let failedStreak = 0, isBusy = false;
+  const secrets = [
+    "Level 1 Wisdom: The storm within mirrors the storm without; mastery begins when both align.",
+    "Level 2 Wisdom: At the heart of chaos lies clarity; only those who embrace turmoil can see the truth within.",
+    "Level 3 Wisdom: The Ancients warn—balance is not found in calm but in mastering the dance between fury and stillness.",
+    "Level 4 Wisdom: To harness the Storm is to accept loss; the greatest power demands the deepest sacrifice.",
+    "Level 5 Wisdom: You stand within the Eye, the space between creation and oblivion—where all paths converge and destinies are forged."
+  ];
+  
+  const gameContainer = document.getElementById("game-container");
+  const messageEl = document.getElementById("message");
+  const attemptsEl = document.getElementById("attempts");
+  const levelInfoEl = document.getElementById("level-info");
+  const secretModal = document.getElementById("secret-modal");
+  const secretMessageEl = document.getElementById("secret-message");
+  const nextLevelBtn = document.getElementById("next-level");
+  const loreModal = document.getElementById("lore-modal");
+  const startGameBtn = document.getElementById("start-game");
+  
+  /****************************
+   * LORE MODAL SETUP
+   ****************************/
+  startGameBtn.addEventListener("click", () => { loreModal.style.display = "none"; startGame(); });
+  
+  /****************************
+   * GAME INITIALIZATION
+   ****************************/
+  function startGame() {
+    const fixedRows = 4;
+    const columns = 4 + 2 * (level - 1);
+    gameContainer.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
+    const totalCards = columns * fixedRows;
+    const totalPairs = totalCards / 2;
+    
+    let selectedIcons = [];
+    for (let i = 0; i < totalPairs; i++) {
+      const icon = poolSymbols[Math.floor(Math.random() * poolSymbols.length)];
+      selectedIcons.push(icon);
+    }
+    cards = [];
+    selectedIcons.forEach(icon => { cards.push(icon, icon); });
+    cards = shuffle(cards);
+    
+    attempts = 0; matches = 0; failedStreak = 0; isBusy = false;
+    attemptsEl.textContent = `Attempts: ${attempts}`;
+    messageEl.textContent = "The wisdom of the eye awaits, match the cards and learn the way...";
+    secretModal.style.display = "none";
+    
+    createCards();
+  }
+  
+  /****************************
+   * SHUFFLE FUNCTION
+   ****************************/
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  
+  /****************************
+   * CREATE CARDS ON BOARD (with Flip Effect)
+   ****************************/
+  function createCards() {
+    gameContainer.innerHTML = "";
+    cards.forEach((icon, index) => {
+      const card = document.createElement("div");
+      card.classList.add("card", "hidden");
+      card.dataset.symbol = icon;
+      card.dataset.index = index;
+      // Create inner structure for flipping
+      card.innerHTML = `<div class="front">?</div><div class="back"></div>`;
+      card.addEventListener("click", flipCard);
+      gameContainer.appendChild(card);
+    });
+  }
+  
+  /****************************
+   * FLIP CARD & MATCH CHECK
+   ****************************/
+  function flipCard() {
+    if (isBusy) return;
+    if (this === firstCard || this === secondCard) return;
+    // Begin flip animation: add class to trigger CSS transition
+    this.classList.add("flipped");
+    // At halfway (300ms), reveal the symbol on the back
+    setTimeout(() => { this.querySelector(".back").textContent = this.dataset.symbol; }, 300);
+    if (!firstCard) {
+      firstCard = this;
+    } else if (!secondCard) {
+      secondCard = this;
+      attempts++;
+      attemptsEl.textContent = `Attempts: ${attempts}`;
+      setTimeout(checkMatch, 600); // wait for full flip duration
+    }
+  }
+  
+  function checkMatch() {
+    if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
+      matches++;
+      messageEl.textContent = "The mystic nods approvingly. A match!";
+      showParticles(firstCard);
+      showParticles(secondCard);
+      resetSelection();
+      failedStreak = 0;
+      if (matches === totalPairs()) levelComplete();
+    } else {
+      messageEl.textContent = "The mystic shakes his head. Try again.";
+      failedStreak++;
+      isBusy = true;
+      setTimeout(() => {
+        firstCard.classList.remove("flipped");
+        secondCard.classList.remove("flipped");
+        firstCard.querySelector(".back").textContent = "";
+        secondCard.querySelector(".back").textContent = "";
+        resetSelection();
+        isBusy = false;
+        if (failedStreak > 3) {
+          messageEl.textContent = "Too many failed attempts! The level resets.";
+          setTimeout(startGame, 1000);
+        }
+      }, 1000);
+    }
+  }
+  
+  function resetSelection() { firstCard = null; secondCard = null; }
+  
+  /****************************
+   * PARTICLE EFFECTS FOR MATCHES
+   ****************************/
+  function showParticles(card) {
+    const rect = card.getBoundingClientRect();
+    const colors = [
+      ['#ffd700', '#ffaa00'],
+      ['#00e1ff', '#0066ff'],
+      ['#ff00ff', '#9900ff']
+    ];
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement("div");
+      const colorSet = colors[Math.floor(Math.random() * colors.length)];
+      particle.style.setProperty('--color1', colorSet[0]);
+      particle.style.setProperty('--color2', colorSet[1]);
+      particle.style.setProperty('--tx', `${Math.random() * 100 - 50}px`);
+      particle.style.setProperty('--ty', `${Math.random() * -100 - 50}px`);
+      particle.classList.add("particle");
+      particle.style.left = `${rect.left + Math.random() * rect.width}px`;
+      particle.style.top = `${rect.top + Math.random() * rect.height}px`;
+      document.body.appendChild(particle);
+      particle.addEventListener("animationend", () => particle.remove());
+    }
+  }
+  
+  /****************************
+   * LEVEL COMPLETION & SECRET MODAL
+   ****************************/
+  function totalPairs() {
+    const fixedRows = 4;
+    const columns = 4 + 2 * (level - 1);
+    return (columns * fixedRows) / 2;
+  }
+  
+  function levelComplete() {
+    messageEl.textContent = "All pairs matched!";
+    secretMessageEl.textContent = secrets[level - 1];
+    secretModal.style.display = "block";
+  }
+  
+  function nextLevel() {
+    secretModal.style.display = "none";
+    if (level < maxLevel) { level++; levelInfoEl.textContent = `Level: ${level}`; startGame(); }
+    else { messageEl.textContent = "Congratulations! You have unlocked all the secrets of the ancients."; }
+  }
+  nextLevelBtn.addEventListener("click", nextLevel);
+  
+  /****************************
+   * START GAME AFTER LORE MODAL
+   ****************************/
+  // The game starts only after "Uncover Ancient Secrets" is clicked.
+</script>
+
+<style>
+  /* Additional styles for flip effect */
+  .card { transform-style: preserve-3d; transition: transform 0.6s; }
+  .card .front, .card .back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card .back { transform: rotateY(180deg); font-size: 2.5em; color: var(--theme-color); }
+  .card.flipped { transform: rotateY(180deg); }
+</style>
+
+</body>
+</html>

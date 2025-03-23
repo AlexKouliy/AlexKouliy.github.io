@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nulltech Designs - Portfolio of Digital Projects">
+  <title>Nulltech Designs</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Load Orbitron from Google Fonts for headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Sliding Doors Overlay (Home-specific) -->
+  <div id="container">
+    <img src="img/NT_icon.webp" alt="Logo" id="doorLogo" loading="lazy">
+    <div id="leftDoor" class="door"></div>
+    <div id="rightDoor" class="door"></div>
+    <button id="openButton" aria-label="Enter site">Enter</button>
+  </div>
+  
+  <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <div id="colorIndicator">
+      <img src="img/NT_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+    
+    <!-- Global Side Navigation -->
+    <nav class="nav" id="cyberNav">
+      <ul>
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="projectlist.html">Projects</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    
+    <!-- Global Settings Gear Button -->
+    <div class="nav-buttons">
+      <button id="settingsButton" onclick="toggleSettings()" aria-label="Toggle settings">⚙️</button>
+    </div>
+    
+    <!-- Global Settings Panel -->
+    <aside id="settingsPanel" aria-label="Theme settings">
+      <label for="themePicker">Theme Color:</label>
+      <input type="color" id="themePicker" value="#00ffff">
+      <div id="themePresets" role="group" aria-label="Theme presets">
+        <button class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></button>
+        <button class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></button>
+        <button class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></button>
+        <button class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></button>
+        <button class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></button>
+      </div>
+    </aside>
+    
+    <!-- Home Page Specific Content -->
+    <section class="world-tiers">
+      <nav class="nav-bar" aria-label="Project navigation">
+        <a href="#tier1" id="link1">
+          <img src="img/aa_icon.svg" alt="Access Ability Icon" title="Access Ability">
+        </a>
+        <a href="#tier2" id="link2">
+          <img src="img/path_icon.svg" alt="Path of the Ancients Icon" title="Path of the Ancients">
+        </a>
+        <a href="#tier3" id="link3">
+          <img src="img/usc_icon.svg" alt="Unified Science of Color Icon" title="Unified Science of Color">
+        </a>
+        <a href="#tier4" id="link4">
+          <img src="img/tt_icon.svg" alt="TecTonic Icon" title="TecTonic">
+        </a>
+        <a href="#tier5" id="link5">
+          <img src="img/NT_scarab_w.svg" alt="Nulltech Apparel Icon" title="Nulltech Apparel">
+        </a>
+      </nav>
+      
+      <!-- INDEX PAGE MAIN CONTENT AREA -->
+      <div class="page-content">
+        <template id="tier-template">
+          <article class="tier">
+            <div class="tier-title">
+              <img class="tier-icon" alt="">
+              <h2></h2>
+              <img class="tier-icon" alt="">
+            </div>
+            <div class="tier-content">
+              <div class="accordion">
+                <details>
+                  <summary>Overview</summary>
+                  <p></p>
+                </details>
+                <details>
+                  <summary></summary>
+                  <p></p>
+                </details>
+              </div>
+              <a class="learn-more">Learn More →</a>
+            </div>
+          </article>
+        </template>
+
+        <!-- Tier 1: Access Ability -->
+        <article id="tier1" class="tier">
+          <div class="tier-title">
+            <img src="img/aA_icon.svg" alt="" class="tier-icon">
+            <h2>Access Ability</h2>
+            <img src="img/aA_icon.svg" alt="" class="tier-icon">
+          </div>
+          <div class="tier-content">
+            <div class="accordion">
+              <details>
+                <summary>Overview</summary>
+                <img src="img/aA_ad.webp" alt="Access Ability Ad">
+                <p>An innovative accessibility-focused project designed to foster inclusive, user-friendly environments across digital and physical platforms.</p>
+              </details>
+              <details>
+                <summary>Inspiration</summary>
+                <p>Rooted in a commitment to human-centered design, learn how Access Ability harnesses colour theory, inclusive technology, and gestalt principles.</p>
+              </details>
+            </div>
+            <a href="aA.html" class="learn-more">Learn More →</a>
+          </div>
+        </article>
+
+        <!-- Tier 2: Path of the Ancients -->
+        <article id="tier2" class="tier">
+          <div class="tier-title">
+            <img src="img/path_icon.svg" alt="" class="tier-icon">
+            <h2>Path of the Ancients</h2>
+            <img src="img/path_icon.svg" alt="" class="tier-icon">
+          </div>
+          <div class="tier-content">
+            <div class="accordion">
+              <details>
+                <summary>Overview</summary>
+                <img src="img/pota_posters.webp" alt="Path of the Ancients Posters">
+                <p>A deeply emotional, lore-rich roguelike card game that explores themes of resilience, transformation, and balance through powerful narrative storytelling.</p>
+              </details>
+              <details>
+                <summary>Concept & Design</summary>
+                <p>Discover the world-building, character development, and unique mechanics that define this immersive gaming experience.</p>
+              </details>
+            </div>
+            <a href="path.html" class="learn-more">Learn More →</a>
+          </div>
+        </article>
+
+        <!-- Tier 3: The Unified Science of Colour -->
+        <article id="tier3" class="tier">
+          <div class="tier-title">
+            <img src="img/usc_icon.svg" alt="" class="tier-icon">
+            <h2>The Unified Science of Colour</h2>
+            <img src="img/usc_icon.svg" alt="" class="tier-icon">
+          </div>
+          <div class="tier-content">
+            <div class="accordion">
+              <details>
+                <summary>Overview</summary>
+                <img src="img/usc1.webp" alt="USC Cover">
+                <p>An infographic-driven exploration of colour, blending scientific accuracy with artistic expression across multiple disciplines.</p>
+              </details>
+              <details>
+                <summary>Educational Impact</summary>
+                <p>Learn how scientific understanding can enhance artistic practice through accessible, visually engaging educational content.</p>
+              </details>
+            </div>
+            <a href="usc.html" class="learn-more">Learn More →</a>
+          </div>
+        </article>
+
+        <!-- Tier 4: TecTonic -->
+        <article id="tier4" class="tier">
+          <div class="tier-title">
+            <img src="img/tT_icon.svg" alt="" class="tier-icon">
+            <h2>TecTonic</h2>
+            <img src="img/tT_icon.svg" alt="" class="tier-icon">
+          </div>
+          <div class="tier-content">
+            <div class="accordion">
+              <details>
+                <summary>Overview</summary>
+                <img src="img/tT_ad.webp" alt="TecTonic Ad">
+                <p>A groundbreaking energy drink blending bold design, vibrant flavours, and neuroprotective ingredients to support health-conscious consumers.</p>
+              </details>
+              <details>
+                <summary>Brand & Vision</summary>
+                <p>Explore the inspiration behind TecTonic's seismic branding and unique market positioning.</p>
+              </details>
+            </div>
+            <a href="tecTonic.html" class="learn-more">Learn More →</a>
+          </div>
+        </article>
+
+        <!-- Tier 5: Nulltech Apparel -->
+        <article id="tier5" class="tier">
+          <div class="tier-title">
+            <img src="img/NT_scarab_w.svg" alt="" class="tier-icon">
+            <h2>Nulltech Apparel</h2>
+            <img src="img/NT_scarab_w.svg" alt="" class="tier-icon">
+          </div>
+          <div class="tier-content">
+            <div class="accordion">
+              <details>
+                <summary>Overview</summary>
+                <img src="img/nt_hood.webp" alt="Nulltech Apparel Ad">
+                <p>A personal clothing and merchandise brand embodying transformation and innovation through symbolic and contemporary designs.</p>
+              </details>
+              <details>
+                <summary>Brand Ethos</summary>
+                <p>Discover how Nulltech Apparel merges symbolism, style, and sustainability in its product offerings.</p>
+              </details>
+            </div>
+            <a href="apparel.html" class="learn-more">Learn More →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Footer with Social Media Links -->
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <nav aria-label="Social media links">
+        <a href="https://instagram.com/nulltech_designs" target="_blank" rel="noopener" aria-label="Instagram">
+          <img src="img/instagram.svg" alt="" width="40" height="40">
+        </a>
+        <a href="https://behance.net/alexanderkouliy" target="_blank" rel="noopener" aria-label="Behance">
+          <img src="img/behance.svg" alt="" width="40" height="40">
+        </a>
+        <a href="https://youtube.com/@NulltechDesigns" target="_blank" rel="noopener" aria-label="YouTube">
+          <img src="img/youtube.svg" alt="" width="40" height="40">
+        </a>
+        <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <img src="img/linkedin.svg" alt="" width="40" height="40">
+        </a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Global JS -->
+  <script src="js/main.js" defer></script>
+</body>
+</html>

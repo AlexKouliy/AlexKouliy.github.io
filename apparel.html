@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nulltech Apparel</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Load Orbitron for headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <div id="colorIndicator">
+      <img src="img/NT_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+
+  <nav class="nav" id="cyberNav">
+    <a href="index.html">Home</a>
+    <a href="projectlist.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+ 
+  <div class="nav-buttons">
+    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+  </div>
+  <div id="settingsPanel">
+    <label for="themePicker">Theme Color:</label>
+    <input type="color" id="themePicker" value="#00ffff">
+    <div id="themePresets">
+      <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+      <span class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></span>
+      <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+      <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+      <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="nav-bar">
+      <a href="#overview" id="link-overview"><img src="img/overview.svg" alt="Overview Icon" class="tier-icon"></a>
+      <a href="#description" id="link-description"><img src="img/description.svg" alt="Description Icon" class="tier-icon"></a>
+      <a href="#rationale" id="link-rationale"><img src="img/rationale.svg" alt="Rationale Icon" class="tier-icon"></a>
+    </div>
+
+    <div id="overview" class="tier">
+      <div>
+        <div class="tier-title">
+          <img src="img/overview.svg" alt="Overview Icon" class="tier-icon">
+          <h1>Overview</h1>
+          <img src="img/overview.svg" alt="Overview Icon" class="tier-icon">
+        </div>
+        <div class="tier-content">
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">Introduction</button>
+              <div class="accordion-content">
+                <img src="img/nT_board.webp" alt="Nulltech Apparel Ad">
+                <p><strong>Nulltech Apparel</strong> is a personal clothing and merchandise brand inspired by the timeless themes of transformation, resilience, and innovation. With designs rooted deeply in the symbolism of the scarab, Nulltech merges traditional symbolism with a contemporary, tech-inspired aesthetic, creating wearable pieces that embody personal authenticity and professional precision.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="description" class="tier">
+      <div>
+        <div class="tier-title">
+          <img src="img/description.svg" alt="Description Icon" class="tier-icon">
+          <h1>Description</h1>
+          <img src="img/description.svg" alt="Description Icon" class="tier-icon">
+        </div>
+        <div class="tier-content">
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">Brand Elements</button>
+              <div class="accordion-content">
+                <ul>
+                  <img src="img/NT_icon.webp" alt="Nulltech Apparel Ad">
+                  <li><strong>Scarab Emblem:</strong> A stylized, geometric interpretation of the scarab, reflecting growth and personal evolution.</li>
+                  <li><strong>Color Palette:</strong> Uses Nullspace Black, Scarab Green, Pulse Lime, and Solar Flare Yellow to represent mystery, vitality, energy, and optimism.</li>
+                  <li><strong>Typography & Aesthetics:</strong> Balances retro-tech influences with modern precision, capturing Nulltech's dual focus on creativity and analytical design.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">Product Range</button>
+              <div class="accordion-content">
+                <ul>
+                  <li>Apparel & Accessories: Hoodies, tees, hats, and premium items, each carrying Nulltech's transformative aesthetic.</li>
+                  <li>Sustainability: Ethically sourced materials and eco-friendly printing methods, ensuring style meets responsibility.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="rationale" class="tier">
+      <div>
+        <div class="tier-title">
+          <img src="img/rationale.svg" alt="Rationale Icon" class="tier-icon">
+          <h1>Rationale</h1>
+          <img src="img/rationale.svg" alt="Rationale Icon" class="tier-icon">
+        </div>
+        <div class="tier-content">
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">Symbolism & Identity</button>
+              <div class="accordion-content">
+                <ul>
+                  <li>The scarab symbolizes renewal, mirroring Nulltech's journey of continuous reinvention. Geometric precision echoes the brand's commitment to methodical design and progressive thinking.</li>
+                  <li>Rooted in personal authenticity and professional clarity, Nulltech Apparel resonates with individuals seeking meaningful expression through contemporary, tech-driven style.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">Visual & Emotional Resonance</button>
+              <div class="accordion-content">
+                <ul>
+                  <li>Bold lines and vibrant colors create immediate impact, inviting the wearer to embrace the brand's ideals of transformation and resilience.</li>
+                  <li>Combining nostalgic tech influences with modern minimalism sparks an emotional connection, celebrating both heritage and forward momentum.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">Long-Term Vision</button>
+              <div class="accordion-content">
+                <ul>
+                  <li>Nulltech Apparel aspires to remain an evolving brand—expanding collections, collaborating with artists, and consistently redefining its own design language.</li>
+                  <li>Each new release furthers the brand's core narrative of growth, creativity, and mindful innovation—empowering the Nulltech community to wear their transformation proudly.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+      </a>
+      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+        <img src="img/behance.svg" alt="Behance" width="40" height="40">
+      </a>
+      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+      </a>
+      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+      </a>
+    </div>
+  </footer>
+  
+  <!-- GLOBAL JAVASCRIPT -->
+  <script src="js/main.js"></script>
+</body>
+</html>

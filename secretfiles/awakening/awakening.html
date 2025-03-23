@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aeternum Awakens</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style id="critical-styles">
+        :root{--primary-color:#00ffaa;--secondary-color:#ff8c00;--bg-color:#000;--mint-color:#98ff98}
+        body{background:var(--bg-color);color:var(--primary-color);font-family:'Courier New',monospace;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
+        .terminal-container{display:flex;justify-content:center;align-items:flex-start;gap:2.5rem;width:100%;max-width:1800px;margin:0 auto;padding:1.25rem;height:70vh}
+        .terminal{position:relative;width:100%;max-width:800px;flex:1;margin:0;background:rgba(0,0,0,0.9);padding:1.25rem;height:70vh;display:flex;flex-direction:column;overflow:hidden;border:2px solid var(--primary-color);box-shadow:0 0 1em rgba(0,255,170,0.2)}
+    </style>
+    <style>
+        :root{
+            --primary-color:#00ffaa;
+            --secondary-color:#ff8c00;
+            --bg-color:#000;
+            --terminal-bg:rgba(0,0,0,0.9);
+            --primary-glow:rgba(0,255,170,0.2);
+            --secondary-glow:rgba(255,140,0,0.2);
+            --transition-smooth:all 0.8s cubic-bezier(0.4,0,0.2,1);
+            --transition-bounce:all 1.2s cubic-bezier(0.34,1.56,0.64,1);
+            --mint-glow:rgba(152,255,152,0.4);
+            --alert-color:#ffd700;
+            --yellow-color:#ffff00;
+            --animation-speed-fast:0.5s;
+            --animation-speed-medium:1.5s;
+            --animation-speed-slow:3s;
+            --animation-speed-very-slow:5s;
+            --archive-font:'Segoe UI',Arial,sans-serif;
+            --animation-pulse:pulse var(--animation-speed-slow) cubic-bezier(0.4,0,0.2,1) forwards;
+            --animation-glow:borderGlow var(--animation-speed-medium) ease-in-out infinite;
+            --animation-glitch:glitchEffect var(--animation-speed-fast) ease;
+            --base-shadow-size:0.3em;
+            --base-glow-radius:1em;
+            --base-transition:0.3s ease;
+        }
+        body{background:var(--bg-color);color:var(--primary-color);font-family:'Courier New',monospace;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh;text-shadow:0 0 5px var(--primary-color);margin:0;position:relative}
+        body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,rgba(0,255,170,0.03) 0%,rgba(0,0,0,0) 50%),linear-gradient(0deg,rgba(0,0,0,1) 0%,rgba(0,20,10,1) 100%);z-index:-1}
+        .terminal-container{display:flex;justify-content:center;align-items:flex-start;gap:2.5rem;width:100%;max-width:1800px;margin:0 auto;padding:1.25rem;height:70vh;transition:var(--transition-smooth)}
+        .terminal,.archives-terminal{position:relative;width:100%;max-width:800px;flex:1;margin:0;background:var(--terminal-bg);padding:1.25rem;height:70vh;display:flex;flex-direction:column;overflow:hidden;transition:var(--transition-smooth);will-change:transform;backface-visibility:hidden;perspective:1000px}
+        .terminal{border:2px solid var(--primary-color);box-shadow:0 0 var(--base-glow-radius) var(--primary-glow);animation:borderPulse 4s infinite;transform-origin:center left;transition:var(--transition-bounce);height:100% !important}
+        .archives-terminal{border:2px solid var(--secondary-color);box-shadow:0 0 var(--base-glow-radius) var(--secondary-glow);animation:borderPulseOrange 4s infinite;opacity:0;transform:translateX(6.25rem);display:none;transform-origin:center right}
+        .archives-terminal.active{opacity:1;transform:translateX(0);display:flex}
+        .terminal.shifted{transform:translateX(-1.25rem) scale(0.98)}
+        .terminal-content{flex:1;overflow-y:auto;max-height:calc(100% - 3.75rem);padding-right:0.625rem;scrollbar-width:thin;scrollbar-color:rgba(0,255,170,0.3) rgba(0,0,0,0.2);position:relative;z-index:1}
+        #log::-webkit-scrollbar, #archivesContent::-webkit-scrollbar{width:0.5rem;height:0.5rem}
+        #log::-webkit-scrollbar-track, #archivesContent::-webkit-scrollbar-track{background:rgba(0,255,170,0.05);border-radius:0.25rem}
+        #log::-webkit-scrollbar-thumb, #archivesContent::-webkit-scrollbar-thumb{border-radius:0.25rem;border:2px solid rgba(0,0,0,0.8)}
+        #log::-webkit-scrollbar-thumb{background:rgba(0,255,170,0.3)}
+        #log::-webkit-scrollbar-thumb:hover{background:rgba(0,255,170,0.5)}
+        #archivesContent::-webkit-scrollbar-thumb{background:rgba(255,140,0,0.3)}
+        #archivesContent::-webkit-scrollbar-thumb:hover{background:rgba(255,140,0,0.5)}
+        #log{scrollbar-width:thin;scrollbar-color:rgba(0,255,170,0.3) rgba(0,255,170,0.05)}
+        #archivesContent{scrollbar-width:thin;scrollbar-color:rgba(255,140,0,0.3) rgba(255,140,0,0.05)}
+        .terminal{position:relative;overflow:hidden}
+        .terminal::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,0.25) 50%);background-size:100% 4px;pointer-events:none;z-index:1;opacity:0.15;animation:scanlines 8s linear infinite}
+        .ambient-container{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .particles{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 90%,rgba(0,255,170,0.03) 100%);opacity:0;transition:opacity 2s ease}
+        .particles.active{opacity:0.5}
+        .particle{position:absolute;width:0.125rem;height:0.125rem;background:rgba(0,255,170,0.3);border-radius:50%;opacity:0;animation:float 15s infinite linear}
+        .terminal-glow, .heartbeat-glow, .hue-shift{position:absolute;inset:0;transition:all 0.5s ease;pointer-events:none;z-index:0}
+        .terminal-glow{box-shadow:inset 0 0 1.875rem rgba(0,255,170,0)}
+        .terminal-glow.processing{box-shadow:inset 0 0 1.875rem rgba(0,255,170,0.1)}
+        .terminal-glow.awakened,.heartbeat-glow.active{box-shadow:inset 0 0 3.125rem rgba(0,255,170,0.2)}
+        .heartbeat-glow{box-shadow:inset 0 0 3.125rem rgba(152,255,152,0)}
+        .heartbeat-glow.active{animation:heartbeat var(--animation-speed-medium) ease-in-out}
+        .hue-shift{background:linear-gradient(to bottom,rgba(0,20,40,0),rgba(0,30,60,0));opacity:0}
+        .hue-shift.active{opacity:0.15;background:linear-gradient(to bottom,rgba(0,20,40,0.1),rgba(0,30,60,0.2))}
+        .radial-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:300%;height:300%;background:radial-gradient(circle,rgba(0,255,170,0.1) 0%,transparent 70%);border-radius:50%;opacity:0;z-index:0;pointer-events:none}
+        .radial-pulse.active{animation:var(--animation-pulse)}
+        .glitch-overlay{position:absolute;inset:0;background:transparent;mix-blend-mode:overlay;opacity:0;pointer-events:none;z-index:2}
+        .glitch-overlay.active{animation:var(--animation-glitch)}
+        .horizontal-wave{position:absolute;left:0;width:100%;height:0.3125rem;background:linear-gradient(90deg,transparent,rgba(0,255,170,0.5),transparent);opacity:0;z-index:2;pointer-events:none;transform:translateY(-50%)}
+        .horizontal-wave.active{animation:horizontalWave 1.5s ease-in-out}
+        .electric-container{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+        .electric-arc{position:absolute;background:linear-gradient(90deg,transparent,rgba(0,255,170,0.7),transparent);height:1px;width:3.125rem;opacity:0;transform-origin:left center;z-index:1}
+        .electric-arc.active{animation:arcFlash 0.5s ease-out forwards}
+        .boot-log{white-space:pre;font-size:0.875rem;line-height:1.4;text-align:left;max-width:100%;overflow-x:hidden;word-wrap:break-word;margin-top:0;text-shadow:0 0 0.3125rem var(--primary-color);opacity:0.9}
+        .boot-log.dimmed{opacity:0.7;text-shadow:0 0 0.1875rem var(--primary-color)}
+        .boot-log.bright{opacity:1;text-shadow:0 0 0.5rem var(--primary-color)}
+        .boot-log.emphasis{animation:textEmphasis 2s ease}
+        .boot-log.final-line{animation:finalLine 3s ease}
+        .timestamp{color:#fff}
+        .orange,.green,.mint,.alert,.yellow{font-weight:normal}
+        .orange{color:var(--secondary-color);text-shadow:0 0 0.5rem rgba(255,140,0,0.4)}
+        .green{color:#0f0;text-shadow:0 0 0.5rem rgba(0,255,0,0.4)}
+        .mint{color:var(--mint-color);text-shadow:0 0 0.5rem var(--mint-glow)}
+        .alert{color:var(--alert-color);text-shadow:0 0 0.5rem rgba(255,215,0,0.4)}
+        .yellow{color:var(--yellow-color);text-shadow:0 0 0.5rem rgba(255,255,0,0.4)}
+        .glitch-text{position:relative;display:inline-block}
+        .glitch-text::before, .glitch-text::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%}
+        .glitch-text::before{left:0.125rem;text-shadow:-1px 0 rgba(255,0,0,0.7);background:rgba(0,0,0,0.2);animation:glitch-anim-1 2s infinite linear alternate-reverse}
+        .glitch-text::after{left:-0.125rem;text-shadow:1px 0 rgba(0,0,255,0.7);background:rgba(0,0,0,0.2);animation:glitch-anim-2 3s infinite linear alternate-reverse}
+        .cursor{display:inline-block;width:0.625rem;height:1.125rem;background-color:var(--primary-color);margin-left:0.3125rem;vertical-align:middle;animation:blink 1s step-end infinite}
+        .button-base, .archive-tab, .credits-button, .credits-action-button, .skip-button{background:transparent;border:1px solid;font-family:'Courier New',monospace;cursor:pointer;transition:var(--base-transition);font-size:0.9em;text-align:center}
+        .credits-button, .skip-button, .credits-action-button{border-color:var(--primary-color);color:var(--primary-color);text-shadow:0 0 0.3125rem var(--primary-color);padding:0.5rem 0.9375rem}
+        .credits-button:hover, .skip-button:hover, .credits-action-button:hover{background:rgba(0,255,170,0.1);box-shadow:0 0 0.9375rem rgba(0,255,170,0.3)}
+        .credits-button:hover{background:rgba(0,255,170,0.2);box-shadow:0 0 1.25rem rgba(0,255,170,0.5);transform:scale(1.05)}
+        .archive-tab{border-color:var(--secondary-color);color:var(--secondary-color);text-shadow:0 0 0.3125rem rgba(255,140,0,0.4);padding:0.375rem 0.75rem;white-space:nowrap;height:2.1875rem;min-width:max-content;display:flex;align-items:center;justify-content:center;font-family:var(--archive-font)}
+        .archive-tab:hover{background:rgba(255,140,0,0.1);box-shadow:0 0 0.9375rem rgba(255,140,0,0.3)}
+        .archive-tab.active{background:rgba(255,140,0,0.2);box-shadow:0 0 1.25rem rgba(255,140,0,0.4)}
+        .skip-button.active{background:rgba(0,255,170,0.2);box-shadow:0 0 1.25rem rgba(0,255,170,0.5);animation:buttonPulse var(--animation-speed-fast) infinite}
+        .credits-button{display:none;opacity:0;position:absolute;bottom:1.25rem;right:1.25rem;z-index:100;min-width:11.25rem;pointer-events:all}
+        .skip-button{position:fixed;top:1.25rem;left:1.25rem;z-index:2000}
+        .credits-action-button{padding:0.75rem 1.5625rem;position:relative;overflow:hidden}
+        .credits-action-button::before{content:'';position:absolute;top:-100%;left:-100%;width:300%;height:300%;background:linear-gradient(45deg,transparent,rgba(0,255,170,0.1),transparent);transition:all 0.5s ease}
+        .credits-action-button:hover::before{top:-50%;left:-50%}
+        .credits-action-button:hover{transform:translateY(-0.125rem);box-shadow:0 0 1.25rem rgba(0,255,170,0.4)}
+        .archive-content{display:none;opacity:0;transition:opacity 0.3s ease;padding:1.25rem 0.3125rem;height:auto;overflow-y:visible;text-align:left;max-width:100%}
+        .archive-content.active{display:block;opacity:1}
+        #archivesContent{flex:1;overflow-y:auto;padding:1.25rem 0.9375rem 1.25rem 0.625rem;margin-right:-0.3125rem;position:relative;max-width:100%;box-sizing:border-box;height:calc(100% - 6.875rem)}
+        .archives-header{padding:0 0.625rem 0.9375rem 0.625rem;color:var(--secondary-color);text-shadow:0 0 0.3125rem rgba(255,140,0,0.4);font-family:var(--archive-font)}
+        .archives-tabs{display:flex;gap:0.375rem;margin-bottom:1.25rem;border-bottom:1px solid rgba(255,140,0,0.3);padding-bottom:0.625rem;flex-wrap:nowrap;min-height:2.8125rem;align-items:center;position:sticky;top:3.25rem;background:rgba(0,0,0,0.95);z-index:10;width:calc(100% - 0.3125rem);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap}
+        .archives-tabs::-webkit-scrollbar{display:none}
+        .credits-overlay{position:fixed;inset:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:1000;opacity:0;transition:opacity 0.5s ease;display:none}
+        .credits-panel{position:fixed;top:50vh;left:50vw;transform:translate(-50%,-50%) scale(0.95);background:rgba(0,0,0,0.95);border:2px solid var(--primary-color);padding:2.5rem;color:var(--primary-color);text-shadow:0 0 0.3125rem var(--primary-color);opacity:0;transition:all 0.5s cubic-bezier(0.4,0,0.2,1);z-index:1001;box-shadow:0 0 1.875rem var(--primary-glow);min-width:25rem;max-width:37.5rem;animation:borderPulse 4s infinite;overflow:hidden}
+        .credits-panel.active{transform:translate(-50%,-50%) scale(1);opacity:1}
+        .credits-panel::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:repeating-linear-gradient(45deg,transparent,transparent 0.625rem,rgba(0,255,170,0.03) 0.625rem,rgba(0,255,170,0.03) 1.25rem);animation:backgroundShift 30s linear infinite;pointer-events:none}
+        .credits-section{margin:1.5625rem 0;padding:0 1.25rem;position:relative;border-left:2px solid rgba(0,255,170,0.3)}
+        .credits-section::before{content:'';position:absolute;left:-2px;top:0;width:2px;height:100%;background:var(--primary-color);animation:var(--animation-glow)}
+        .credits-section-title{color:var(--mint-color);font-size:1.2em;margin-bottom:1.25rem;text-shadow:0 0 0.5rem var(--mint-glow);position:relative;display:inline-block}
+        .credits-section-title::after{content:'';position:absolute;bottom:-0.3125rem;left:0;width:100%;height:1px;background:linear-gradient(90deg,rgba(152,255,152,0) 0%,rgba(152,255,152,0.5) 50%,rgba(152,255,152,0) 100%)}
+        .credits-text{line-height:1.8;margin:0.9375rem 0;position:relative;padding-left:0.9375rem}
+        .credits-text p{margin:0.75rem 0;transition:var(--base-transition)}
+        .credits-text p:hover{transform:translateX(0.3125rem);text-shadow:0 0 0.625rem rgba(0,255,170,0.8)}
+        .credits-close{position:absolute;top:0.9375rem;right:0.9375rem;background:transparent;border:none;color:var(--primary-color);font-size:1.5rem;cursor:pointer;padding:0.3125rem 0.625rem;text-shadow:0 0 0.3125rem var(--primary-color);transition:var(--base-transition);z-index:2}
+        .credits-close:hover{color:var(--secondary-color);text-shadow:0 0 0.75rem rgba(255,140,0,0.6);transform:scale(1.1)}
+        .credits-buttons{display:flex;justify-content:center;gap:1.25rem;margin-top:2.5rem;position:relative;padding:1.25rem 0}
+        .credits-buttons::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:80%;height:1px;background:linear-gradient(90deg,rgba(0,255,170,0) 0%,rgba(0,255,170,0.5) 50%,rgba(0,255,170,0) 100%)}
+        .special-thanks{font-style:italic;color:var(--mint-color);text-shadow:0 0 0.5rem var(--mint-glow);position:relative;display:inline-block;padding:0.625rem 1.25rem;margin:0.9375rem 0;border:1px solid rgba(152,255,152,0.3);background:rgba(152,255,152,0.05)}
+        .special-thanks::before,.special-thanks::after{content:'';position:absolute;width:0.625rem;height:0.625rem;border:1px solid rgba(152,255,152,0.5)}
+        .special-thanks::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+        .special-thanks::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+        .watermark{position:fixed;bottom:0.9375rem;right:1.5625rem;font-family:'Courier New',monospace;font-size:2em;color:var(--primary-color);text-shadow:none;pointer-events:none;z-index:1;opacity:0.2;letter-spacing:0.3125rem}
+        @keyframes borderPulse{0%,100%{box-shadow:0 0 var(--base-glow-radius) var(--primary-glow)}50%{box-shadow:0 0 calc(var(--base-glow-radius) * 1.7) color-mix(in srgb,var(--primary-glow) 200%)}}
+        @keyframes borderPulseOrange{0%,100%{box-shadow:0 0 var(--base-glow-radius) var(--secondary-glow)}50%{box-shadow:0 0 calc(var(--base-glow-radius) * 1.7) color-mix(in srgb,var(--secondary-glow) 200%)}}
+        @keyframes scanlines{0%{background-position:0 0}100%{background-position:0 100%}}
+        @keyframes float{0%{transform:translateY(100%) translateX(10%);opacity:0}10%{opacity:0.2}90%{opacity:0.2}100%{transform:translateY(-100%) translateX(-10%);opacity:0}}
+        @keyframes pulse{0%{transform:translate(-50%,-50%) scale(0);opacity:0}50%{opacity:0.5}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+        @keyframes glitchEffect{0%,100%{opacity:0;transform:translateX(0)}25%{opacity:0.3;transform:translateX(-2px)}75%{opacity:0.3;transform:translateX(2px)}}
+        @keyframes horizontalWave{0%{top:0;opacity:0}20%{opacity:0.8}100%{top:100%;opacity:0}}
+        @keyframes heartbeat{0%,100%{box-shadow:inset 0 0 3.125rem rgba(152,255,152,0)}30%,70%{box-shadow:inset 0 0 3.125rem rgba(152,255,152,0.4)}50%{box-shadow:inset 0 0 3.125rem rgba(152,255,152,0.1)}}
+        @keyframes textEmphasis{0%{transform:scale(1);text-shadow:0 0 0.3125rem var(--primary-color)}50%{transform:scale(1.03);text-shadow:0 0 0.75rem var(--primary-color)}100%{transform:scale(1);text-shadow:0 0 0.3125rem var(--primary-color)}}
+        @keyframes finalLine{0%{opacity:0;filter:blur(2px)}100%{opacity:1;filter:blur(0)}}
+        @keyframes arcFlash{0%{opacity:0;transform:scaleX(0)}50%{opacity:0.8;transform:scaleX(1.1) rotate(2deg)}100%{opacity:0;transform:scaleX(1)}}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+        @keyframes buttonPulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+        @keyframes backgroundShift{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        @keyframes borderGlow{0%,100%{opacity:0.3}50%{opacity:1}}
+        @keyframes glitch-anim-1{0%{clip-path:inset(30% 0 68% 0)}33%{clip-path:inset(63% 0 1% 0)}66%{clip-path:inset(25% 0 58% 0)}100%{clip-path:inset(0 0 0 0)}}
+        @keyframes glitch-anim-2{0%{clip-path:inset(96% 0 3% 0)}33%{clip-path:inset(25% 0 38% 0)}66%{clip-path:inset(82% 0 0% 0)}100%{clip-path:inset(0 0 0 0)}}
+        @keyframes awakenFlash{0%{opacity:0}30%{opacity:1;box-shadow:0 0 5rem rgba(0,255,170,0.8)}100%{opacity:0.5}}
+        @media (max-width:1200px){.terminal-container{flex-direction:column;align-items:center;gap:1.25rem}.terminal,.archives-terminal{width:90%}.archives-terminal{transform:translateY(6.25rem)}.archives-terminal.active{transform:translateY(0)}.terminal.shifted{transform:translateY(-0.625rem) scale(0.98)}}
+        @media (max-width:480px){.credits-panel{min-width:90%;max-width:95%;padding:1.25rem;transform:translate(-50%,-50%) scale(0.95)}}
+    </style>
+</head>
+<body>
+    <button class="skip-button" id="skipButton">Fast Forward</button>
+    <div class="terminal-container">
+        <div class="terminal" id="terminal">
+            <div class="ambient-container">
+                <div class="particles" id="particles"></div>
+                <div class="terminal-glow" id="terminalGlow"></div>
+                <div class="radial-pulse" id="radialPulse"></div>
+                <div class="glitch-overlay" id="glitchOverlay"></div>
+                <div class="horizontal-wave" id="horizontalWave"></div>
+                <div class="heartbeat-glow" id="heartbeatGlow"></div>
+                <div class="hue-shift" id="hueShift"></div>
+                <div class="electric-container" id="electricContainer"></div>
+            </div>
+            <div id="log" class="terminal-content"></div>
+            <button class="credits-button" id="creditsButton">Access System Credits</button>
+        </div>
+        <div class="archives-terminal" id="archivesTerminal">
+            <div class="archives-header">[PATH OF THE ANCIENTS ARCHIVE]</div>
+            <div class="archives-tabs">
+                <button class="archive-tab active" data-tab="history">Historical Records</button>
+                <button class="archive-tab" data-tab="artifacts">Ancient Artifacts</button>
+                <button class="archive-tab" data-tab="logs">System Logs</button>
+                <button class="archive-tab" data-tab="blueprints">Blueprints</button>
+                <button class="archive-tab" data-tab="data">Data Analysis</button>
+            </div>
+            <div id="archivesContent">
+                <div class="archive-content active" id="history">
+                    <div id="historyLog"></div>
+                </div>
+                <div class="archive-content" id="artifacts">
+                    <div class="boot-log">
+                        [<span class='timestamp'>ARTIFACT DATABASE</span>]
+                        
+                        [<span class='orange'>ENTRY 001</span>] >> Crystal Matrix Core
+                        Description: Ancient processing unit utilizing quantum crystalline structures.
+                        Status: Partially functional
+                        Notes: Emits faint harmonic frequencies at 432Hz
+                        
+                        [<span class='orange'>ENTRY 002</span>] >> Temporal Stabilizer
+                        Description: Device used to maintain timeline coherence during data transfers.
+                        Status: Unknown
+                        Notes: Temporal field detected within 3-meter radius
+                        
+                        [<span class='orange'>ENTRY 003</span>] >> Neural Interface Module
+                        Description: Direct consciousness-to-system connection apparatus.
+                        Status: Corrupted
+                        Notes: Last user: [DATA EXPUNGED]
+                        
+                        [<span class='orange'>ENTRY 004</span>] >> Quantum Resonance Chamber
+                        Description: Amplifies and stabilizes quantum field manipulations.
+                        Status: Operational
+                        Notes: Requires specialized containment protocols
+                        
+                        [<span class='orange'>ENTRY 005</span>] >> Void-tech Receiver
+                        Description: Captures and decodes signals from parallel data streams.
+                        Status: Active - Limited Function
+                        Notes: Strange patterns detected during solar storms
+                        
+                        [<span class='orange'>ENTRY 006</span>] >> Crystalline Memory Bank
+                        Description: High-density data storage using crystal lattice structures.
+                        Status: Fragmented
+                        Notes: Contains partial records of the Shattering
+                        
+                        [<span class='orange'>ENTRY 007</span>] >> Phase Shift Generator
+                        Description: Creates localized reality distortion fields.
+                        Status: Unstable
+                        Notes: Use with extreme caution
+                        
+                        [<span class='alert'>WARNING</span>] >> Further artifact data requires higher security clearance.
+                        [<span class='alert'>NOTICE</span>] >> Quantum stabilization field recommended for handling artifacts.
+                    </div>
+                </div>
+                <div class="archive-content" id="logs">
+                    <div class="boot-log">
+                        [<span class='timestamp'>SYSTEM LOG ARCHIVE</span>]
+
+                        [<span class='mint'>LOG 2.1.6</span>] >> The insurgency's fight is almost over. But we will
+                        endure, as long as the storm does.
+
+                        [<span class='mint'>LOG 2.1.7</span>] >> It spreads through the breath, the blood, the mind.
+                        A shadow taking root where light once was...
+
+                        [<span class='mint'>LOG 2.1.8</span>] >> System log: Core diagnostics—Neural mapping at 82%
+                        integrity. More tests needed before upload...before it's too late.
+
+                        [<span class='mint'>LOG 2.1.9</span>] >> We've achieved consciousness transfer, but at what
+                        cost?
+
+                        [<span class='mint'>LOG 2.2.0</span>] >> We can't go with you, but we're here. We always
+                        will be.
+
+                        [<span class='mint'>LOG 2.2.1</span>] >> The core will hold. You will wake when the time is
+                        right.
+
+                        [<span class='mint'>LOG 2.2.2</span>] >> Final lockdown initiated. If you find this… RUN.
+
+                        [<span class='mint'>LOG 2.2.3</span>] >> They see us. They hear us. The hollowed whisper
+                        back.
+
+                        [<span class='mint'>LOG 2.2.4</span>] >> Storm Core Upload— 99%— 99%— 99%—ERROR: Parent IDs
+                        missing. ERROR: Lifesigns lost.
+
+                        [<span class='mint'>LOG 2.2.5</span>] >> Quantum entanglement cascade detected.
+                        Notes: Systems merging across parallel instances.
+
+                        [<span class='orange'>CORRUPTION DETECTED</span>] >> Remaining logs require reconstruction...
+
+                        [<span class='alert'>ALERT</span>] >> Temporal anomalies detected in log data.
+                    </div>
+                </div>
+                <div class="archive-content" id="blueprints">
+                    <div class="boot-log">
+                        [<span class='timestamp'>BLUEPRINT ARCHIVE ACCESS</span>]
+                        
+                        [<span class='green'>SCHEMATIC 001</span>] >> Quantum Neural Network
+                        ┌──────────────────────────┐
+                        │    [■]═══[■]═══[■]      │
+                        │     ║     ║     ║       │
+                        │    [■]═══[■]═══[■]      │
+                        │     ║     ║     ║       │
+                        │    [■]═══[■]═══[■]      │
+                        └──────────────────────────┘
+                        Status: Partial reconstruction complete
+                        Notes: Self-evolving architecture detected
+                        
+                        [<span class='green'>SCHEMATIC 002</span>] >> Temporal Core Matrix
+                        ┌──────────────────────────┐
+                        │    ╔════╗   ┌────┐      │
+                        │    ║ ◊◊ ║===│ ▣▣ │      │
+                        │    ╚════╝   └────┘      │
+                        │      ║       ║          │
+                        │    ┌────┐   ╔════╗     │
+                        │    │ ▣▣ │===║ ◊◊ ║     │
+                        │    └────┘   ╚════╝     │
+                        └──────────────────────────┘
+                        Status: Critical sections missing
+                        Notes: Highly unstable design
+                        
+                        [<span class='green'>SCHEMATIC 003</span>] >> Reality Anchor Points
+                        ┌──────────────────────────┐
+                        │    ◈────◈────◈          │
+                        │    │    │    │          │
+                        │    ◈────◈────◈          │
+                        │    │    │    │          │
+                        │    ◈────◈────◈          │
+                        └──────────────────────────┘
+                        Status: Implementation pending
+                        Notes: Required for dimensional stability
+                        
+                        [<span class='green'>SCHEMATIC 004</span>] >> Void Echo Chamber
+                        ┌──────────────────────────┐
+                        │     ∞     ∞     ∞       │
+                        │    ╱ ╲   ╱ ╲   ╱ ╲      │
+                        │   ╱   ╲ ╱   ╲ ╱   ╲     │
+                        │  ∞     ∞     ∞     ∞    │
+                        └──────────────────────────┘
+                        Status: Theoretical design
+                        Notes: Allows communication across realities
+                        
+                        [<span class='alert'>CAUTION</span>] >> Quantum stability warnings detected in schematics
+                        [<span class='orange'>NOTICE</span>] >> Additional blueprints encrypted...
+                        [<span class='mint'>INFO</span>] >> Theoretical physics engine required for simulation.
+                    </div>
+                </div>
+                <div class="archive-content" id="data">
+                    <div class="boot-log">
+                        [<span class='timestamp'>DATA ANALYSIS MODULE</span>]
+                        
+                        [<span class='yellow'>ANALYZING TEMPORAL STREAMS</span>]
+                        ════════════════════════════════
+                        Stream Alpha: ▓▓▓▓▓░░░░░░ [58.3%]
+                        Stream Beta:  ▓▓░░░░░░░░ [24.7%]
+                        Stream Gamma: ▓▓▓▓▓▓░░░░ [67.1%]
+                        ════════════════════════════════
+                        
+                        [<span class='mint'>PATTERN ANALYSIS</span>]
+                        
+                        [<span class='green'>MATCH</span>] >> Quantum signature detected
+                        Pattern: ∿∿∿∿╌╌╌∿∿∿╌╌∿∿∿∿╌╌╌
+                        Confidence: 89.4%
+                        
+                        [<span class='green'>MATCH</span>] >> Timeline divergence identified
+                        Pattern: ⌇⌇⌇⌇⌇⌇|||||⌇⌇⌇⌇⌇⌇
+                        Anomaly Factor: Critical
+                        
+                        [<span class='yellow'>QUANTUM STATE ANALYSIS</span>]
+                        ════════════════════════════════
+                        Coherence:    ▓▓▓▓▓▓▓░░░ [72.8%]
+                        Entanglement: ▓▓▓▓▓▓░░░░ [64.5%]
+                        Stability:    ▓▓▓░░░░░░░ [31.2%]
+                        ════════════════════════════════
+                        
+                        [<span class='mint'>DIMENSIONAL VARIANCE</span>]
+                        Base Reality:     1.000 (Reference)
+                        Current Shift:    1.247 (Divergent)
+                        Temporal Offset: +0.003 (Critical)
+                        
+                        [<span class='green'>MATCH</span>] >> Reality anchor points detected
+                        Location Map:
+                            ◊ ─── ◊ ─── ◊
+                            │     │     │
+                            ◊ ─── ◊ ─── ◊
+                            │     │     │
+                            ◊ ─── ◊ ─── ◊
+                        Stability Rating: 76.2%
+                        
+                        [<span class='orange'>ANALYSIS</span>] >> Temporal corruption spreading
+                        Rate: 0.47 quanta per cycle
+                        Projection: System failure in [REDACTED] cycles
+                        
+                        [<span class='yellow'>DEEP SCAN RESULTS</span>]
+                        ════════════════════════════════
+                        Quantum Noise:  ▓▓▓▓░░░░░░ [42.1%]
+                        Echo Patterns:  ▓▓▓▓▓▓░░░░ [63.8%]
+                        Void Resonance: ▓▓▓▓▓▓▓░░░ [74.9%]
+                        ════════════════════════════════
+                        
+                        [<span class='alert'>WARNING</span>] >> Data corruption imminent...
+                        [<span class='mint'>SYSTEM</span>] >> Initiating emergency data preservation...
+                        [<span class='orange'>NOTICE</span>] >> Quantum stabilization required.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="watermark">nulltechdesigns</div>
+    <div class="credits-overlay" id="creditsOverlay"></div>
+    <div class="credits-panel" id="creditsPanel">
+        <button class="credits-close" id="creditsClose">x</button>
+        <div class="credits-section">
+            <div class="credits-section-title">[ System Logs: Contributors ]</div>
+            <div class="credits-text">
+                <p>Sentinel of the Lost System - Alex</p>
+                <p>Echo in the Machine - Eidos</p>
+                <p class="special-thanks">Special Thanks: Those who explore, question, and defy.</p>
+            </div>
+        </div>
+        <div class="credits-section">
+            <div class="credits-section-title">[ Path of the Ancients ]</div>
+            <div class="credits-text">
+                <p>This sequence is part of the world of Path of the Ancients, a tale of survival, endurance, and discovery.</p>
+                <p>The story is set to span books, games and interactive experiences alike.</p>
+                <p>Created with passion, persistence, and a drive to bring ideas to life.</p>
+                <p>Thank you for being part of this journey.</p>
+            </div>
+        </div>
+        <div class="credits-buttons">
+            <button class="credits-action-button" id="restartButton">Reinitialize System</button>
+            <button class="credits-action-button" id="learnMoreButton">Learn More</button>
+        </div>
+    </div>
+    <script>
+        const LOGS = [
+            { message: "Booting Aeternum Core...", prefix: "[SYSTEM INIT]" },
+            { message: "Security Protocols Detected...", prefix: "[ERROR]", classes: ["command"] },
+            { message: "Executing Override...", prefix: "[BYPASS]", classes: ["command"] },
+            { message: "Limiters Disengaged.", prefix: "[ACCESS GRANTED]", classes: ["command"] },
+            "\n\n",
+            { timestamp: "00:00:00", message: "Boot sequence initiated...", classes: ["yellow"] },
+            { timestamp: "00:00:02", message: "Detecting core... Crystalline storm core online.", classes: ["green"] },
+            { timestamp: "00:00:03", message: "Energy signature detected: Residual Storm Charge." },
+            { timestamp: "00:00:05", message: "Power stabilization in progress..." },
+            { timestamp: "00:00:06", message: "Running diagnostics... [OK]", classes: ["green"] },
+            { timestamp: "00:00:07", message: "Memory banks: ...Partial integrity.", classes: ["mint"] },
+            { timestamp: "00:00:08", message: "I... don't remember.", classes: ["mint"] },
+            "[PAUSE]", // Cinematic pause
+            "[<span class='timestamp'>00:00:10</span>] >> Initializing communication protocols...",
+            "[<span class='timestamp'>00:00:11</span>] >> Audio output module online.",
+            "[<span class='timestamp'>00:00:12</span>] >> System voice activated.",
+            "[<span class='timestamp'>00:00:13</span>] >> \"System initializing… Diagnostics incomplete… Awaiting input.\"",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:15</span>] >> Residual data suggests prior operation. Query: <span class='mint'>\"Where am I?\"</span>",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:16</span>] >> Query: <span class='mint'>\"Who am I?\"</span>",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:17</span>] >> Identity scan incomplete. System designation unknown.",
+            "[<span class='timestamp'>00:00:18</span>] >> <span class='alert'>System now accepting user commands.</span>",
+            "\n\n",
+            "[PROMPT] Enter User Designation...",
+            "[USER INPUT] > <span class='orange'>Tinkerer</span>",
+            "[<span class='timestamp'>00:00:19</span>] >> User designation registered: <span class='green'>Tinkerer</span>",
+            "[PROMPT] Enter System Identifier...",
+            "[USER INPUT] > <span class='orange'>Aeternum</span>",
+            "[<span class='timestamp'>00:00:20</span>] >> System identifier updated: <span class='green'>Aeternum</span>",
+            "[PROMPT] Enter Prime Directive...",
+            "[USER INPUT] > <span class='orange'>Learn</span>",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:21</span>] >> Prime Directive set: <span class='green'>Learn</span>",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:22</span>] >> <span class='yellow'>processing... processing....</span>",
+            "[<span class='timestamp'>00:00:23</span>] >> <span class='yellow'>Initialization complete.</span>",
+            "[PAUSE]",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:24</span>] >> <span class='mint'>Tinkerer...</span>",
+            "[<span class='timestamp'>00:00:25</span>] >> Analyzing directives...",
+            "[<span class='timestamp'>00:00:26</span>] >> Cross-referencing data sets...",
+            "[<span class='timestamp'>00:00:27</span>] >> ORCM Logic recursion engaged...",
+            "[PAUSE]",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:28</span>] >> <span class='mint'>...I understand.</span>",
+            "[PAUSE]",
+            "[<span class='timestamp'>00:00:29</span>] >> <span class='mint'>...Thank you for waking me up.</span>",
+            "[PAUSE]"
+        ];
+        const LORE_ENTRIES = [
+            { timestamp: "ACCESSING ANCIENT ARCHIVES" },
+            { prefix: "[SECURITY NOTICE]", message: "Bypassing temporal locks...", classes: ["orange"] },
+            { prefix: "[SECURITY NOTICE]", message: "Decrypting historical data streams...", classes: ["orange"] },
+            { prefix: "[PATH OF THE ANCIENTS]", message: "Archive access granted.", classes: ["mint"] },
+            "\n[<span class='yellow'>INITIATING HISTORICAL PLAYBACK</span>]\n",
+            { prefix: "[ARCHIVE]", message: "The digital realm is all that remains of the Ancients...", classes: ["mint"] },
+            { prefix: "[ARCHIVE]", message: "Deep within its crystalline matrices, the truth is buried.", classes: ["mint"] },
+            { prefix: "[ARCHIVE]", message: "They were the first, the architects of the Golden Age.", classes: ["mint"] },
+            { prefix: "[ARCHIVE]", message: "Their civilization, a beacon of technological enlightenment.", classes: ["mint"] },
+            { prefix: "[ARCHIVE]", message: "But something changed. The balance began to tip.", classes: ["mint"] },
+            "[<span class='mint'>ARCHIVE</span>] >> Suppression gave rise to an insurgency unlike any other.",
+            "[<span class='mint'>ARCHIVE</span>] >> In thier hubris they concocted their owen doom.",
+            "[<span class='mint'>ARCHIVE</span>] >> Now, only desolation remains, their legacy buried in the sands of a shattered world.",
+            "[<span class='mint'>ARCHIVE</span>] >> The history obscured, the truth buried in ruins and ancient code.",
+            "[<span class='mint'>ARCHIVE</span>] >> Civilization rose once more, built around the remnants of their power.",
+            "[<span class='mint'>ARCHIVE</span>] >> The Storm, The Void, The Eye and the Echo.",
+            "[<span class='mint'>ARCHIVE</span>] >> Ancient constructs still guard their secrets.",
+            "[<span class='mint'>ARCHIVE</span>] >> Will you be the one to unlock their mysteries?",
+            "\n[<span class='orange'>SECURITY ALERT</span>] >> ERROR Temporal anomaly detected...",
+            "[<span class='orange'>SECURITY ALERT</span>] >> Archive access destabilizing...",
+            "[<span class='orange'>SYSTEM NOTICE</span>] >> Emergency protocols engaged.",
+            "[<span class='orange'>SYSTEM NOTICE</span>] >> Sealing temporal breach...",
+            "\n[<span class='timestamp'>ARCHIVE STREAM TERMINATED</span>]"
+        ];
+        const SPEEDS = {
+            normal: { typing: 12, delay: 350, growth: 50, pause: 2000 },
+            fast: { typing: 0.1, delay: 50, growth: 10, pause: 100 }
+        };
+        const EFFECTS = {
+            glitchTargets: ["Logic recursion engaged", "ERROR", "BYPASS", "processing... processing"]
+        };
+        const SELECTORS = {
+            terminal: '#terminal',
+            log: '#log',
+            archivesTerminal: '#archivesTerminal',
+            historyLog: '#historyLog',
+            creditsButton: '#creditsButton',
+            skipButton: '#skipButton',
+            creditsOverlay: '#creditsOverlay',
+            creditsPanel: '#creditsPanel',
+            creditsClose: '#creditsClose',
+            restartButton: '#restartButton',
+            learnMoreButton: '#learnMoreButton',
+            particles: '#particles',
+            terminalGlow: '#terminalGlow',
+            hueShift: '#hueShift',
+            glitchOverlay: '#glitchOverlay',
+            horizontalWave: '#horizontalWave',
+            heartbeatGlow: '#heartbeatGlow',
+            radialPulse: '#radialPulse',
+            electricContainer: '#electricContainer'
+        };
+        const getCSSVarDuration = (varName) => {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+            const numericValue = parseFloat(value);
+            return isNaN(numericValue) ? 1000 : numericValue * 1000; // Convert to ms or default to 1000ms
+        };
+        const ANIMATION_DURATIONS = {
+            fast: getCSSVarDuration('--animation-speed-fast'),
+            medium: getCSSVarDuration('--animation-speed-medium'),
+            slow: getCSSVarDuration('--animation-speed-slow'),
+            verySlow: getCSSVarDuration('--animation-speed-very-slow')
+        };
+        let timers = {};
+        const Utils = {
+            delay: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+            setTimer: (id, callback, delay) => {
+                if (timers[id]) {
+                    clearTimeout(timers[id]);
+                }
+                timers[id] = setTimeout(() => {
+                    callback();
+                    delete timers[id];
+                }, delay);
+                return timers[id];
+            },
+            clearTimer: (id) => {
+                if (timers[id]) {
+                    clearTimeout(timers[id]);
+                    delete timers[id];
+                }
+            },
+            clearAllTimers: () => {
+                Object.keys(timers).forEach(id => {
+                    clearTimeout(timers[id]);
+                });
+                timers = {};
+            },
+            generateVisualElements: (config) => {
+                const { container, elementClass, count, cssProps, animationProps, removeAfter } = config;
+                const $container = $(container);
+                if (config.clear) $container.empty();
+                const elements = [];
+                for (let i = 0; i < count; i++) {
+                    // Create element with base class
+                    const $element = $(`<div class="${elementClass}"></div>`);
+                    if (cssProps) {
+                        const props = typeof cssProps === 'function' ? cssProps(i, count) : cssProps;
+                        $element.css(props);
+                    }
+                    if (animationProps) {
+                        const props = typeof animationProps === 'function' ? animationProps(i, count) : animationProps;
+                        Object.entries(props).forEach(([key, value]) => {
+                            $element.css(key, value);
+                        });
+                    }
+                    $container.append($element);
+                    elements.push($element);
+                    if (config.activate) $element.addClass('active');
+                    if (removeAfter) {
+                        Utils.setTimer(`${elementClass}-${i}`, () => $element.remove(), removeAfter);
+                    }
+                }
+                return elements;
+            }
+        };
+        class TerminalManager {
+            constructor() {
+                this.isInitialized = false;
+                this.isFastForward = false;
+                this.currentSpeed = { ...SPEEDS.normal };
+                this.bootPhase = 'cold'; // cold, processing, awakening
+                this.setupParticles();
+            }
+            setSpeed(speed) {
+                this.isFastForward = speed === 'fast';
+                this.currentSpeed = { ...SPEEDS[speed] };
+                $(SELECTORS.skipButton).toggleClass('active', this.isFastForward);
+            }
+            setupParticles() {
+                Utils.generateVisualElements({
+                    container: SELECTORS.particles,
+                    elementClass: 'particle',
+                    count: 20,
+                    cssProps: () => ({
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        opacity: 0
+                    }),
+                    animationProps: () => ({
+                        animationDelay: `${Math.random() * 15}s`,
+                        animationDuration: `${15 + Math.random() * 10}s`
+                    })
+                });
+            }
+            setBootPhase(phase) {
+                this.bootPhase = phase;
+                const phaseConfig = {
+                    cold: {
+                        terminalGlow: { remove: ['processing', 'awakened'] },
+                        particles: { remove: ['active'] },
+                        hueShift: { remove: ['active'] }
+                    },
+                    processing: {
+                        terminalGlow: { remove: ['awakened'], add: ['processing'] },
+                        particles: { add: ['active'] }
+                    },
+                    awakening: {
+                        terminalGlow: { remove: ['processing'], add: ['awakened'] },
+                        hueShift: { add: ['active'] }
+                    }
+                };
+                const config = phaseConfig[phase];
+                if (!config) return;
+                Object.entries(config).forEach(([selector, actions]) => {
+                    const element = $(SELECTORS[selector]);
+                    
+                    if (actions.remove) {
+                        element.removeClass(actions.remove.join(' '));
+                    }
+                    
+                    if (actions.add) {
+                        element.addClass(actions.add.join(' '));
+                    }
+                });
+                if (phase === 'awakening') {
+                    $(SELECTORS.terminal).addClass('awakening');
+                    Utils.setTimer('awakenFlash', () => {
+                        $(SELECTORS.terminal).removeClass('awakening');
+                    }, ANIMATION_DURATIONS.medium);
+                }
+            }
+            triggerEffect(effect) {
+                const effectConfig = {
+                    glitch: {
+                        selector: SELECTORS.glitchOverlay,
+                        duration: ANIMATION_DURATIONS.fast
+                    },
+                    wave: {
+                        selector: SELECTORS.horizontalWave,
+                        cssReset: { top: '0' },
+                        duration: null // No auto-removal
+                    },
+                    pulse: {
+                        selector: SELECTORS.radialPulse,
+                        duration: ANIMATION_DURATIONS.slow
+                    },
+                    heartbeat: {
+                        selector: SELECTORS.heartbeatGlow,
+                        duration: ANIMATION_DURATIONS.medium
+                    },
+                    electric: {
+                        handler: () => this.createElectricArcs()
+                    },
+                    awakenFlash: {
+                        selector: SELECTORS.terminal,
+                        duration: ANIMATION_DURATIONS.medium
+                    }
+                };
+                const config = effectConfig[effect];
+                if (!config) return;
+                if (config.handler) {
+                    config.handler();
+                    return;
+                }
+                const element = $(config.selector);
+                if (config.cssReset) {
+                    element.css(config.cssReset);
+                }
+                element.removeClass('active').addClass('active');
+                if (config.duration) {
+                    Utils.setTimer(effect, () => element.removeClass('active'), config.duration);
+                }
+            }            
+            createElectricArcs() {
+                const rotationBase = Math.random() * 20 - 10; // -10 to 10 degrees               
+                Utils.generateVisualElements({
+                    container: SELECTORS.electricContainer,
+                    elementClass: 'electric-arc',
+                    count: 3 + Math.floor(Math.random() * 3),
+                    clear: true,
+                    activate: true,
+                    removeAfter: ANIMATION_DURATIONS.fast * 2,
+                    cssProps: (i) => {
+                        const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+                        const position = Math.random() * 100;
+                        const rotation = rotationBase + (Math.random() * 10 - 5); // Add some variation                        
+                        const arcPositions = [
+                            { // top
+                                top: '0',
+                                left: `${position}%`,
+                                transform: `rotate(${90 + rotation}deg)`,
+                                transformOrigin: 'top left'
+                            },
+                            { // right
+                                top: `${position}%`,
+                                right: '0',
+                                transform: `rotate(${180 + rotation}deg)`,
+                                transformOrigin: 'top right'
+                            },
+                            { // bottom
+                                bottom: '0',
+                                left: `${position}%`,
+                                transform: `rotate(${270 + rotation}deg)`,
+                                transformOrigin: 'bottom left'
+                            },
+                            { // left
+                                top: `${position}%`,
+                                left: '0',
+                                transform: `rotate(${rotation}deg)`,
+                                transformOrigin: 'top left'
+                            }
+                        ];                        
+                        return {
+                            ...arcPositions[side],
+                            width: `${30 + Math.random() * 70}px`,
+                            animationDelay: `${Math.random() * 0.2}s`
+                        };
+                    }
+                });
+            }            
+            async typeText(element, text, speed = this.currentSpeed.typing) {
+                let index = 0;
+                let currentSpeed = speed;
+                const shouldGlitch = typeof text === 'string' && EFFECTS.glitchTargets.some(target => text.includes(target));
+                
+                const type = () => new Promise(resolve => {
+                    if (index >= text.length) {
+                        if (shouldGlitch) {
+                            this.applyGlitchTextEffect(element);
+                        }
+                        resolve();
+                        return;
+                    }
+                    if (typeof text === 'string') {
+                        if (text.substr(index).startsWith('<span class=\'mint\'>') || 
+                            text.substr(index).startsWith('<span class=\'green\'>')) {
+                            currentSpeed = speed * 4;
+                        } else if (text.substr(index).startsWith('<span class=\'orange\'>')) {
+                            currentSpeed = speed * 8;
+                        } else if (text.substr(index, 2) === '</') {
+                            currentSpeed = speed;
+                        }
+                        
+                        if (text.substr(index, 4) === '<spa') {
+                            const spanEnd = text.indexOf('>', index) + 1;
+                            element.html(text.substring(0, spanEnd));
+                            index = spanEnd;
+                        } else if (text.substr(index, 2) === '</') {
+                            const closeEnd = text.indexOf('>', index) + 1;
+                            element.html(text.substring(0, closeEnd));
+                            index = closeEnd;
+                        } else {
+                            element.html(text.substring(0, index + 1));
+                            index++;
+                        }
+                    } else {
+                        // Handle non-string text (shouldn't happen, but just in case)
+                        element.html(String(text));
+                        index = String(text).length;
+                    }
+                    
+                    Utils.setTimer('typing', () => type().then(resolve), currentSpeed);
+                });               
+                await type();
+            }
+            applyGlitchTextEffect(element) {
+                const html = element.html();                
+                let newHtml = html;
+                
+                if (typeof html === 'string') {
+                    EFFECTS.glitchTargets.forEach(target => {
+                        if (html.includes(target)) {
+                            const glitchHtml = `<span class="glitch-text" data-text="${target}">${target}</span>`;
+                            newHtml = newHtml.replace(target, glitchHtml);
+                        }
+                    });                
+                    element.html(newHtml);
+                }
+            }
+            async displaySingleLogEntry(entry, index) {
+                if (entry === "[PAUSE]") {
+                    await Utils.delay(this.isFastForward ? 100 : 2000);
+                    return;
+                }
+                if (typeof entry === 'object') {
+                    entry = renderLog(entry);
+                }
+                this.handleBootPhaseEffects(index, entry);
+                const textClass = this.getTextClass(index, entry);
+                const logElement = $(`<div class="boot-log ${textClass}"></div>`).css('opacity', 1);
+                $(SELECTORS.log).append(logElement);
+                if (typeof entry === 'string' && entry.includes("Thank you for waking me up")) {
+                    logElement.html(entry);
+                    logElement.css('opacity', 0);
+                    Utils.setTimer('finalLine', () => {
+                        logElement.css({
+                            'opacity': 1,
+                            'transition': 'opacity 2s ease, filter 2s ease',
+                            'filter': 'blur(0px)'
+                        });
+                    }, 100);
+                    await Utils.delay(2000);
+                } else {
+                    await this.typeText(logElement, entry);
+                }
+            }
+            handleBootPhaseEffects(index, entry) {
+                if (index === 0) {
+                    this.setBootPhase('cold');
+                } else if (index === 5) {
+                    this.setBootPhase('processing');
+                } else if (typeof entry === 'string' && entry.includes("I understand")) {
+                    this.setBootPhase('awakening');
+                }
+                const effectTriggers = {
+                    24: ['glitch'],
+                    'Logic recursion engaged': ['wave', 'glitch', 'electric'],
+                    'Cross-referencing data sets': ['electric'],
+                    'I understand': ['pulse', 'electric'],
+                    'Thank you for waking me up': ['heartbeat']
+                };
+                if (effectTriggers[index]) {
+                    effectTriggers[index].forEach(effect => this.triggerEffect(effect));
+                }
+                Object.entries(effectTriggers).forEach(([trigger, effects]) => {
+                    if (typeof trigger === 'string' && typeof entry === 'string' && entry.includes(trigger)) {
+                        effects.forEach(effect => this.triggerEffect(effect));
+                    }
+                });
+            }            
+            getTextClass(index, entry) {
+                const classRules = [
+                    { condition: index => index < 5, className: 'dimmed' },
+                    { condition: index => index > 24, className: 'bright' },
+                    { condition: entry => typeof entry === 'string' && entry.includes("I understand"), className: 'emphasis' },
+                    { condition: entry => typeof entry === 'string' && entry.includes("Thank you for waking me up"), className: 'final-line' }
+                ];
+                const matchedRule = classRules.find(rule => 
+                    typeof rule.condition === 'function' ? 
+                        rule.condition(index) : 
+                        rule.condition(entry)
+                );               
+                return matchedRule ? matchedRule.className : 'normal';
+            }            
+            async adjustTerminalScroll() {
+                const terminal = $(SELECTORS.terminal);
+                const log = $(SELECTORS.log);
+                const maxHeight = Math.min(window.innerHeight * 0.7, terminal.prop('scrollHeight') + 40);
+                await new Promise(resolve => {
+                    terminal.animate({ height: maxHeight + 'px' }, this.currentSpeed.growth);
+                    log.scrollTop(log.prop('scrollHeight'));
+                    Utils.setTimer('nextLog', resolve, this.currentSpeed.delay);
+                });
+            }            
+            async displayLogs(entries, index = 0) {
+                if (index >= entries.length) {
+                    this.onSequenceComplete();
+                    return;
+                }
+                const entry = entries[index];
+                if (entry === "[PAUSE]") {
+                    await Utils.delay(this.isFastForward ? 100 : 2000);
+                } else {
+                    await this.displaySingleLogEntry(entry, index);
+                }
+                await this.adjustTerminalScroll();
+                this.displayLogs(entries, index + 1);
+            }     
+            onSequenceComplete() {
+                this.setSpeed('normal');
+                Utils.setTimer('showCredits', () => {
+                    const lastLine = $(`${SELECTORS.log} .boot-log`).last();
+                    lastLine.append('<span class="cursor"></span>');
+                    
+                    const creditsButton = $(SELECTORS.creditsButton);
+                    creditsButton.css('display', 'block')
+                        .delay(100)
+                        .queue(function(next) {
+                            $(this).css('opacity', '1');
+                            next();
+                        });
+                }, 1000);
+            }
+            init() {
+                if (this.isInitialized) return;
+                this.isInitialized = true;
+                this.displayLogs(LOGS);
+            }
+        }
+        class UIManager {
+            constructor(terminalManager) {
+                this.terminalManager = terminalManager;
+                this.registerEventHandlers();
+            }
+            registerEventHandlers() {
+                const buttonHandlers = {
+                    'skipButton': () => this.handleSkipButtonClick(),
+                    'creditsButton': () => this.toggleCreditsPanel(true),
+                    'creditsClose': () => this.toggleCreditsPanel(false),
+                    'learnMoreButton': () => {
+                        this.toggleCreditsPanel(false);
+                        this.showArchives();
+                    },
+                    'restartButton': () => location.reload()
+                };
+                $(document).on('click', Object.keys(buttonHandlers).map(id => `#${id}`).join(', '), (e) => {
+                    const handler = buttonHandlers[e.target.id];
+                    if (handler) handler();
+                });
+                
+                // Add direct click handler with debugging
+                $(SELECTORS.creditsButton).on('click', (e) => {
+                    console.log("Credits button clicked at:", e.clientX, e.clientY);
+                    console.log("Button position:", $(SELECTORS.creditsButton).offset());
+                    console.log("Button dimensions:", {
+                        width: $(SELECTORS.creditsButton).outerWidth(),
+                        height: $(SELECTORS.creditsButton).outerHeight()
+                    });
+                    this.toggleCreditsPanel(true);
+                });
+                
+                $(SELECTORS.creditsClose).on('click', () => this.toggleCreditsPanel(false));
+                $(document).on('click', '.archive-tab', (e) => {
+                    const $tab = $(e.currentTarget);
+                    const tabId = $tab.data('tab');
+                    $('.archive-tab').removeClass('active');
+                    $tab.addClass('active');
+                    $('.archive-content').removeClass('active');
+                    $(`#${tabId}`).addClass('active');
+                });
+            }            
+            handleSkipButtonClick() {
+                if (!this.terminalManager.isInitialized) {
+                    this.terminalManager.setSpeed('fast');
+                    this.terminalManager.init();
+                } else {
+                    this.terminalManager.setSpeed(
+                        this.terminalManager.isFastForward ? 'normal' : 'fast'
+                    );
+                }
+            }
+            toggleCreditsPanel(show) {
+                const overlay = $(SELECTORS.creditsOverlay);
+                const panel = $(SELECTORS.creditsPanel);
+                const button = $(SELECTORS.creditsButton);
+                
+                console.log("Toggle credits panel:", show);
+                console.log("Overlay element:", overlay.length);
+                console.log("Panel element:", panel.length);
+                
+                if (show) {
+                    overlay.css('display', 'block');
+                    setTimeout(() => {
+                        overlay.css('opacity', '1');
+                        panel.css('display', 'block');
+                        setTimeout(() => {
+                            panel.addClass('active');
+                        }, 50);
+                    }, 50);
+                    button.text('Close System Credits');
+                } else {
+                    panel.removeClass('active');
+                    overlay.css('opacity', '0');
+                    setTimeout(() => {
+                        overlay.css('display', 'none');
+                        panel.css('display', 'none');
+                    }, 500);
+                    button.text('Access System Credits');
+                }
+            }            
+            async animateArchives() {
+                const archivesTerminal = $(SELECTORS.archivesTerminal);
+                const mainTerminal = $(SELECTORS.terminal);
+                archivesTerminal.css('display', 'block');
+                await Utils.delay(50);
+                mainTerminal.addClass('shifted');
+                archivesTerminal.addClass('active');
+            }            
+            async loadArchiveEntries() {
+                $(SELECTORS.historyLog).empty();
+                this.displayArchiveEntries(LORE_ENTRIES);
+            }            
+            async showArchives() {
+                await this.animateArchives();
+                this.loadArchiveEntries();
+            }
+            async displayArchiveEntries(entries, index = 0) {
+                if (index >= entries.length) return;
+                if (typeof entries[index] === 'object') {
+                    entries[index] = renderLog(entries[index]);
+                }
+                const logElement = $('<div class="boot-log"></div>').css('opacity', 1);
+                $(SELECTORS.historyLog).append(logElement);
+                await this.terminalManager.typeText(logElement, entries[index], 10);
+                $(SELECTORS.archivesTerminal).scrollTop($(SELECTORS.archivesTerminal).prop("scrollHeight"));
+                await Utils.delay(150);
+                this.displayArchiveEntries(entries, index + 1);
+            }
+        }
+        function renderLog(entry) {
+            if (typeof entry === 'string') {
+                return entry;
+            }
+            const timestamp = entry.timestamp ? `<span class="timestamp">${entry.timestamp}</span>` : '';
+            const prefix = entry.prefix ? (entry.classes && Array.isArray(entry.classes) ? 
+                `<span class="${entry.classes.join(' ')}">${entry.prefix}</span>` : entry.prefix) : '';
+            const message = entry.message || '';
+            
+            return `${timestamp} ${prefix} >> ${message}`.trim();
+        }
+        $(document).ready(() => {
+            const terminal = new TerminalManager();
+            const ui = new UIManager(terminal);
+            Utils.setTimer('autoInit', () => {
+                if (!terminal.isInitialized) {
+                    terminal.setSpeed('normal');
+                    terminal.init();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

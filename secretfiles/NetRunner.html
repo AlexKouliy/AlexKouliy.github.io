@@ -1,0 +1,1361 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NetRunner</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+    :root {
+      --bg-color: #050a10;
+      --primary-color: #0ff;
+      --primary-glow: rgba(0, 255, 255, 0.5);
+      --primary-dark: rgba(0, 255, 255, 0.2);
+      --secondary-color: #ffeb3b;
+      --secondary-glow: rgba(255, 235, 59, 0.5);
+      --secondary-dark: rgba(255, 235, 59, 0.2);
+      --panel-bg: rgba(0, 20, 40, 0.7);
+      --panel-bg-darker: rgba(0, 20, 40, 0.85);
+      --panel-border: rgba(0, 255, 255, 0.25);
+      --panel-border-hover: rgba(0, 255, 255, 0.5);
+      --shadow-color: rgba(0, 0, 0, 0.6);
+      --shadow-color-dark: rgba(0, 0, 0, 0.7);
+      --text-color: #e0e0e0;
+      --attack-color: #ff5252;
+      --skill-color: #40c4ff;
+      --power-color: #ffab40;
+      --heal-color: #00e676;
+      --gradient-dark: linear-gradient(145deg, #0a1a2a, #152535);
+    }
+    * {box-sizing:border-box}
+    body, html {margin:0; padding:0; overflow:hidden; height:100%; background:var(--bg-color) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' fill='none' stroke='%230ff' stroke-width='0.5' opacity='0.05'/></svg>") repeat; font-family:'Roboto Mono',monospace; color:var(--text-color)}
+    #gameContainer {width:100%; height:100%; position:relative; overflow:hidden}
+    #gameContainer::before {content: "";position: absolute;top: 0;left: 0;right: 0;bottom: 0;background: linear-gradient(to bottom, rgba(0,255,255,0.05) 0%, rgba(0,0,0,0) 100%);pointer-events: none;z-index: 1;}
+    #gameContainer::after {content: "";position: absolute;top: 0;left: 0;right: 0;height: 2px;background: linear-gradient(90deg, transparent, #0ff, transparent);animation: scanline 15s linear infinite;opacity: 0.3;z-index: 2;pointer-events: none;}
+    #cubeContainer {position:absolute; top:70px; bottom:150px; left:0; right:0; z-index:0}
+    #cubeContainer canvas {width:100%; height:100%; display:block}
+    @keyframes scanline {
+      0% { transform: translateY(-100px); }
+      100% { transform: translateY(100vh); }
+    }
+    @keyframes glitch {
+      0% { text-shadow: -2px 0 #ff00de, 2px 0 #0ff; }
+      25% { text-shadow: 2px 0 #ff00de, -2px 0 #0ff; }
+      50% { text-shadow: -3px 0 #ff00de, 3px 0 #0ff; }
+      75% { text-shadow: 1px 0 #ff00de, -1px 0 #0ff; }
+      100% { text-shadow: -2px 0 #ff00de, 2px 0 #0ff; }
+    }
+    @keyframes pulse {
+      0% {transform:scale(1); opacity:1}
+      50% {transform:scale(1.1); opacity:0.8}
+      100% {transform:scale(1); opacity:1}
+    }
+    @keyframes glow {
+      0% {box-shadow:0 0 5px rgba(0,255,255,0.3)}
+      50% {box-shadow:0 0 15px rgba(0,255,255,0.7)}
+      100% {box-shadow:0 0 5px rgba(0,255,255,0.3)}
+    }
+    @keyframes borderGlow {
+      0% {border-color: rgba(0,255,255,0.3)}
+      50% {border-color: rgba(0,255,255,0.7)}
+      100% {border-color: rgba(0,255,255,0.3)}
+    }
+    .pile, #creditsDisplay, #levelDisplay, #modulesDisplay {padding: 8px 12px;margin: 5px;background: var(--panel-bg);border-radius: 4px;backdrop-filter: blur(4px);font-size: 14px;border: 1px solid var(--panel-border);box-shadow: 0 2px 10px var(--shadow-color);position: relative;overflow: hidden;}    
+    .pile::after, #creditsDisplay::after, #levelDisplay::after, #modulesDisplay::after {content: "";position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0) 50%);pointer-events: none;}
+    .pile {cursor: pointer}
+    .healthBar {overflow:hidden;position:relative;box-shadow:inset 0 2px 4px rgba(0,0,0,0.7);border-radius:4px;border:1px solid rgba(255,255,255,0.1);}
+    .healthFill {height:100%; transition:width 0.4s cubic-bezier(0.22, 1, 0.36, 1)}
+    .healthText {position:absolute;width:100%;top:0;left:0;font-weight:700;z-index:2;color:#fff;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
+    #enemyHealthContainer {position:absolute; top:25px; left:50%; transform:translateX(-50%); z-index:10; text-align:center}
+    #enemyHealthContainer .healthBar {width:250px; height:26px; background:linear-gradient(135deg,#660000,#880000); border-radius:4px}
+    #enemyHealthFill {background:linear-gradient(90deg, #f44336, #ff7043)}
+    #enemyHealthText {font-size:14px; line-height:26px}
+    #enemyMoveIndicator {margin-top:5px; font-size:28px; color:#ffea00; text-shadow:0 0 10px rgba(255,234,0,0.7); animation:pulse 1.5s infinite}
+    #playerHealthContainer {margin-right: 0;position: relative;}
+    #playerHealthContainer .healthBar {width: 220px; height: 24px; background: linear-gradient(135deg, #001a2e, #002a3a);border: 1px solid rgba(0, 255, 255, 0.3);box-shadow: 0 0 10px rgba(0, 255, 255, 0.2), inset 0 0 5px rgba(0, 0, 0, 0.5);position: relative;overflow: hidden;}
+    #playerHealthContainer .healthBar::before {content: "";position: absolute;top: 0;left: 0;right: 0;height: 1px;background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.5), transparent);z-index: 2;}
+    #playerHealthContainer .healthBar::after {content: "";position: absolute;bottom: 0;left: 0;right: 0;height: 1px;background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);z-index: 2;}
+    #playerHealthFill {background: linear-gradient(90deg, #00e676, #00c853);position: relative;overflow: hidden;}
+    #playerHealthFill::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 0, 0, 0.1) 5px,
+        rgba(0, 0, 0, 0.1) 10px
+      );
+    }
+    #playerHealthText {font-size: 14px;line-height: 24px;font-family: 'Roboto Mono', monospace;letter-spacing: 1px;text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);}
+    #levelDisplay {top: 15px;left: 15px;font-size: 24px;font-weight: bold;position: absolute;z-index: 20;text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);padding: 10px 15px;}
+    #modulesDisplay {top: 65px;left: 15px;font-size: 14px;position: absolute;z-index: 20;background: var(--panel-bg-darker);box-shadow: 0 2px 10px var(--shadow-color), inset 0 0 3px rgba(0, 255, 255, 0.5);border: 1px solid var(--panel-border);animation: borderGlow 2s infinite;}
+    #topRight {position: absolute;top: 15px;right: 15px;z-index: 20;display: flex;flex-direction: column;gap: 10px;}
+    #creditsDisplay {color: var(--secondary-color);text-shadow: 0 0 5px var(--secondary-glow);font-weight: bold;background: var(--panel-bg);border-radius: 8px;border: 1px solid var(--secondary-dark);box-shadow: 0 0 15px var(--secondary-dark);padding: 8px 12px;font-size: 16px;}
+    #bottomContainer {position: absolute;bottom: 20px;left: 15px;right: 15px;z-index: 10;display: flex;justify-content: space-between;align-items: center;background: var(--panel-bg-darker);padding: 12px 15px;border-radius: 4px;backdrop-filter: blur(4px);border: 1px solid var(--panel-border);box-shadow: 0 2px 10px var(--shadow-color);}
+    #energyDisplayBottom {font-size: 16px; display: flex; align-items: center; gap: 5px;background: var(--panel-bg);padding: 8px 12px;border-radius: 4px;border: 1px solid var(--secondary-dark);box-shadow: 0 0 8px var(--secondary-glow);}
+    #energyDisplayBottom::before {content: "⚡"; color: var(--secondary-color);text-shadow: 0 0 5px var(--secondary-glow);}
+    #energyCountBottom {font-weight: bold; color: var(--secondary-color); text-shadow: 0 0 5px var(--secondary-glow);font-family: 'Roboto Mono', monospace;}
+    #endTurnButton {padding: 12px 24px;font-size: 16px;font-family: 'Roboto Mono', monospace;letter-spacing: 1px;text-transform: uppercase;border: none;border-radius: 4px;background: linear-gradient(145deg, #0a1a2a, #152535);color: var(--primary-color);cursor: pointer;position: relative;overflow: hidden;border: 1px solid var(--primary-dark);text-shadow: 0 0 5px var(--primary-glow);box-shadow: 0 4px 8px var(--shadow-color), 0 0 15px var(--primary-glow);transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);}
+    #endTurnButton:hover {background: linear-gradient(145deg, #152535, #1a2a40);box-shadow: 0 6px 12px var(--shadow-color-dark), 0 0 20px var(--primary-glow);transform: translateY(-2px);}
+    #endTurnButton:active {transform: translateY(1px);box-shadow: 0 2px 6px var(--shadow-color-dark), 0 0 10px var(--primary-glow);}
+    #ui {position: absolute;bottom: 80px;left: 0;right: 0;z-index: 10;display: flex;justify-content: center;align-items: center;padding: 15px 0;overflow: visible;max-width: 100%;background: transparent;border: none;box-shadow: none;min-height: 180px;}
+    #ui::-webkit-scrollbar,
+    #ui::-webkit-scrollbar-track,
+    #ui::-webkit-scrollbar-thumb {display: none;}
+    .digital-code {position: absolute;top: 0;left: 0;width: 100%;height: 100%;opacity: 0.1;font-family: monospace;font-size: 6px;color: #0ff;overflow: hidden;pointer-events: none;z-index: 0;padding: 5px;}
+    #scanProgress {position:absolute; bottom:0; left:0; height:5px; background:linear-gradient(90deg, #00e676, #00c853); width:0%; border-radius:0 0 4px 4px; box-shadow:0 0 10px rgba(0,230,118,0.5)}
+    .card {width: 110px; height: 160px; background: linear-gradient(145deg, #0a1a2a, #152535); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 255, 255, 0.2); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 10px; cursor: grab; transition: all 0.2s cubic-bezier(0.2, 0, 0.3, 1); transform-origin: center bottom; position: relative; border: 1px solid rgba(0, 255, 255, 0.3);overflow: hidden;user-select: none;will-change: transform, box-shadow;touch-action: none;flex-shrink: 0;backdrop-filter: blur(4px);}
+    .card:active {cursor: grabbing;}
+    .card-dragging {transform: scale(1.1) rotate(3deg);box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);border-color: rgba(0, 255, 255, 0.7);z-index: 1000 !important;transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease-out;}
+    .card::before {content: "";position: absolute;top: 0;left: 0;width: 100%;height: 3px;background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.7), transparent);}
+    .card::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 255, 0.03) 0px,
+        rgba(0, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+    .card:hover {transform: scale(1.08) translateY(-5px) rotate(1deg); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 255, 0.4); border-color: rgba(0, 255, 255, 0.5);z-index: 100 !important;}
+    @media (hover: none) {
+      .card:active {
+        transform: scale(1.05) translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 255, 255, 0.3);
+      }
+    }
+    .card .card-title {font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 6px; color: #fff; text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);position: relative;z-index: 2;letter-spacing: 0.5px;}
+    .card[data-type="Attack"] .card-title {color: var(--attack-color);text-shadow: 0 0 8px rgba(255, 82, 82, 0.6);}
+    .card[data-type="Skill"] .card-title {color: var(--skill-color);text-shadow: 0 0 8px rgba(64, 196, 255, 0.6);}
+    .card[data-type="Power"] .card-title {color: var(--power-color);text-shadow: 0 0 8px rgba(255, 171, 64, 0.6);}
+    .card[data-type="Module"] .card-title {color: #7c4dff;text-shadow: 0 0 8px rgba(124, 77, 255, 0.6);}
+    .card .card-type, .card .card-cost {font-size: 14px; text-align: center;position: relative;z-index: 2;}
+    .card .card-type {color: #bbb;font-size: 12px;text-transform: uppercase;letter-spacing: 1px;opacity: 0.8;}
+    .card .card-cost {margin-top: auto; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 8px rgba(255, 235, 59, 0.6);background: rgba(0, 0, 0, 0.4);padding: 4px 10px;border-radius: 12px;border: 1px solid rgba(255, 235, 59, 0.4);font-family: 'Roboto Mono', monospace;letter-spacing: 0.5px;}
+    .card .card-desc {display: none;}
+    #ui .card:hover .card-desc {display: block; position: absolute; bottom: 4px; background: rgba(0, 10, 20, 0.95); color: #ddd; font-size: 11px; padding: 6px 8px; border-radius: 4px; width: 95%; text-align: center; z-index: 5; border: 1px solid rgba(0, 255, 255, 0.3);box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);line-height: 1.3;}
+    .overlay {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:none; justify-content:center;align-items:center; z-index:115; backdrop-filter:blur(3px)}
+    .overlayContent {background:#111; padding:25px; border-radius:4px; max-width:80%; max-height:80%; overflow-y:auto; box-shadow:0 0 30px rgba(0,0,0,0.8), 0 0 5px rgba(0,255,255,0.3); border:1px solid rgba(0,255,255,0.15);position: relative;overflow: hidden;}
+    .overlayContent::before {content: "";position: absolute;top: 0;left: 0;width: 100%;height: 2px;background: linear-gradient(90deg, transparent, #0ff, transparent);}
+    .overlayContent::after {content: "";position: absolute;bottom: 0;left: 0;width: 100%;height: 2px;background: linear-gradient(90deg, transparent, #0ff, transparent);}
+    .overlayContent h2 {color:#0ff; text-shadow:0 0 10px rgba(0,255,255,0.5); margin-top:0;position: relative;display: inline-block;}
+    .overlayContent h2::after {content: "";position: absolute;bottom: -5px;left: 0;width: 100%;height: 1px;background: linear-gradient(90deg, transparent, rgba(0,255,255,0.5), transparent);}
+    .overlayContent button {margin-top: 15px; padding: 12px 24px; background: linear-gradient(145deg, #1a1a2e, #16213e); border: none; border-radius: 4px; cursor: pointer;color: #0ff; font-size: 16px; font-family: 'Roboto Mono', monospace;letter-spacing: 1px;text-transform: uppercase;transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1); border: 1px solid rgba(0,255,255,0.3);position: relative;overflow: hidden;text-shadow: 0 0 5px rgba(0,255,255,0.5);box-shadow: 0 4px 8px rgba(0,0,0,0.7), 0 0 15px rgba(0,255,255,0.3);}
+    .overlayContent button::before {content: "";position: absolute;top: 0;left: -100%;width: 100%;height: 100%;background: linear-gradient(90deg, transparent, rgba(0,255,255,0.2), transparent);transition: all 0.6s ease;}
+    .overlayContent button:hover::before {left: 100%;}
+    .overlayContent button:hover {background: linear-gradient(145deg, #16213e, #1a1a2e); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.8), 0 0 20px rgba(0,255,255,0.5);border-color: rgba(0,255,255,0.6);color: #fff;text-shadow: 0 0 8px rgba(0,255,255,0.8);}
+    .healPlus, .firewallAnim, .refactorAnim, .overclockAnim {position:absolute; pointer-events:none}
+    .healPlus {font-size:24px; color:#0f0; opacity:1; z-index:50; text-shadow:0 0 10px rgba(0,255,0,0.7)}
+    .firewallAnim {left:0; bottom:0; width:100%; height:0; background:linear-gradient(to top,rgba(0,128,255,0.5),transparent); z-index:60; border-radius:0 0 4px 4px}
+    .refactorAnim {font-size:32px; color:#ff0; opacity:1; z-index:70; text-shadow:0 0 15px rgba(255,255,0,0.8)}
+    @keyframes overclockAnim {
+      from {transform:rotate(0) scale(1); opacity:1; box-shadow:0 0 20px rgba(255,165,0,0.8)}
+      to {transform:rotate(360deg) scale(1.5); opacity:0; box-shadow:0 0 40px rgba(255,165,0,0.4)}
+    }
+    .overclockAnim {top:0; left:50%; transform:translate(-50%,0); width:50px; height:50px; background:rgba(255,165,0,0.7); border-radius:50%; animation:overclockAnim 1s ease-out forwards; z-index:70}
+    @keyframes hitPulse {
+      0% {transform: translate(-50%, -50%) scale(0.5); opacity: 1; border-width: 3px;}
+      50% {transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; border-width: 2px;}
+      100% {transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-width: 0px;}
+    }
+    @keyframes hitGlow {
+      0% {box-shadow: 0 0 15px rgba(0, 255, 255, 0.7), inset 0 0 5px rgba(0, 255, 255, 0.5);}
+      50% {box-shadow: 0 0 30px rgba(0, 255, 255, 0.9), inset 0 0 15px rgba(0, 255, 255, 0.7);}
+      100% {box-shadow: 0 0 5px rgba(0, 255, 255, 0.3), inset 0 0 2px rgba(0, 255, 255, 0.2);}
+    }
+    .next-battle {border: 1px solid rgba(0,255,255,0.3);background: linear-gradient(145deg, #0a1a2a, #152535);box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);transform: none !important;transition: none !important;}
+    .next-battle:hover {transform: none !important;box-shadow: 0 0 15px rgba(0, 255, 255, 0.3) !important;border-color: rgba(0,255,255,0.3) !important;z-index: auto !important;}
+    @media(max-width:600px) {
+      .card {width:80px; height:120px}
+      #playerHealthContainer .healthBar {width:160px; height:20px}
+      #enemyHealthContainer .healthBar {width:180px; height:22px}
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100px); }
+      100% { transform: translateY(100vh); }
+    }
+    @keyframes glitch {
+      0% { text-shadow: -2px 0 #ff00de, 2px 0 #0ff; }
+      25% { text-shadow: 2px 0 #ff00de, -2px 0 #0ff; }
+      50% { text-shadow: -3px 0 #ff00de, 3px 0 #0ff; }
+      75% { text-shadow: 1px 0 #ff00de, -1px 0 #0ff; }
+      100% { text-shadow: -2px 0 #ff00de, 2px 0 #0ff; }
+    }
+    .glitch-text {animation: glitch 3s infinite;position: relative;}
+    .glitch-text::before,.glitch-text::after {content: attr(data-text);position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: #111;}
+    .glitch-text::before {left: 2px;text-shadow: -1px 0 #ff00de;animation: glitch-anim-1 2s infinite linear alternate-reverse;clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);-webkit-clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);}
+    .glitch-text::after {left: -2px;text-shadow: 1px 0 #0ff;animation: glitch-anim-2 2s infinite linear alternate-reverse;clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);-webkit-clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);}
+    @keyframes glitch-anim-1 {
+      0% { transform: translateX(0); }
+      80% { transform: translateX(0); }
+      85% { transform: translateX(2px); }
+      90% { transform: translateX(-2px); }
+      95% { transform: translateX(2px); }
+      100% { transform: translateX(0); }
+    }   
+    @keyframes glitch-anim-2 {
+      0% { transform: translateX(0); }
+      80% { transform: translateX(0); }
+      85% { transform: translateX(-2px); }
+      90% { transform: translateX(2px); }
+      95% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+    .shop-option {background: var(--gradient-dark) !important;color: var(--text-color) !important;padding: 18px !important;margin: 12px !important;border-radius: 8px !important;cursor: pointer !important;box-shadow: 0 4px 12px var(--shadow-color), 0 0 15px var(--primary-dark) !important;transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1) !important;text-align: center !important;border: 1px solid var(--primary-dark) !important;position: relative !important;overflow: hidden !important;}
+    .shop-option::before {content: "";position: absolute;top: 0;left: -100%;width: 100%;height: 100%;background: linear-gradient(90deg, transparent, var(--primary-dark), transparent);transition: all 0.6s ease;}
+    .shop-option:hover::before {left: 100%;}
+    .shop-option:hover {transform: translateY(-3px) !important;box-shadow: 0 8px 20px var(--shadow-color-dark), 0 0 25px var(--primary-glow) !important;border-color: var(--panel-border-hover) !important;}
+    .shop-option:active {transform: translateY(1px) !important;box-shadow: 0 2px 8px var(--shadow-color), 0 0 10px var(--primary-dark) !important;}
+    .shop-option h3 {color: var(--primary-color) !important;margin-top: 0 !important;margin-bottom: 8px !important;font-size: 18px !important;text-shadow: 0 0 5px var(--primary-glow) !important;}  
+    .shop-option p {margin: 0 !important;font-size: 14px !important;opacity: 0.9 !important;}
+    #creditsDisplay {color: #ffeb3b;text-shadow: 0 0 5px rgba(255, 235, 59, 0.5);font-weight: bold;background: rgba(0, 20, 40, 0.7);border-radius: 8px;border: 1px solid rgba(255, 235, 59, 0.3);box-shadow: 0 0 15px rgba(255, 235, 59, 0.2);padding: 8px 12px;font-size: 16px;}
+    .bottom-controls {display: flex;align-items: center;gap: 15px;}
+    #viewDeckButton:hover {transform: translateY(-2px);box-shadow: 0 4px 15px var(--shadow-color-dark), 0 0 15px var(--primary-glow);border-color: var(--panel-border-hover);background: var(--panel-bg-darker);}
+    .scan-card,.scan-card:hover,.scan-card:active {transform: none !important;box-shadow: 0 0 15px var(--primary-dark) !important;border-color: var(--primary-dark) !important;z-index: 1 !important;transition: none !important;cursor: default !important;}
+    </style>
+  </head>
+  <body>
+    <div id="storyOverlay" class="overlay"><div id="storyContent" class="overlayContent" style="max-width:600px;width:80%;margin:0 auto;padding:30px;text-align:center"><h2 style="color:#0ff;text-shadow:0 0 10px rgba(0,255,255,0.5);position:relative;display:inline-block;margin-bottom:20px;" class="glitch-text" data-text="Cyber Revolution">Cyber Revolution</h2><p style="color:#e0e0e0;font-size:16px;line-height:1.5;margin-bottom:25px;">In a dystopian future ruled by corporate overlords, you are the renegade hacker determined to dismantle the system from within. Every card you play brings you closer to exposing the truth and igniting a digital uprising. The revolution begins now.</p><button id="startGame" style="padding:12px 24px;font-size:16px;font-family:'Roboto Mono',monospace;letter-spacing:1px;text-transform:uppercase;border:none;border-radius:4px;background:linear-gradient(145deg,#1a1a2e,#16213e);color:#0ff;cursor:pointer;margin-top:15px;position:relative;overflow:hidden;border:1px solid rgba(0,255,255,0.3);text-shadow:0 0 5px rgba(0,255,255,0.5);box-shadow:0 4px 8px rgba(0,0,0,0.7), 0 0 15px rgba(0,255,255,0.3);transition:all 0.2s cubic-bezier(0.22, 1, 0.36, 1);">Start</button></div></div>
+    <div id="gameContainer">
+      <div id="enemyHealthContainer">
+        <div class="healthBar">
+          <div id="enemyHealthFill" class="healthFill"></div>
+          <div id="enemyHealthText" class="healthText">50/50</div>
+        </div>
+        <div id="enemyMoveIndicator"></div>
+      </div>
+      <div id="levelDisplay" class="pile">Level: 1</div>
+      <div id="modulesDisplay" class="pile">Modules: None</div>
+      <div id="topRight">
+        <div id="viewDeckButton" class="pile">View Deck</div>
+        <div id="drawPile" class="pile">Draw (<span id="drawCount">0</span>)</div>
+        <div id="discardPile" class="pile">Discard (<span id="discardCount">0</span>)</div>
+        <div id="creditsDisplay" class="pile">Credits: 0</div>
+      </div>
+      <div id="cubeContainer"></div>
+      <div id="ui"></div>
+      <div id="bottomContainer">
+        <div id="playerHealthContainer">
+          <div class="healthBar">
+            <div id="playerHealthFill" class="healthFill"></div>
+            <div id="playerHealthText" class="healthText">100/100</div>
+          </div>
+        </div>
+        <div class="bottom-controls">
+          <div id="energyDisplayBottom">Energy: <span id="energyCountBottom">3</span></div>
+          <button id="endTurnButton">End Turn</button>
+        </div>
+      </div>
+    </div>
+    <div id="deckOverlay" class="overlay"><div id="deckContent" class="overlayContent"><h2>Your Full Deck</h2><ul id="deckList"></ul><button id="closeDeck">Close</button></div></div>
+    <div id="removeCardOverlay" class="overlay"><div id="removeCardContent" class="overlayContent"><h2>Remove a Card (-<span id="removeCardCostDisplay">15</span> Credits)</h2><ul id="removeCardList"></ul><button id="closeRemoveCard">Close</button></div></div>
+    <div id="newCardOverlay" class="overlay"><div id="newCardContent" class="overlayContent"><h2>Choose a New Card</h2><div id="newCardChoices" style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap"></div><button id="closeNewCard">Close</button></div></div>
+    <div id="modulesOverlay" class="overlay"><div id="modulesContent" class="overlayContent"><h2>Choose a Module</h2><div id="moduleChoices" style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap"></div><button id="closeModules">Close</button></div></div>
+    <script>
+    var config={bgColor:"#00121A",cubeColor:0x00ffff,cardBgColor:"#222",cardTextColor:"#e0e0e0",enemyY:"15px",cubeY:1,fullHealCost:42,removeCardCost:15,newCardOptionCost:0,moduleCost:50};
+    $("body").css("background-color",config.bgColor);
+    var typeEmoji={Attack:"💥",Skill:"🔒",Power:"⚡"},enemyActionIcons={Attack:"💥",Defend:"🛡",Skill:"⚙️",Power:"⚡"};
+    function Card(id,type,cost,name,effect,desc){this.id=id;this.type=type;this.cost=cost;this.name=name;this.effect=effect;this.desc=desc||""}
+    var sounds = {
+      attack: null,
+      skill: null,
+      power: null
+    };
+    function playCardSound(type) {
+      console.log("Playing sound for: " + type);
+    }
+    function calcDamage(game, baseDamage, bonusDamage) {
+      var totalDamage = Math.floor((baseDamage + (bonusDamage || 0)) * game.modules.damageMult * (game.tempDamageMult || 1));
+      if (game.enemyDefending) {
+        totalDamage = Math.floor(totalDamage/2);
+        game.enemyDefending = false;
+      }
+      game.eh = Math.max(0, game.eh - totalDamage);
+      game.flashCube();
+      game.shakeCube();
+      return totalDamage;
+    }
+    function applyHeal(game, amount) {
+      var healAmount = Math.floor(amount * (game.modules.healMult || 1));
+      game.ph = Math.min(game.maxHP, game.ph + healAmount);
+      game.healAnimation();
+      return healAmount;
+    }    
+    var cardLibrary = {
+      Attack: [
+        new Card(0, "Attack", 1, "SQL Injection", function(game) {
+          calcDamage(game, 15);
+        }, "Exploit a vulnerable database to damage enemy systems."),
+        new Card(1, "Attack", 2, "DDoS Assault", function(game) {
+          calcDamage(game, 20);
+        }, "Overwhelm the enemy with a flood of requests."),
+        new Card(7, "Attack", 3, "System Override", function(game) {
+          calcDamage(game, 30);
+        }, "Force a system error to compromise the enemy."),
+        new Card(999, "Attack", 2, "Replicating Strike", function(game) {
+          var baseDmg = 10;
+          calcDamage(game, baseDmg);
+          var cloneCard = new Card(Date.now() + Math.random(), "Attack", 2, "Replicating Strike (Clone)", function(gameState) {
+            var played = gameState.cardsPlayedSoFar - cloneCard.spawnCardPlayedCount;
+            calcDamage(gameState, baseDmg, 5 * played);
+          });
+          cloneCard.spawnCardPlayedCount = game.cardsPlayedSoFar;
+          game.dp.push(cloneCard);
+        }, "Launch a clone attack that multiplies damage."),
+        new Card(1000, "Attack", 4, "Database Strike", function(game) {
+          var baseDmg = 10, scale = playerDeck.length * 2;
+          var damage = calcDamage(game, baseDmg, scale);
+          game.damageDealtThisTurn += damage;
+        }, "Attack damage scales with your deck size."),
+        new Card(1001, "Attack", 1, "Momentum", function(game) {
+          game.momentumStrikeCount++;
+          var damage = calcDamage(game, 5 * game.momentumStrikeCount);
+          game.damageDealtThisTurn += damage;
+        }, "Damage increases with repeated plays this battle."),
+        new Card(1004, "Attack", 3, "Backdoor Breach", function(game) {
+          var baseDmg = 25;
+          if (game.enemyDefending) baseDmg = Math.floor(baseDmg * 1.5);
+          var damage = calcDamage(game, baseDmg);
+          game.damageDealtThisTurn += damage;
+        }, "Exploit hidden vulnerabilities for bonus damage when enemy defends.")
+      ],
+      Skill: [
+        new Card(2, "Skill", 2, "Security Patch", function(game) {
+          applyHeal(game, 20);
+        }, "Restore system integrity."),
+        new Card(3, "Skill", 1, "Firewall", function(game) {
+          game.firewallActive = true;
+          game.firewallAnimation();
+        }, "Reduce damage taken on next turn by 50%."),
+        new Card(8, "Skill", 2, "Nano Regeneration", function(game) {
+          applyHeal(game, 15);
+          for (var i = 0; i < 3; i++) game.drawCard(true);
+        }, "Heal and draw 3 cards."),
+        new Card(9, "Skill", 1, "Data Surge", function(game) {
+          game.energy += 2;
+          game.updateUI();
+        }, "Gain 2 energy."),
+        new Card(10, "Skill", 2, "Berserk Protocol", function(game) {
+          game.tempDamageMult = 1.5;
+          game.updateUI();
+        }, "Increase damage by 50% this turn."),
+        new Card(1002, "Skill", 1, "Healing Surge", function(game) {
+          var healAmount = 5 + game.modules.healBonus;
+          applyHeal(game, healAmount);
+        }, "Heal 5 HP (affected by modules)."),
+        new Card(1005, "Skill", 2, "Crypto Miner", function(game) {
+          game.credits += 5;
+          game.updateUI();
+        }, "Generate 5 credits."),
+        new Card(1008, "Skill", 1, "Remote Access", function(game) {
+          if (game.disc.length === 0) {
+            alert("No cards in discard pile!");
+            return;
+          }
+          var cardFromDiscard = game.disc.pop();
+          game.hand.push(cardFromDiscard);
+          game.renderHand();
+        }, "Retrieve one card from your discard pile.")
+      ],
+      Power: [
+        new Card(4, "Power", 2, "Overclock", function(game) {
+          game.energy += 3;
+          game.overclockAnimation();
+          game.updateUI();
+        }, "Gain 3 energy."),
+        new Card(5, "Power", 2, "Zero-Day Exploit", function(game) {
+          game.costModifier = -1;
+          game.updateUI();
+        }, "Cards cost 1 less energy this turn."),
+        new Card(6, "Power", 2, "Refactor", function(game) {
+          game.disc = game.disc.concat(game.hand);
+          game.hand = [];
+          game.dealHand();
+          game.refactorAnimation();
+        }, "Discard your hand and draw new cards.")
+      ]
+    };
+    function cloneCard(card){return new Card(Date.now()+Math.random(),card.type,card.cost,card.name,card.effect,card.desc)}
+    var starterCards = ["SQL Injection", "DDoS Assault", "Security Patch", "Firewall", "Overclock", "Zero-Day Exploit", "Refactor"];
+    var playerDeck = [];
+    var cardCounts = {}; // Track how many of each card we've added
+    starterCards.forEach(function(cardName) {
+      cardCounts[cardName] = 0;
+    });
+    for(var k in cardLibrary) {
+      cardLibrary[k].forEach(function(card) {
+        if(starterCards.indexOf(card.name) !== -1) {
+          var maxCopies = (card.name === "Refactor") ? 1 : 2;
+          while(cardCounts[card.name] < maxCopies) {
+            playerDeck.push(cloneCard(card));
+            cardCounts[card.name]++;
+          }
+        }
+      });
+    }    
+    function getBattleDeck(){var d=playerDeck.slice();d.sort(function(){return Math.random()-0.5});return d}
+    var game = {
+      dp: [],
+      disc: [],
+      hand: [],
+      energy: 3,
+      ph: 100,
+      maxHP: 100,
+      eh: 50,
+      enemyMax: 50,
+      enemyLevel: 1,
+      enemyDead: false,
+      credits: 0,
+      focusEnergy: 0,
+      costModifier: 0,
+      enemyAttackBonus: 0,
+      enemyDefending: false,
+      firewallActive: false,
+      maxHandSize: 11,
+      playerTurn: true,
+      deathAnimating: false,
+      cardsPlayedSoFar: 0,
+      isScanTurn: true,
+      battleRound: 1,
+      tempDamageMult: 1,
+      dataExtractBase: undefined,
+      baseDamageMult: 1,
+      baseMaxHP: 100,
+      icosahedronsDefeated: 0,
+      octahedronsDefeated: 0,
+      bossNext: false,
+      enemyType: "cube",
+      moduleCost: 50,
+      fullHealCost: 42,
+      removeCardCost: 15,
+      newCardOptionCost: 0,
+      modules: {
+        active: [],
+        energyBonus: 0,
+        damageMult: 1,
+        healBonus: 0
+      },
+    };
+    game.init = function(){
+      this.ph = this.maxHP;
+      this.damageDealtThisTurn = 0;
+      this.momentumStrikeCount = 0;
+      this.focusEnergy = 0;
+      this.costModifier = 0;
+      this.enemyAttackBonus = 0;
+      this.enemyDefending = false;
+      this.firewallActive = false;
+      this.maxHandSize = 11;
+      this.playerTurn = true;
+      this.deathAnimating = false;
+      this.cardsPlayedSoFar = 0;
+      this.isScanTurn = true;
+      this.battleRound = 1;
+      this.tempDamageMult = 1;
+      this.dataExtractBase = undefined;
+      this.baseDamageMult = 1;
+      this.baseMaxHP = 100;
+      this.icosahedronsDefeated = 0;
+      this.octahedronsDefeated = 0;
+      this.bossNext = false;
+      this.enemyType = "cube";
+      $("#enemyHealthContainer").css("top", "25px");
+      $("#levelDisplay").css({
+        "position": "absolute",
+        "top": "15px",
+        "left": "15px",
+        "z-index": "20",
+        "font-size": "24px",
+        "font-weight": "bold",
+        "text-shadow": "0 0 10px rgba(0, 255, 255, 0.5)",
+        "padding": "10px 15px"
+      });
+      $("#modulesDisplay").css({
+        "position": "absolute",
+        "top": "65px",
+        "left": "15px",
+        "z-index": "20",
+        "background": "rgba(0, 20, 40, 0.7)",
+        "box-shadow": "0 0 10px rgba(0, 255, 255, 0.5)",
+        "border": "1px solid rgba(0, 255, 255, 0.3)",
+        "padding": "5px 10px",
+        "border-radius": "5px"
+      }).show();      
+      $("#levelDisplay").text("Level: " + this.enemyLevel);
+      this.updateModulesDisplay();      
+      this.setupScene();
+      this.bindUI();
+      this.createDeck();
+      this.dealHand();
+      this.instantiateCube();
+      this.scanTurn();
+      this.updateUI();
+    };
+    game.setupScene = function(){
+      this.scene=new THREE.Scene();
+      this.cam=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+      this.renderer=new THREE.WebGLRenderer({antialias:true, alpha: true});
+      this.renderer.setClearColor(0x000000, 0.3); // Set background color with opacity
+      this.renderer.setSize(window.innerWidth,window.innerHeight);
+      document.getElementById("cubeContainer").appendChild(this.renderer.domElement);
+      this.renderer.domElement.style.position="absolute";
+      this.renderer.domElement.style.zIndex="0";
+      this.instantiateCube();
+      this.cam.position.z=5;
+      window.addEventListener("resize",()=>{
+        this.cam.aspect=window.innerWidth/window.innerHeight;
+        this.cam.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth,window.innerHeight);
+      });
+    };
+    game.bindUI = function(){$("#endTurnButton").on("click",()=>this.endTurn());$("#viewDeckButton").on("click",()=>showDeckOverlay());};
+    game.createDeck = function(){this.dp=getBattleDeck();this.disc=[];};
+    game.dealHand = function(){
+      var cnt = Math.min(4, this.maxHandSize - this.hand.length);
+      for(var i=0; i < cnt; i++) this.drawCard();
+    };
+    game.drawCard = function(force) {
+      if(force === undefined) force = false;
+      if(!force && !this.playerTurn) return;
+      if(this.hand.length >= this.maxHandSize) return;
+      if(!this.dp.length && this.disc.length) {
+        var uniqueCards = [];
+        var cardTracker = {};        
+        this.disc.forEach(function(card) {
+          var cardKey = card.name + "-" + card.type;
+          if(starterCards.indexOf(card.name) !== -1) {
+            var maxCopies = (card.name === "Refactor") ? 1 : 2;
+            if(!cardTracker[cardKey]) {
+              cardTracker[cardKey] = 0;
+            }
+            if(cardTracker[cardKey] < maxCopies) {
+              uniqueCards.push(card);
+              cardTracker[cardKey]++;
+            }
+          } else {
+            uniqueCards.push(card);
+          }
+        });
+        this.dp = uniqueCards.sort(() => Math.random() - 0.5);
+        this.disc = [];
+      }
+      if(this.dp.length) {
+        this.hand.push(this.dp.pop());
+        this.renderHand();
+        this.updateUI();
+      }
+    };
+    game.renderHand = function(){
+      $("#ui").empty();
+      if ($("#crosshairIndicator").length === 0) {
+        $("<div id='crosshairIndicator'></div>")
+          .css({
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80px",
+            height: "80px",
+            zIndex: 5,
+            display: "none",
+            pointerEvents: "none",
+            filter: "drop-shadow(0 0 8px var(--primary-glow))"
+          })
+          .html(`
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="38" stroke="var(--primary-color)" stroke-width="1.5" stroke-opacity="0.8" stroke-dasharray="6 3" />
+              <circle cx="40" cy="40" r="30" stroke="var(--primary-color)" stroke-width="1" stroke-opacity="0.6" stroke-dasharray="4 2" />
+              <circle cx="40" cy="40" r="3" fill="var(--primary-color)" />
+              <line x1="40" y1="10" x2="40" y2="25" stroke="var(--primary-color)" stroke-width="1.5" />
+              <line x1="40" y1="55" x2="40" y2="70" stroke="var(--primary-color)" stroke-width="1.5" />
+              <line x1="10" y1="40" x2="25" y2="40" stroke="var(--primary-color)" stroke-width="1.5" />
+              <line x1="55" y1="40" x2="70" y2="40" stroke="var(--primary-color)" stroke-width="1.5" />
+              <path d="M40 5 L43 12 L37 12 Z" fill="var(--primary-color)" fill-opacity="0.8" />
+              <path d="M40 75 L37 68 L43 68 Z" fill="var(--primary-color)" fill-opacity="0.8" />
+              <path d="M5 40 L12 37 L12 43 Z" fill="var(--primary-color)" fill-opacity="0.8" />
+              <path d="M75 40 L68 43 L68 37 Z" fill="var(--primary-color)" fill-opacity="0.8" />
+            </svg>
+          `)
+          .appendTo("#gameContainer");
+      }
+      var cardCount = this.hand.length;
+      var viewportWidth = window.innerWidth * 0.9; // Use 90% of viewport width
+      var baseCardWidth = 110; // Original card width
+      var minCardWidth = 90; // Minimum card width when compressed
+      var cardGap = 20; // Original gap between cards
+      var minCardGap = -20; // Maximum overlap (negative gap)
+      var totalWidthNeeded = (cardCount * baseCardWidth) + ((cardCount - 1) * cardGap);
+      var needsCompression = totalWidthNeeded > viewportWidth;
+      var actualCardWidth = baseCardWidth;
+      var actualCardGap = cardGap;      
+      if (needsCompression) {
+        var gapReduction = (totalWidthNeeded - viewportWidth) / (cardCount - 1);
+        actualCardGap = Math.max(minCardGap, cardGap - gapReduction);
+        var adjustedTotalWidth = (cardCount * baseCardWidth) + ((cardCount - 1) * actualCardGap);
+        if (adjustedTotalWidth > viewportWidth) {
+          var remainingReduction = adjustedTotalWidth - viewportWidth;
+          var cardWidthReduction = remainingReduction / cardCount;
+          actualCardWidth = Math.max(minCardWidth, baseCardWidth - cardWidthReduction);
+        }
+      }
+      var handContainer = $("<div>").css({
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-end",
+        width: "100%",
+        position: "relative",
+        minHeight: "180px",
+        bottom: "80px" // Updated from 120px to match the UI position
+      });      
+      this.hand.forEach(function(card, index) {
+        var codeLines = '';
+        for (var i = 0; i < 10; i++) {
+          var line = '';
+          for (var j = 0; j < 15; j++) {
+            line += Math.random() > 0.5 ? '1' : '0';
+          }
+          codeLines += line + '<br>';
+        }        
+        var cardElement = $("<div class='card'></div>")
+          .attr("data-type", card.type)
+          .css({
+            width: actualCardWidth + "px",
+            marginLeft: index > 0 ? actualCardGap + "px" : "0",
+            zIndex: index + 1
+          })
+          .html("<div class='digital-code'>" + codeLines + "</div>" +
+                "<div class='card-title'>" + typeEmoji[card.type] + " " + card.name + "</div>" +
+                "<div class='card-type'>" + card.type + "</div>" +
+                "<div class='card-cost'>Cost: " + card.cost + "</div>")
+          .attr("title", card.desc)
+          .data("card", card);        
+        cardElement.draggable({
+          start: function(event, ui) {
+            var currentCard = $(this).data("card");
+            var targetHeight = window.innerHeight * 0.5;
+            var actualCost = Math.max(0, currentCard.cost + game.costModifier);
+            $(this).addClass("card-dragging");
+            var $crosshair = $("#crosshairIndicator");
+            $crosshair.fadeIn(200);
+            $(document).on("mousemove.cardDrag touchmove.cardDrag", function(e) {
+              var pageY = e.pageY || e.originalEvent.touches[0].pageY;
+              var pageX = e.pageX || e.originalEvent.touches[0].pageX;              
+              $crosshair.css({
+                top: pageY + "px",
+                left: pageX + "px"
+              });
+              var isValid = pageY < targetHeight && actualCost <= game.energy && game.playerTurn && !game.deathAnimating;
+              if (isValid) {
+                $crosshair.find("circle, line").css("stroke", "var(--primary-color)");
+                $crosshair.find("circle:last-of-type").css("fill", "var(--primary-color)");
+              } else {
+                $crosshair.find("circle, line").css("stroke", "var(--attack-color)");
+                $crosshair.find("circle:last-of-type").css("fill", "var(--attack-color)");
+              }
+            });
+          },
+          revert: function(dropped) {
+            var currentCard = $(this).data("card");
+            var targetHeight = window.innerHeight * 0.5;
+            if (!currentCard) return true;            
+            var actualCost = Math.max(0, currentCard.cost + game.costModifier);
+            $(this).removeClass("card-dragging");
+            $("#crosshairIndicator").fadeOut(200);
+            if ($(this).offset().top < targetHeight && actualCost <= game.energy && game.playerTurn && !game.deathAnimating) {
+              return false;
+            }
+            return true;
+          },
+          stop: function() {
+            $(document).off("mousemove.cardDrag touchmove.cardDrag");
+          },
+          revertDuration: 200
+        });        
+        cardElement.on("dragstop", function(event, ui) {
+          var currentCard = $(this).data("card");
+          var targetHeight = window.innerHeight * 0.5;          
+          if (currentCard && $(this).offset().top < targetHeight) {
+            var actualCost = Math.max(0, currentCard.cost + game.costModifier);            
+            if (actualCost <= game.energy && game.playerTurn && !game.deathAnimating) {
+              var dropX = event.pageX || ui.offset.left + (actualCardWidth / 2);
+              var dropY = event.pageY || ui.offset.top + 75;
+              playCardSound(currentCard.type);
+              var hitColor, hitShadow, hitAnimation;
+              switch(currentCard.type) {
+                case "Attack":
+                  hitColor = "var(--attack-color)";
+                  hitShadow = "0 0 20px rgba(255,82,82,0.8), inset 0 0 10px rgba(255,82,82,0.5)";
+                  hitAnimation = "hitPulse 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards";
+                  break;
+                case "Skill":
+                  hitColor = "var(--skill-color)";
+                  hitShadow = "0 0 20px rgba(64,196,255,0.8), inset 0 0 10px rgba(64,196,255,0.5)";
+                  hitAnimation = "hitPulse 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards";
+                  break;
+                case "Power":
+                  hitColor = "var(--power-color)";
+                  hitShadow = "0 0 20px rgba(255,171,64,0.8), inset 0 0 10px rgba(255,171,64,0.5)";
+                  hitAnimation = "hitPulse 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards";
+                  break;
+                default:
+                  hitColor = "var(--primary-color)";
+                  hitShadow = "0 0 20px var(--primary-glow), inset 0 0 10px var(--primary-glow)";
+                  hitAnimation = "hitPulse 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards";
+              }
+              var hitEffect = $("<div></div>")
+                .css({
+                  position: "absolute",
+                  top: dropY + "px",
+                  left: dropX + "px",
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  border: "3px solid " + hitColor,
+                  boxShadow: hitShadow,
+                  zIndex: 999,
+                  pointerEvents: "none",
+                  animation: hitAnimation
+                })
+                .appendTo("#gameContainer");
+              setTimeout(function() {
+                hitEffect.remove();
+              }, 900);
+              $(this).draggable("disable").remove();
+              game.energy -= actualCost;
+              game.hand = game.hand.filter(function(c) { return c.id !== currentCard.id; });
+              game.disc.push(currentCard);
+              game.renderHand();
+              game.updateUI();
+              game.cardsPlayedSoFar++;
+              currentCard.effect(game);
+              game.updateUI();
+            }
+          }
+        });        
+        handContainer.append(cardElement);
+      });      
+      $("#ui").append(handContainer);
+      $("#ui .card").tooltip();
+    };
+    game.instantiateCube = function(){if(this.cube)this.scene.remove(this.cube);var geometry;if(this.bossNext){geometry=new THREE.DodecahedronGeometry(1,0);this.enemyType="boss";this.bossNext=false;}else if(this.octahedronNext){geometry=new THREE.OctahedronGeometry(1,0);this.enemyType="octahedron";this.octahedronsDefeated=(this.octahedronsDefeated||0)+1;this.octahedronNext=false;}else if(this.enemyLevel%5===0){geometry=new THREE.IcosahedronGeometry(1,0);this.enemyType="icosahedron";}else{geometry=new THREE.BoxGeometry();this.enemyType="cube";}var matColor;if(this.enemyType==="icosahedron"){matColor=0xFFA500;}else if(this.enemyType==="octahedron"){matColor=0xff0000;}else if(this.enemyType==="boss"){matColor=0x800080;}else{matColor=config.cubeColor;}var material=new THREE.MeshBasicMaterial({color:matColor,wireframe:true});this.cube=new THREE.Mesh(geometry,material);this.scene.add(this.cube);this.cube.scale.set(1,1,1);this.cube.position.y=config.cubeY;this.enemyMax=50+10*(this.enemyLevel-1);if(this.enemyType==="icosahedron"){this.enemyMax+=20;}else if(this.enemyType==="boss"){this.enemyMax=300;}this.eh=this.enemyMax;this.battleRound=1;};
+    game.animate = function(){requestAnimationFrame(()=>this.animate());this.cube.rotation.x+=0.01;this.cube.rotation.y+=0.01;this.renderer.render(this.scene,this.cam);};
+    game.scanTurn = function(){
+      $("#ui").empty();
+      var scan=$("<div class='card next-battle scan-card'></div>")
+        .css({
+          fontSize:"18px",
+          display:"flex",
+          justifyContent:"center",
+          alignItems:"center",
+          position:"relative",
+          width: "150px",
+          height: "80px",
+          pointerEvents: "none" // Disable mouse interactions completely
+        })
+        .html("<div>Scanning...</div>");      
+      var prog=$("<div id='scanProgress'></div>").css({
+        position:"absolute",
+        bottom:0,
+        left:0,
+        height:"5px",
+        background:"#4caf50",
+        width:"0%",
+        "border-radius":"0 0 4px 4px"
+      });      
+      scan.append(prog);
+      $("#ui").append(scan);
+      prog.animate({width:"100%"},2000);    
+      var that=this;
+      setTimeout(function(){
+        that.instantiateCube();
+        that.createDeck();
+        that.dealHand();
+        that.updateUI();
+        that.isScanTurn=false;
+        that.playerTurn=true;
+        $("#endTurnButton").show();
+        console.log("Combat begins");
+      },2000);
+    };
+    game.endTurn = function(){this.playerTurn=false;for(var i=0;i<2;i++)this.drawCard(true);this.energy=3+this.focusEnergy+this.modules.energyBonus;this.focusEnergy=0;this.costModifier=0;this.tempDamageMult=1;this.updateUI();this.enemyTurn();this.damageDealtThisTurn=0;};
+    game.enemyActions = {
+      Attack: function(game) {
+        var damage = 3 + 2 * game.enemyLevel + game.enemyAttackBonus;
+        if (game.firewallActive) {
+          damage = Math.floor(damage/2);
+          game.firewallActive = false;
+        }
+        game.ph = Math.max(0, game.ph - damage);
+        game.enemyAttackBonus = 0;
+      },
+      Defend: function(game) {
+        game.enemyDefending = true;
+      },
+      Skill: function(game) {
+      },
+      Power: function(game) {
+        game.enemyAttackBonus += 2;
+      },
+      Debuff: function(game) {
+        game.energy = Math.max(0, game.energy - 1);
+        alert("Enemy applied a debuff! Your energy decreased by 1.");
+      },
+      Heal: function(game) {
+        game.eh = Math.min(game.enemyMax, game.eh + Math.floor(game.enemyMax * 0.1));
+        alert("Boss healed itself!");
+      }
+    };
+    game.getEnemyMoves = function() {
+      if (this.battleRound === 1) {
+        return ["Defend", "Skill", "Power"];
+      }      
+      switch(this.enemyType) {
+        case "icosahedron":
+          return ["Attack", "Attack", "Defend", "Skill", "Power"];
+        case "octahedron":
+          return ["Attack", "Attack", "Debuff", "Defend", "Skill", "Power"];
+        case "boss":
+          return ["Attack", "Attack", "Attack", "Heal", "Debuff", "Defend"];
+        default:
+          return ["Attack", "Defend", "Skill", "Power"];
+      }
+    };    
+    game.enemyTurn = function(){
+      this.playerTurn = false;
+      var moves = this.getEnemyMoves();
+      var move = moves[Math.floor(Math.random() * moves.length)];      
+      $("#enemyMoveIndicator").text(enemyActionIcons[move] || "");      
+      var that = this;
+      setTimeout(function() {
+        if (that.enemyActions[move]) {
+          that.enemyActions[move](that);
+        }        
+        $("#enemyMoveIndicator").text("");
+        that.updateUI();
+        that.battleRound++;
+        that.playerTurn = true;
+      }, 1000);
+    };
+    game.deathAnimation = function(){this.deathAnimating=true;var dur=1000,steps=50,cnt=0,orig=this.cube.scale.clone();var that=this;var animStep=function(){if(cnt<steps){var f=1-cnt/steps;that.cube.scale.set(orig.x*f,orig.y*f,orig.z*f);cnt++;setTimeout(animStep,dur/steps);}else{that.scene.remove(that.cube);$("#ui").empty();that.deathAnimating=false;if(that.enemyType==="icosahedron"){that.icosahedronsDefeated++;if(that.icosahedronsDefeated%5===0){that.octahedronNext=true;}}else if(that.enemyType==="octahedron"){that.octahedronsDefeated=(that.octahedronsDefeated||0)+1;if(that.octahedronsDefeated>=5){that.bossNext=true;that.octahedronsDefeated=0;}}else if(that.enemyType==="boss"){showFinalStory();return;}that.enemyLevel++;that.showPostBattleOptions();}};animStep();};
+    game.showPostBattleOptions = function(){
+      $("#enemyHealthContainer,#drawPile,#discardPile,#creditsDisplay,#endTurnButton").hide();
+      $("#ui").empty();      
+      var msg = "";
+      if (this.enemyType === "icosahedron") {
+        msg = "You've defeated a powerful security node! The system is adapting to your intrusion.";
+      } else if (this.enemyType === "octahedron") {
+        msg = "A critical firewall has been breached! The system is on high alert.";
+      } else if (this.enemyLevel % 5 === 0) {
+        msg = "The system grows more aggressive; its defenses morph into a complex icosahedron!";
+      }      
+      if (msg) {
+        showStoryOverlay(msg, showShop);
+      } else {
+        showShop();
+      }
+    };
+    game.continueBattle = function(){this.energy=3;this.focusEnergy=0;this.enemyMax=50+10*(this.enemyLevel-1);this.eh=this.enemyMax;this.enemyDead=false;this.instantiateCube();this.createDeck();this.hand=[];this.dealHand();this.modules.damageMult=this.baseDamageMult;this.maxHP=this.baseMaxHP;this.ph=this.maxHP;this.updateUI();$("#enemyHealthContainer,#drawPile,#discardPile,#creditsDisplay,#endTurnButton").show();this.damageDealtThisTurn=0;this.momentumStrikeCount=0;};
+    game.resetGame = function(){
+      alert("You died. Game will reset.");
+      this.ph = this.baseMaxHP;
+      this.maxHP = this.baseMaxHP;
+      this.credits = 0;
+      this.enemyLevel = 1;
+      this.energy = 3;
+      this.focusEnergy = 0;
+      this.costModifier = 0;
+      this.enemyAttackBonus = 0;
+      this.enemyDefending = false;
+      this.firewallActive = false;
+      this.maxHandSize = 11;
+      this.playerTurn = true;
+      this.deathAnimating = false;
+      this.cardsPlayedSoFar = 0;
+      this.isScanTurn = true;
+      this.battleRound = 1;
+      this.tempDamageMult = 1;
+      this.dataExtractBase = undefined;
+      this.baseDamageMult = 1;
+      this.icosahedronsDefeated = 0;
+      this.octahedronsDefeated = 0;
+      this.bossNext = false;
+      this.enemyType = "cube";      
+      this.modules = {
+        active: [],
+        energyBonus: 0,
+        damageMult: 1,
+        healBonus: 0
+      };
+      
+      this.startNextBattle();
+    };
+    game.startNextBattle = function(){this.energy=3;this.focusEnergy=0;this.enemyMax=50+10*(this.enemyLevel-1);this.eh=this.enemyMax;this.enemyDead=false;this.ph=this.baseMaxHP;this.instantiateCube();this.createDeck();this.hand=[];this.dealHand();this.modules.damageMult=this.baseDamageMult;this.maxHP=this.baseMaxHP;this.updateUI();$("#enemyHealthContainer,#drawPile,#discardPile,#creditsDisplay,#endTurnButton").show();this.damageDealtThisTurn=0;this.momentumStrikeCount=0;};
+    game.updateUI = function(){
+      $("#drawCount").text(this.dp.length);
+      $("#discardCount").text(this.disc.length);
+      $("#energyCountBottom").text(this.energy);
+      $("#creditsDisplay").text("Credits: " + this.credits);
+      $("#levelDisplay").text("Level: " + this.enemyLevel);
+      this.updateModulesDisplay();
+      this.updateHealth();
+    };
+    game.updateModulesDisplay = function(){
+      var moduleText = "Modules: ";
+      if (game.modules.active.length === 0) {
+        moduleText += "None";
+      } else {
+        moduleText += game.modules.active.join(", ");
+      }
+      $("#modulesDisplay").text(moduleText).show();
+    };
+    game.updateHealth = function(){var phP=Math.max(0,this.ph/this.maxHP*100),ehP=Math.max(0,this.eh/this.enemyMax*100);$("#playerHealthFill").css("width",phP+"%");$("#playerHealthText").text(this.ph+"/"+this.maxHP);$("#enemyHealthFill").css("width",ehP+"%");$("#enemyHealthText").text(this.eh+"/"+this.enemyMax);if(this.eh<=0&&!this.enemyDead){this.enemyDead=true;(()=>{var rew=(Math.floor(Math.random()*6)+5)*this.enemyLevel;this.credits+=rew;if(this.dataExtractBase!==undefined){this.credits+=this.dataExtractBase;alert("Data Extraction bonus: +"+this.dataExtractBase+" credits!");this.dataExtractBase=undefined}console.log("Win reward: "+rew+" credits");this.deathAnimation();})();}if(this.ph<=0){this.resetGame();}};
+    game.flashCube = function(){this.cube.material.color.set(16711680);setTimeout(()=>{this.cube.material.color.set(config.cubeColor);},200);};
+    game.shakeCube = function(){var orig=this.cube.position.clone(),dur=300,st=20,cnt=0;var sh=()=>{if(cnt<dur){this.cube.position.x=orig.x+0.2*(Math.random()-0.5);this.cube.position.y=orig.y+0.2*(Math.random()-0.5);cnt+=st;setTimeout(sh,st);}else{this.cube.position.copy(orig);}};sh();};
+    game.createAnimation = function(className, content, styles, animProps, duration, callback) {
+      var anim = $("<div class='" + className + "'>" + (content || "") + "</div>").css(styles);
+      $("#gameContainer").append(anim);
+      if (animProps) {
+        anim.animate(animProps, duration, function() {
+          if (callback) callback(anim);
+          else anim.remove();
+        });
+      } else if (callback) {
+        setTimeout(function() { callback(anim); }, duration);
+      }
+      return anim;
+    };
+    game.healAnimation = function(){
+      var cont = $("#playerHealthContainer"), off = cont.offset(), w = cont.width();
+      this.createAnimation("healPlus", "+Heal", {
+        top: off.top - 30 + "px",
+        left: off.left + w/2 + "px",
+        transform: "translateX(-50%)",
+        fontSize: "24px",
+        color: "#0f0",
+        opacity: 1,
+        position: "absolute",
+        textShadow: "0 0 10px rgba(0,255,0,0.7)"
+      }, {
+        top: off.top - 80 + "px",
+        opacity: 0
+      }, 1000);
+    };
+    game.firewallAnimation = function(){
+      this.createAnimation("firewallAnim", "", {
+        bottom: "0",
+        left: "0",
+        width: "100%",
+        height: "0px",
+        background: "linear-gradient(to top,rgba(0,128,255,0.5),transparent)",
+        position: "absolute",
+        borderRadius: "0 0 4px 4px"
+      }, {
+        height: "100%"
+      }, 800, function(anim) {
+        anim.fadeOut(400, function() { anim.remove(); });
+      });
+    };
+    game.refactorAnimation = function(){
+      var uiEl = $("#ui"), off = uiEl.offset(), w = uiEl.width();
+      this.createAnimation("refactorAnim", "Refactored!", {
+        top: off.top - 40 + "px",
+        left: off.left + w/2 + "px",
+        transform: "translateX(-50%)",
+        fontSize: "32px",
+        color: "#ff0",
+        opacity: 1,
+        position: "absolute",
+        textShadow: "0 0 15px rgba(255,255,0,0.8)"
+      }, {
+        top: off.top - 80 + "px",
+        opacity: 0
+      }, 1000);
+    };
+    game.overclockAnimation = function(){
+      var uiEl = $("#ui"), off = uiEl.offset();
+      this.createAnimation("overclockAnim", "", {
+        top: off.top - 50 + "px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        boxShadow: "0 0 20px rgba(255,165,0,0.8)"
+      }, null, 1000);
+    };
+    function showDeckOverlay(){$("#deckList").empty();playerDeck.forEach(function(card){$("#deckList").append("<li>"+typeEmoji[card.type]+" "+card.name+" (Cost: "+card.cost+")</li>");});$("#deckOverlay").fadeIn();}
+    $("#closeDeck").on("click",function(){$("#deckOverlay").fadeOut();});
+    function showRemoveCardOverlay(){
+      $("#creditsDisplay").show();
+      $("#removeCardList").empty();
+      $("#removeCardCostDisplay").text(game.removeCardCost);      
+      playerDeck.forEach(function(card,i){
+        var li=$("<li></li>").css({
+          marginBottom:"8px",
+          padding: "8px",
+          background: "rgba(0, 20, 40, 0.5)",
+          borderRadius: "4px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        });        
+        li.append("<span>" + typeEmoji[card.type] + " " + card.name + " (Cost: " + card.cost + ")</span>");        
+        var btn=$("<button>Remove</button>").css({
+          padding:"6px 12px",
+          marginLeft:"10px",
+          fontSize:"14px",
+          cursor:"pointer",
+          background: "linear-gradient(145deg, #0a1a2a, #152535)",
+          color: "#e0e0e0",
+          border: "1px solid rgba(0, 255, 255, 0.3)",
+          borderRadius: "4px",
+          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.3)"
+        });        
+        btn.on("click",function(){
+          if(game.credits >= game.removeCardCost){
+            playerDeck.splice(i,1);
+            game.credits -= game.removeCardCost;
+            $("#removeCardOverlay").fadeOut();
+            game.updateUI();
+            game.continueBattle();
+          } else {
+            alert("Not enough credits to remove a card.");
+          }
+        });        
+        li.append(btn);
+        $("#removeCardList").append(li);
+      });
+      
+      $("#removeCardOverlay").fadeIn();
+    }
+    $("#closeRemoveCard").on("click",function(){$("#removeCardOverlay").fadeOut();});
+    function showNewCardOverlay(){
+      if($("#newCardOverlay").is(":visible")) return;
+      $("#creditsDisplay").show();      
+      game.updateUI();
+      $("#newCardChoices").empty();      
+      var arr = [];
+      for(var k in cardLibrary) {
+        arr = arr.concat(cardLibrary[k]);
+      }      
+      var sel = arr.sort(function(){return Math.random()-0.5}).slice(0,3);
+      sel.forEach(function(card){
+        var codeLines = '';
+        for (var i = 0; i < 10; i++) {
+          var line = '';
+          for (var j = 0; j < 15; j++) {
+            line += Math.random() > 0.5 ? '1' : '0';
+          }
+          codeLines += line + '<br>';
+        }        
+        var el = $("<div class='card'></div>")
+          .attr("data-type", card.type)
+          .css({
+            background: "linear-gradient(145deg,#0a1a2a,#152535)",
+            color: config.cardTextColor,
+            transform: "scale(0.9)",
+            opacity: 0
+          })
+          .html("<div class='digital-code'>" + codeLines + "</div>" +
+                "<div class='card-title'>" + typeEmoji[card.type] + " " + card.name + "</div>" +
+                "<div class='card-type'>" + card.type + "</div>" +
+                "<div class='card-cost'>Cost: " + card.cost + "</div>")
+          .attr("title", card.desc)
+          .data("card", card);          
+        el.on("click", function(){
+          $(this).css({
+            transform: "scale(1.1)",
+            boxShadow: "0 0 30px rgba(0,255,255,0.7)",
+            transition: "all 0.3s ease"
+          });          
+          setTimeout(function() {
+            playerDeck.push(cloneCard(card));
+            $("#newCardOverlay").fadeOut(function(){
+              $("#newCardChoices").empty();
+            });
+            game.updateUI();
+            game.continueBattle();
+          }, 300);
+        });        
+        $("#newCardChoices").append(el);
+        setTimeout(function() {
+          el.css({
+            transform: "scale(1)",
+            opacity: 1,
+            transition: "all 0.3s ease"
+          });
+        }, 100 + Math.random() * 200);
+      });      
+      $("#newCardOverlay").fadeIn();
+    }
+    $("#closeNewCard").on("click",function(){$("#newCardOverlay").fadeOut(function(){$("#newCardChoices").empty();});});
+    var moduleDefinitions = [
+      {
+        name: "Energy Module",
+        desc: "Gain +1 energy per turn",
+        cost: function() { return config.moduleCost; },
+        effect: function(g) {
+          g.modules.energyBonus++;
+          g.modules.active["Energy Module"]++;
+        }
+      },
+      {
+        name: "Damage Module",
+        desc: "Increase attack damage by 50%",
+        cost: function() { return config.moduleCost; },
+        effect: function(g) {
+          g.modules.damageMult += 0.5;
+          g.modules.active["Damage Module"]++;
+        }
+      },
+      {
+        name: "Heal Module",
+        desc: "Increase healing by 50%",
+        cost: function() { return config.moduleCost; },
+        effect: function(g) {
+          g.modules.healMult += 0.5;
+          g.modules.active["Heal Module"]++;
+        }
+      },
+      {
+        name: "Health Module",
+        desc: "Increase max HP by 50",
+        cost: function() { return config.moduleCost; },
+        effect: function(g) {
+          g.maxHP += 50;
+          g.ph += 50;
+          g.modules.active["Health Module"] = (g.modules.active["Health Module"] || 0) + 1;
+        }
+      }
+    ];    
+    function showModulesOverlay() {
+      $("#creditsDisplay").show();      
+      $("#moduleChoices").empty();      
+      var moduleOptions = [
+        { name: "Energy Module", desc: "+1 Energy per turn", effect: function() { addModule("Energy Module"); } },
+        { name: "Damage Module", desc: "+20% Damage", effect: function() { addModule("Damage Module"); } },
+        { name: "Heal Module", desc: "+1 Healing", effect: function() { addModule("Heal Module"); } },
+        { name: "Health Module", desc: "+10 Max HP", effect: function() { addModule("Health Module"); } }
+      ];      
+      moduleOptions.forEach(function(module) {
+        var card = $("<div class='module-card'></div>")
+          .css({
+            background: "linear-gradient(145deg, #0a1a2a, #152535)",
+            color: "#e0e0e0",
+            padding: "15px",
+            margin: "10px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            boxShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
+            transition: "all 0.2s ease",
+            textAlign: "center",
+            width: "180px",
+            height: "180px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            border: "1px solid rgba(0, 255, 255, 0.2)"
+          })
+          .html("<h3>" + module.name + "</h3><p>" + module.desc + "</p>")
+          .hover(
+            function() { 
+              $(this).css({
+                boxShadow: "0 0 20px rgba(0, 255, 255, 0.7)",
+                transform: "translateY(-5px)"
+              }); 
+            },
+            function() { 
+              $(this).css({
+                boxShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
+                transform: "translateY(0)"
+              }); 
+            }
+          )
+          .on("click", function() {
+            if (game.credits >= game.moduleCost) {
+              game.credits -= game.moduleCost;
+              module.effect();
+              $("#modulesOverlay").fadeOut();
+              game.updateUI();
+              game.continueBattle();
+            } else {
+              alert("Not enough credits!");
+            }
+          });        
+        $("#moduleChoices").append(card);
+      });      
+      $("#modulesOverlay").fadeIn();
+    }    
+    $("#closeModules").on("click",function(){$("#modulesOverlay").fadeOut(function(){$("#moduleChoices").empty();});});
+    function showOverlay(options) {
+      var defaults = {
+        title: "Alert",
+        message: "",
+        buttonText: "Continue",
+        buttonAction: function() {}
+      };
+      var settings = $.extend({}, defaults, options);
+      var ov = $("<div class='overlay'></div>").css({
+        display: "flex",
+        opacity: 0
+      });
+      var cont = $("<div class='overlayContent'></div>").css({
+        "max-width": "80%",
+        "max-height": "80%",
+        "overflow-y": "auto",
+        "text-align": "center",
+        transform: "scale(0.9)"
+      });      
+      cont.append("<h2>" + settings.title + "</h2>");
+      cont.append("<p style='color:#e0e0e0;font-size:16px;line-height:1.5'>" + settings.message + "</p>");     
+      var btn = $("<button>" + settings.buttonText + "</button>");      
+      btn.on("click", function() {
+        cont.css("transform", "scale(0.9)");
+        ov.animate({opacity: 0}, 300, function() {
+          ov.remove();
+          settings.buttonAction();
+        });
+      });      
+      cont.append(btn);
+      ov.append(cont);
+      $("body").append(ov);
+      ov.animate({opacity: 1}, 300);
+      setTimeout(function() {
+        cont.css({
+          transform: "scale(1)",
+          transition: "transform 0.3s ease-out"
+        });
+      }, 50);
+      
+      return ov;
+    }    
+    function showStoryOverlay(message,callback){
+      showOverlay({
+        message: message,
+        buttonAction: callback || function() {}
+      });
+    }    
+    function showFinalStory(){
+      showOverlay({
+        title: "Victory!",
+        message: "You have defeated the final boss. The revolution is complete. Congratulations!",
+        buttonText: "Restart",
+        buttonAction: function() { location.reload(); }
+      });
+    }    
+    $(document).ready(function(){$("#storyOverlay").show();$("#startGame").on("click",function(){$("#storyOverlay").fadeOut();game.init();game.animate();});});    
+    function addModule(type) {
+      if (type === "Energy Module") {
+        game.modules.energyBonus += 1;
+        if (!game.modules.active.includes("Energy Module")) {
+          game.modules.active.push("Energy Module");
+        }
+      } else if (type === "Damage Module") {
+        game.modules.damageMult += 0.2;
+        if (!game.modules.active.includes("Damage Module")) {
+          game.modules.active.push("Damage Module");
+        }
+      } else if (type === "Heal Module") {
+        game.modules.healBonus += 1;
+        if (!game.modules.active.includes("Heal Module")) {
+          game.modules.active.push("Heal Module");
+        }
+      } else if (type === "Health Module") {
+        game.maxHP += 10;
+        game.ph += 10;
+        if (!game.modules.active.includes("Health Module")) {
+          game.modules.active.push("Health Module");
+        }
+      }
+      game.updateModulesDisplay();
+      game.updateUI();
+    }
+    function showShop() {
+      $("#ui").empty();
+      $("#creditsDisplay").show().css({
+        "position": "absolute",
+        "top": "50px", // Position it under the view deck button
+        "right": "15px",
+        "z-index": "20"
+      }).text("Credits: " + game.credits);
+      $("#viewDeckButton").show();
+      var shopOptions = [
+        { name: "Continue", desc: "Continue to next level", action: function() { game.continueBattle(); } },
+        { name: "Full Heal", desc: "Restore all health (" + game.fullHealCost + " credits)", action: function() {
+          if (game.credits >= game.fullHealCost) {
+            game.credits -= game.fullHealCost;
+            game.ph = game.maxHP;
+            game.updateUI();
+            alert("Health fully restored!");
+          } else {
+            alert("Not enough credits!");
+          }
+        }},
+        { name: "Remove Card", desc: "Remove a card from your deck (" + game.removeCardCost + " credits)", action: function() {
+          if (game.credits >= game.removeCardCost) {
+            showRemoveCardOverlay();
+          } else {
+            alert("Not enough credits!");
+          }
+        }},
+        { name: "New Card", desc: "Add a new card to your deck (" + game.newCardOptionCost + " credits)", action: function() {
+          if (game.credits >= game.newCardOptionCost) {
+            showNewCardOverlay();
+          } else {
+            alert("Not enough credits!");
+          }
+        }},
+        { name: "Modules", desc: "Purchase a module (" + game.moduleCost + " credits)", action: function() {
+          if (game.credits >= game.moduleCost) {
+            showModulesOverlay();
+          } else {
+            alert("Not enough credits!");
+          }
+        }}
+      ];
+      var optionsContainer = $("<div>").css({
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "justify-content": "center",
+        "gap": "15px",
+        "margin-top": "20px"
+      });      
+      shopOptions.forEach(function(option) {
+        var btn = $("<div>")
+          .addClass("shop-option")
+          .css({
+            "background": "linear-gradient(145deg, #0a1a2a, #152535)",
+            "color": "#e0e0e0",
+            "padding": "18px",
+            "margin": "10px",
+            "border-radius": "8px",
+            "cursor": "pointer",
+            "box-shadow": "0 4px 12px rgba(0,0,0,0.6), 0 0 15px rgba(0,255,255,0.2)",
+            "transition": "all 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
+            "text-align": "center",
+            "border": "1px solid rgba(0,255,255,0.2)",
+            "position": "relative",
+            "overflow": "hidden",
+            "width": "200px"
+          })
+          .html("<h3>" + option.name + "</h3><p>" + option.desc + "</p>")
+          .on("click", option.action)
+          .hover(
+            function() { $(this).css("box-shadow", "0 8px 20px rgba(0,0,0,0.7), 0 0 25px rgba(0,255,255,0.4)").css("transform", "translateY(-3px)").css("border-color", "rgba(0,255,255,0.5)"); },
+            function() { $(this).css("box-shadow", "0 4px 12px rgba(0,0,0,0.6), 0 0 15px rgba(0,255,255,0.2)").css("transform", "").css("border-color", "rgba(0,255,255,0.2)"); }
+          );
+        
+        optionsContainer.append(btn);
+      });      
+      $("#ui").append(optionsContainer);
+    }
+    </script></body></html>

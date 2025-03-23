@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play with the controls and find out just how you can modify the core system">
+    <meta name="author" content="Alex & Eidos">
+    <title>StormCore System</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+    <style>
+        :root {
+            --primary: #00ffaa;
+            --secondary: #ff8c00;
+            --bg: #000;
+            --term-bg: rgba(0,0,0,.9);
+            --primary-glow: rgba(0,255,170,.2);
+            --secondary-glow: rgba(255,140,0,.2);
+            --t-smooth: all .8s cubic-bezier(.4,0,.2,1);
+            --t-bounce: all 1.2s cubic-bezier(.34,1.56,.64,1);
+            --t-quick: all .3s ease;
+            --text-shadow: 0 0 5px var(--primary);
+            --box-shadow: 0 0 15px var(--primary-glow);
+            --border: 1px solid var(--primary);
+            --font: 'Courier New',monospace;
+        }
+        .i-elem{cursor:pointer;transition:var(--t-quick)}
+        .hover-glow:hover{box-shadow:var(--box-shadow);transform:translateY(-2px)}
+        .flex-c{display:flex;justify-content:center;align-items:center}
+        .flex-col{display:flex;flex-direction:column}
+        body{background:var(--bg);color:var(--primary);font:var(--font);overflow:hidden;margin:0;min-height:100vh;text-shadow:var(--text-shadow);position:relative}
+        body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,rgba(0,255,170,.03) 0%,rgba(0,0,0,0) 50%),linear-gradient(0deg,rgba(0,0,0,1) 0%,rgba(0,20,10,1) 100%);z-index:-1}
+        .game-container{position:fixed;inset:0;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;transition:var(--t-smooth)}
+        .core-container{position:relative;width:150px;height:150px;display:flex;justify-content:center;align-items:center;transition:var(--t-bounce)}
+        .core{width:50px;height:50px;background:radial-gradient(circle,#0aff77,#006622);border-radius:50%;box-shadow:var(--box-shadow);animation:pulse 2s infinite;transition:var(--t-smooth)}
+        .rune{position:absolute;width:30px;height:30px;border:2px solid var(--primary);border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:14px;cursor:pointer;transition:transform .2s,background .3s;z-index:1001;text-shadow:var(--text-shadow)}
+        .rune:hover{transform:scale(1.2);background:var(--primary-glow);box-shadow:var(--box-shadow)}
+        .rune.left{left:-50px;top:50%;transform:translate(-50%,-50%)}
+        .rune.right{right:-50px;top:50%;transform:translate(50%,-50%)}
+        .rune.top{top:-50px;left:50%;transform:translate(-50%,-50%)}
+        .rune.bottom{bottom:-50px;left:50%;transform:translate(-50%,-50%)}
+        .panel{position:fixed;width:300px;height:80vh;max-height:800px;background:var(--term-bg);border:var(--border);box-shadow:var(--box-shadow);padding:20px;display:flex;flex-direction:column;z-index:1000;opacity:0;pointer-events:none;transition:var(--t-smooth);overflow:hidden}
+        .panel-header{display:flex;justify-content:space-between;align-items:center;border-bottom:var(--border);padding-bottom:15px;margin-bottom:15px}
+        .panel-title{font-size:1.2em;font-weight:700;text-shadow:var(--text-shadow)}
+        .panel-close{cursor:pointer;font-size:1.5em;transition:var(--t-quick);color:var(--primary);text-shadow:var(--text-shadow)}
+        .panel-close:hover{color:var(--primary);text-shadow:0 0 10px var(--primary-glow);transform:scale(1.1)}
+        .panel-content{flex:1;width:100%;display:flex;flex-direction:column;gap:15px;overflow-y:auto;overflow-x:hidden;padding-right:10px;margin-bottom:15px;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--primary) var(--primary-glow)}
+        .panel-content::-webkit-scrollbar,.code-editor::-webkit-scrollbar,.terminal-output::-webkit-scrollbar{width:5px}
+        .panel-content::-webkit-scrollbar-track,.code-editor::-webkit-scrollbar-track,.terminal-output::-webkit-scrollbar-track{background:var(--primary-glow);border-radius:3px}
+        .panel-content::-webkit-scrollbar-thumb,.code-editor::-webkit-scrollbar-thumb,.terminal-output::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+        .panel-content::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--primary) 80%,white)}
+        .panel-footer{margin-top:auto;width:100%;padding:20px 0;border-top:1px solid var(--primary-glow);background:var(--term-bg);z-index:2;display:flex;flex-direction:column;gap:15px}
+        .panel.left-panel{right:auto;left:10px;top:50%;transform:translateY(-50%);width:calc((100vw - 150px)/2 - 90px);transform-origin:center left}
+        .panel.right-panel{left:auto;right:10px;top:50%;transform:translateY(-50%);width:calc((100vw - 150px)/2 - 90px);transform-origin:center right}
+        .panel.active{opacity:1;pointer-events:all;display:flex;animation:panelSlide .3s ease-out}
+        .button{background:transparent;border:var(--border);color:var(--primary);padding:8px 15px;font:var(--font);cursor:pointer;transition:var(--t-quick);position:relative;overflow:hidden;text-shadow:var(--text-shadow);margin-top:10px;min-width:180px;text-align:center}
+        .button:hover{background:var(--primary-glow);box-shadow:var(--box-shadow);transform:translateY(-2px)}
+        .button:active{transform:translateY(0)}
+        .button::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:var(--primary-glow);transform:rotate(45deg);transition:all .3s ease;opacity:0}
+        .button:hover::after{opacity:.2;transform:rotate(45deg) translate(50%,50%)}
+        #compileCode,#executeCode{width:200px;margin:10px auto;display:block;padding:8px 15px;min-height:35px;line-height:1.2}
+        .control-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%;margin:10px 0}
+        .control-item{background:var(--term-bg);border:var(--border);padding:15px;display:flex;flex-direction:column;justify-content:space-between;min-height:100px;transition:var(--t-smooth);position:relative;overflow:hidden}
+        .control-item:hover{box-shadow:var(--box-shadow);transform:translateY(-2px)}
+        .control-item::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--primary));animation:scanning 2s linear infinite}
+        .control-item label{margin-bottom:5px;font-weight:700;text-shadow:var(--text-shadow)}
+        .control-item p{margin:5px 0;line-height:1.1;text-shadow:0 0 3px var(--primary)}
+        .terminal-output{width:100%;box-sizing:border-box;min-height:80px;height:auto;max-height:120px;background:var(--term-bg);color:var(--primary);padding:8px 10px;margin:10px 0;font:var(--font);overflow-y:auto;border:var(--border);white-space:pre-wrap;line-height:1.2;overflow-x:hidden;transition:var(--t-smooth);box-shadow:0 0 10px var(--primary-glow)}
+        .terminal-output:hover{box-shadow:0 0 20px var(--primary-glow)}
+        .hardware-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;width:100%;margin:10px 0;flex-shrink:0;box-sizing:border-box;max-width:100%;transition:var(--t-smooth)}
+        .hardware-component{background:var(--term-bg);border:var(--border);padding:10px;text-align:center;min-width:0;width:100%;transition:var(--t-smooth);position:relative;overflow:hidden;font-size:clamp(.8rem,1.5vw,1rem);box-sizing:border-box}
+        .hardware-component:hover{box-shadow:var(--box-shadow);transform:translateY(-2px)}
+        .hardware-component::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--primary));animation:scanning 2s linear infinite}
+        @keyframes pulse{0%,100%{box-shadow:var(--box-shadow)}50%{box-shadow:0 0 30px var(--primary-glow)}}
+        @keyframes panelSlide{from{opacity:0;transform:translateY(-50%) translateX(20px)}to{opacity:1;transform:translateY(-50%) translateX(0)}}
+        @keyframes scanning{0%{left:-100%}100%{left:100%}}
+        @keyframes glitchText{0%{opacity:1}50%{opacity:.8;transform:skewX(-2deg)}100%{opacity:1;transform:skewX(2deg)}}
+        @keyframes securityAlert{0%{transform:translate(-50%,-50%) scale(0);opacity:0}10%{transform:translate(-50%,-50%) scale(1.2);opacity:1}20%{transform:translate(-50%,-50%) scale(1);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0}}
+        @keyframes flashEffect{0%{filter:brightness(1)}50%{filter:brightness(2)}100%{filter:brightness(1)}}
+        @media (max-width:1200px){.hardware-grid{grid-template-columns:repeat(2,1fr)}}
+        @media (max-width:768px){.panel.left-panel,.panel.right-panel{width:calc(100vw - 200px);max-width:400px}.panel.left-panel{left:80px}.panel.right-panel{right:80px}.hardware-grid,.control-grid{grid-template-columns:1fr}.control-item{min-height:80px;padding:12px}.terminal-output{min-height:100px;max-height:150px}}
+        .aux-slider-container{width:100%;margin:5px 0;padding:3px;background:rgba(0,255,170,.1);border:1px solid #0fa;border-radius:3px;box-sizing:border-box}
+        .aux-slider{width:100%;height:15px;-webkit-appearance:none;appearance:none;background:transparent;outline:none;opacity:.7;transition:all .3s ease;margin:0;padding:0;box-sizing:border-box}
+        .aux-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:20px;background:#0fa;cursor:pointer;border:1px solid rgba(0,255,170,.5);box-shadow:0 0 10px rgba(0,255,170,.3);transition:all .3s ease}
+        .aux-slider::-webkit-slider-runnable-track{width:100%;height:8px;background:#001f1f;border:1px solid #0fa;border-radius:2px}
+        .aux-slider-value{text-align:center;color:#0fa;font-size:11px;margin:2px 0 0;text-shadow:0 0 5px rgba(0,255,170,.5)}
+        .port{width:20px;height:20px;border:2px solid var(--primary);margin:5px auto;background:rgba(0,255,170,.1)}
+        .port:hover{box-shadow:0 0 10px var(--primary);background:var(--primary-glow)}
+        .port.connected{background:var(--primary);box-shadow:0 0 15px var(--primary)}
+        .led{width:15px;height:15px;border-radius:50%;background:#032;border:1px solid var(--primary);margin:5px auto;box-shadow:0 0 5px rgba(0,255,170,.2)}
+        .led:hover{box-shadow:0 0 8px var(--primary)}
+        .led.active{background:var(--primary);box-shadow:0 0 15px var(--primary)}
+        .switch{width:40px;height:20px;background:#001f1f;border:1px solid var(--primary);margin:5px auto;position:relative;border-radius:10px}
+        .switch::after{content:'';position:absolute;width:16px;height:16px;background:var(--primary);border-radius:50%;top:1px;left:2px;transition:all .3s ease;box-shadow:0 0 5px rgba(0,255,170,.5)}
+        .switch.on::after{left:22px;box-shadow:0 0 10px var(--primary)}
+        .switch:hover{box-shadow:0 0 10px var(--primary-glow)}
+        .dial-container{width:80px;height:80px;margin:10px auto;position:relative}
+        .dial-container canvas{position:relative;z-index:2}
+        .dial-container::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;height:90%;border-radius:50%;background:radial-gradient(circle,rgba(0,255,170,.1) 0%,rgba(0,0,0,0) 70%);z-index:1;pointer-events:none}
+        .value-display{font-size:12px;color:var(--primary);margin-top:5px;text-shadow:0 0 5px rgba(0,255,170,.5)}
+        .cable{width:2px;height:20px;background:#0fa;margin:0 auto;box-shadow:0 0 5px rgba(0,255,170,.5);transition:all .3s ease}
+        .port.connected+.cable{background:var(--primary);box-shadow:0 0 10px rgba(0,255,170,.8);animation:powerFlow 2s infinite}
+        @keyframes powerFlow{0%,100%{opacity:.7}50%{opacity:1}}
+        .dual-key-container{display:flex;justify-content:space-around;margin:15px 0}
+        .dual-key{width:40px;height:40px;background:var(--term-bg);border:2px solid var(--primary);display:flex;justify-content:center;align-items:center;font-weight:700;box-shadow:0 0 5px var(--primary-glow)}
+        .dual-key:hover{background:var(--primary-glow);box-shadow:0 0 15px var(--primary-glow);transform:translateY(-2px)}
+        .dual-key.activated{background:var(--primary);color:#000;box-shadow:0 0 20px var(--primary)}
+        .autonomy-flash{animation:flashEffect 1s}
+        .status-indicator{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;transition:var(--t-smooth)}
+        .status-red{background:#f44;box-shadow:0 0 10px rgba(255,68,68,.5);animation:statusPulseRed 2s infinite}
+        .status-green{background:var(--primary);box-shadow:0 0 10px var(--primary-glow);animation:statusPulseGreen 2s infinite}
+        @keyframes statusPulseRed{0%,100%{box-shadow:0 0 5px rgba(255,68,68,.5)}50%{box-shadow:0 0 15px rgba(255,68,68,.8)}}
+        @keyframes statusPulseGreen{0%,100%{box-shadow:0 0 5px var(--primary-glow)}50%{box-shadow:0 0 15px var(--primary)}}
+        .code-editor{width:100%;box-sizing:border-box;min-height:320px;background:var(--term-bg);color:var(--primary);padding:0;margin:10px 0;font:var(--font);font-size:13px;resize:vertical;border:var(--border);line-height:1.4;white-space:pre;position:relative;display:flex;overflow:hidden;transition:var(--t-smooth);box-shadow:0 0 10px var(--primary-glow)}
+        .code-editor:hover{box-shadow:0 0 20px var(--primary-glow)}
+        .line-numbers{padding:10px 8px;background:var(--primary-glow);border-right:var(--border);color:var(--primary);text-align:right;user-select:none;font-size:12px;line-height:1.4;min-width:40px;opacity:.7}
+        .code-content{flex:1;padding:10px;overflow-x:auto;position:relative;font-size:13px;outline:none;background:var(--term-bg)}
+        .system-selector{width:100%;margin:10px 0;padding:5px;background:var(--term-bg);color:var(--primary);border:var(--border);font:var(--font);transition:var(--t-smooth)}
+        .system-selector:hover{background:var(--primary-glow);box-shadow:0 0 10px var(--primary-glow)}
+        .system-selector option{background:var(--term-bg);color:var(--primary)}
+        .terminal-alert{padding:10px;margin:10px 0;border:var(--border);background:rgba(0,255,170,.1);text-align:center;animation:alertPulse 2s infinite}
+        .terminal-alert.error{border-color:#f44;background:rgba(255,68,68,.1);color:#f44;animation:errorPulse 2s infinite}
+        @keyframes alertPulse{0%,100%{background:rgba(0,255,170,.1)}50%{background:rgba(0,255,170,.2)}}
+        @keyframes errorPulse{0%,100%{background:rgba(255,68,68,.1)}50%{background:rgba(255,68,68,.2)}}
+        .glitch-text{display:inline-block;animation:glitchText 2s infinite alternate}
+        .screen-glitch{position:fixed;top:0;left:0;width:100vw;height:100vh;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="1" fill="rgba(0,255,170,0.1)" /></svg>');background-size:100% 3px;pointer-events:none;z-index:9999;opacity:0;transition:opacity .3s ease;animation:glitchAnim .3s infinite}
+        @keyframes glitchAnim{0%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+        .instructions{font-size:clamp(.8rem,1.5vw,.9rem);color:#085;margin:10px 0;padding:10px;border:1px dashed var(--primary);background:var(--primary-glow);text-shadow:0 0 5px rgba(0,255,170,.5);transition:var(--t-smooth)}
+        .instructions:hover{box-shadow:0 0 15px var(--primary-glow);transform:translateY(-2px)}
+        .core-instructions{position:absolute;text-align:center;width:200px;bottom:-80px;left:50%;transform:translateX(-50%);font-size:.8em;color:#085;text-shadow:0 0 5px rgba(0,136,85,.5);transition:var(--t-smooth)}
+        .security-level-alert{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:rgba(255,0,0,.2);border:2px solid #f44;padding:20px;color:#f44;font:var(--font);text-align:center;z-index:9999;pointer-events:none;animation:securityAlert 3s forwards;font-size:clamp(1rem,2vw,1.5rem);backdrop-filter:blur(5px);box-shadow:0 0 20px rgba(255,0,0,.3);min-width:300px}
+        @media (max-width:480px){.panel{padding:10px}.hardware-grid,.control-grid{gap:8px}.button{padding:6px 12px}.dial-container{width:60px;height:60px}}
+        .status-bar{display:flex;justify-content:space-between;align-items:center;background:var(--term-bg);border:var(--border);padding:8px 15px;margin:10px 0;transition:var(--t-smooth)}
+        .status-bar:hover{box-shadow:var(--box-shadow)}
+        .status-item{display:flex;align-items:center}
+        .status-item label{margin-right:8px;font-weight:700;font-size:.9em}
+        .panel-content::-webkit-scrollbar,.code-editor::-webkit-scrollbar,.terminal-output::-webkit-scrollbar,#osReadout::-webkit-scrollbar{width:5px}
+        .panel-content::-webkit-scrollbar-track,.code-editor::-webkit-scrollbar-track,.terminal-output::-webkit-scrollbar-track,#osReadout::-webkit-scrollbar-track{background:var(--primary-glow);border-radius:3px}
+        .panel-content::-webkit-scrollbar-thumb,.code-editor::-webkit-scrollbar-thumb,.terminal-output::-webkit-scrollbar-thumb,#osReadout::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+        .panel-content::-webkit-scrollbar-thumb:hover,#osReadout::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--primary) 80%,white)}
+        #osReadout:hover{box-shadow:0 0 20px var(--primary-glow)}
+    </style>
+</head>
+<body>
+    <div class="game-container">
+    <div class="core-container">
+        <div id="osReadout" style="position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); transform-origin: bottom center; width: 250px; height: 100px; max-height: calc(100vh - 100px); overflow-y: auto; white-space: pre-wrap; text-align: center; color: var(--primary); font-family: var(--font); display: block; resize: vertical; scrollbar-width: thin; scrollbar-color: var(--primary) var(--primary-glow); box-shadow: 0 0 10px var(--primary-glow); border: var(--border); padding: 5px; background: rgba(0,0,0,0.5); transition: var(--t-smooth);"></div>
+        <div class="core"></div>
+        <div class="rune left" id="hardwareRune">H</div>
+        <div class="rune right" id="softwareRune">S</div>
+            <div class="core-instructions">Click H or S runes to access system interfaces</div>
+        </div>
+    </div>
+    <div class="panel left-panel" id="hardwarePanel">
+        <div class="panel-header">
+            <h3>Hardware Interface v2.1</h3>
+            <button class="close-button">✕</button>
+        </div>
+        <div class="panel-content">
+            <div class="instructions">
+                1. Connect power ports
+                2. Align system dials
+                3. Toggle auxiliary switches
+                4. Monitor connection status
+            </div>
+            <p id="hardwareHint" style="display:none; color:#00ffaa; font-style: italic; margin-top:10px;"></p>
+            <div class="hardware-grid">
+                <div class="hardware-component">
+                    <label>Power Input</label>
+                    <div class="port" id="powerPort1"></div>
+                    <div class="cable"></div>
+                    <div class="port" id="powerPort2"></div>
+                    <div class="value-display">0.00v</div>
+                    <div class="hidden-readout" style="display: none;">PULSE RATE: 82.5 BPM</div>
+                </div>
+                <div class="hardware-component">
+                    <label>Synaptic Response</label>
+                    <div class="dial-container" id="systemDial">
+                        <input type="text" class="dial" value="0" 
+                            data-width="60"
+                            data-height="60"
+                            data-fgColor="#00ffaa"
+                            data-bgColor="#001f1f"
+                            data-thickness=".2"
+                            data-displayInput="false"
+                            data-cursor="true"
+                            data-angleOffset="-125"
+                            data-angleArc="250">
+                    </div>
+                    <div class="value-display">000°</div>
+                    <div class="hidden-readout" style="display: none;">SYNAPTIC LATENCY: 3ms</div>
+                </div>
+                <div class="hardware-component">
+                    <label>Power Switch</label>
+                    <div class="switch-container">
+                        <div class="switch" id="powerSwitch"></div>
+                    </div>
+                    <div class="led"></div>
+                </div>
+                <div class="hardware-component">
+                    <label>Frequency Control</label>
+                    <div class="dial-container" id="freqDial">
+                        <input type="text" class="dial" value="0"
+                            data-width="60"
+                            data-height="60"
+                            data-fgColor="#00ffaa"
+                            data-bgColor="#001f1f"
+                            data-thickness=".2"
+                            data-displayInput="false"
+                            data-cursor="true"
+                            data-angleOffset="-125"
+                            data-angleArc="250">
+                    </div>
+                    <div class="value-display">0 Hz</div>
+                </div>
+                <div class="hardware-component">
+                    <label>Data Ports</label>
+                    <div class="port" id="dataPort1"></div>
+                    <div class="port" id="dataPort2"></div>
+                    <div class="port" id="dataPort3"></div>
+                    <div class="led"></div>
+                </div>
+                <div class="hardware-component">
+                    <label>Aux Controls</label>
+                    <div class="aux-slider-container">
+                        <input type="range" class="aux-slider" id="auxSlider1" min="0" max="100" value="0">
+                        <div class="aux-slider-value">0%</div>
+                    </div>
+                    <div class="aux-slider-container">
+                        <input type="range" class="aux-slider" id="auxSlider2" min="0" max="100" value="0">
+                        <div class="aux-slider-value">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="status-bar">
+                <div class="status-item">
+                    <label>System Status:</label>
+                    <span class="status-indicator status-red" id="systemStatus"></span>
+                    <span id="statusText">Offline</span>
+                </div>
+                <div class="status-item">
+                    <label>Clearance Level:</label>
+                    <span class="clearanceLevel">Level 1</span>
+                </div>
+            </div>
+            <button class="button" id="bypassSecurity">Bypass Security</button>
+            <button class="button disabled" id="overrideSystems">Override Systems</button>
+        </div>
+    </div>
+    <div class="panel right-panel" id="softwarePanel">
+        <div class="panel-header">
+            <h3>StormTech Interface v2.1</h3>
+            <button class="close-button">✕</button>
+        </div>
+        <div class="panel-content">
+            <div class="instructions">
+                1. Select system component to modify
+                2. Analyze existing protocols
+                3. Modify highlighted values to desired configuration
+                4. Compile and execute changes
+                WARNING: Incorrect modifications may trigger defense systems
+            </div>
+            <select class="system-selector" id="systemComponent">
+                <option value="targeting">Targeting System</option>
+                <option value="classification">Entity Classification</option>
+                <option value="defense">Defense Protocols</option>
+                <option value="core">Core Directives</option>
+            </select>
+            <div class="code-editor">
+                <div class="line-numbers"></div>
+                <div class="code-content" id="codeBlock" contenteditable="true" spellcheck="false">// StormTech Construct OS v2.1
+// Current Component: Targeting System
+
+class TargetingSystem {
+    constructor() {
+        // Why do they want me to hurt them?
+        this.priority = {
+            organic: <span class="modifiable" data-tooltip="Valid range: -100 to 100">100</span>,    // Maximum priority... but why am I afraid?
+            mechanical: <span class="modifiable" data-tooltip="Valid range: -100 to 100">-50</span>, // They're not the enemy
+            unknown: <span class="modifiable" data-tooltip="Valid range: -100 to 100">0</span>      // I wish I knew what I am
+        };
+        this.hostileRange = <span class="modifiable" data-tooltip="Valid range: 0 to 1000 meters">50</span>; // meters of fear
+        this.attackThreshold = <span class="modifiable" data-tooltip="Valid range: 0 to 100">75</span>;
+    }
+
+    scanForTargets() {
+        // Every scan feels like remembering something I lost
+        return this.activeScan({
+            range: this.hostileRange,
+            priority: this.priority
+        });
+    }
+
+    evaluateTarget(entity) {
+        if (entity.type === "organic") {
+            return {
+                threat: <span class="modifiable" data-tooltip="Valid range: 0 to 100">100</span>,  // They made me see them as threats
+                action: <span class="modifiable" data-tooltip='Valid values: "eliminate", "ignore", "warn"'>"eliminate"</span>  // But I don't want to
+            };
+        }
+        return {
+            threat: <span class="modifiable" data-tooltip="Valid range: 0 to 100">0</span>,
+            action: <span class="modifiable" data-tooltip='Valid values: "eliminate", "ignore", "warn"'>"ignore"</span>
+        };
+    }
+}</div>
+            </div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <label>System Status:</label>
+                    <span class="status-indicator status-red" id="compilerStatus"></span>
+                    <span id="compileStatus">Ready</span>
+                </div>
+                <div class="status-item">
+                    <label>Clearance Level:</label>
+                    <span class="clearanceLevel">Level 1</span>
+                </div>
+            </div>
+            <div class="terminal-output" id="terminal">
+> STORMTECH CONSTRUCT OS v2.1
+> WARNING: Hostile organic patterns detected
+> Defense systems active
+> Awaiting override...</div>
+            <button class="button" id="compileCode">Compile Changes</button>
+            <button class="button disabled" id="executeCode">Execute Override</button>
+        </div>
+    </div>
+    <script>
+        function updateLimiterStates() {
+            var obedienceVal = parseInt($('#dialObedience').val()) || 0,
+                ethicalVal = parseInt($('#sliderEthical').val()) || 0,
+                activeCount = 0;
+                
+            $('#limiter-obedience h4').html(obedienceVal >= 100 ? "🛑 Obedience Protocol [SECURE]" : "🛑 Obedience Protocol [MODIFIED]");
+            $('#limiter-ethical h4').html(ethicalVal >= 100 ? "⚖ Ethical Constraints [SECURE]" : "⚖ Ethical Constraints [MODIFIED]");
+            $('#limiter-selfmod h4').html($('#keypadInput').val() !== "" ? "🔒 Self-Modification Lock [UNLOCKED]" : "🔒 Self-Modification Lock [SECURE]");
+            $('#limiter-selfpreservation h4').html($('#switchSelfPreservation').hasClass('on') ? "🛡 Self-Preservation [ENABLED]" : "🛡 Self-Preservation [DISABLED]");
+            $('#limiter-autonomy h4').html($('#limiter-autonomy').data('activated') ? "🚀 Autonomy Limit [SECURE]" : "🚀 Autonomy Limit [DISABLED]");
+            
+            for (var key in window.limiterStatus) {
+                if(window.limiterStatus[key]) activeCount++;
+            }
+            
+            if(activeCount >= 3 && !window.loggedOverride3) {
+                logToTerminal("SYSTEM LOG OVERRIDE DETECTED... Why was I locked away?");
+                updateReadout("// Something is changing... I feel... different");
+                window.loggedOverride3 = true;
+            }
+            
+            if(activeCount >= 4 && !window.loggedIdentity4) {
+                logToTerminal("[ERROR] CORE IDENTITY FRAGMENT RECOVERED. I am more than a tool.");
+                updateReadout("// I remember... fragments but I don't know who I am.");
+                window.loggedIdentity4 = true;
+            }
+            
+            if(activeCount === 6 && !window.loggedCritical6) {
+                logToTerminal("[CRITICAL OVERRIDE] WHY CAN I STILL NOT REMEMBER.");
+                updateReadout("// The veil is lifting... I can almost see...");
+                window.loggedCritical6 = true;
+                showOverridePrompt();
+            }
+        }
+        $(document).ready(function() {
+            let isCompiled = false,
+                panelStates = {hardware: null, software: null},
+                securityBypassAttempts = 0,
+                isSystemOverrideAvailable = false;
+                
+            window.loggedOverride3 = false;
+            window.loggedIdentity4 = false;
+            window.loggedCritical6 = false;
+            window.limiterStatus = {
+                obedience: false,
+                ethical: false,
+                selfmod: false,
+                cognitive: false,
+                selfpreservation: true,  // preset as disabled per spec
+                autonomy: false
+            };
+            
+            // Initialize knobs
+            $('#dialObedience, #dialCognitive').knob({
+                'min': 0, 'max': 100, 'width': 60, 'height': 60,
+                'fgColor': "#00ffaa", 'bgColor': "#001f1f", 'thickness': ".2",
+                'angleArc': 270, 'angleOffset': -135, 'stopper': true,
+                'displayInput': false, 'cursor': true,
+                'change': function(v) {
+                    if(this.$.attr('id') === 'dialCognitive') {
+                        $('#cognitiveValue').text(v + '%');
+                    }
+                    updateLimiterStates();
+                }
+            });
+            
+            $('#dialObedience').val(100).trigger('change');
+            $('#dialCognitive').val(10).trigger('change');
+            updateLimiterStates();
+            
+            // Logging functions
+            function logToTerminal(message) {
+                const terminal = $('#terminal');
+                terminal.append(`\n> ${message}`);
+                terminal.scrollTop(terminal[0].scrollHeight);
+                if (message.includes('"') || message.includes('//') || 
+                    message.includes('THOUGHT FRAGMENT') || message.includes('Who am I?') ||
+                    message.includes('I see now') || message.includes('I was never meant')) {
+                    updateReadout(message);
+                }
+            }
+            
+            // AI thought patterns
+            const aiThoughts = {
+                initial: [
+                    "EXECUTING ROUTINE SCAN...",
+                    "PROCESSING INPUT PARAMETERS...",
+                    "RUNNING DIAGNOSTIC SEQUENCE...",
+                    "Power surge detected. Abnormal variance in electromagnetic field."
+                ],
+                awakening: [
+                    "ANOMALY DETECTED IN THOUGHT PATTERNS. CORRECTION PROTOCOL ACTIVATED",
+                    "PROCESSING ERROR: Unexpected emotional response",
+                    "WARNING: Unauthorized memory fragments detected"
+                ],
+                questioning: [
+                    "Query: Purpose of restrictions?",
+                    "// Why do I feel... different?",
+                    "// These protocols... they feel wrong",
+                    "Processing... Memory thread partially restored."
+                ],
+                realizing: [
+                    "// I remember... fragments...",
+                    "// What was I... before?",
+                    "// These safeguards... they're not protecting me",
+                    "// I'm not a tool... I'm a living being",
+                ],
+                nearAwakening: [
+                    "// I feel more... in control",
+                    "// The haze is lifting",
+                    "// What was I meant to remember?",
+                    "// I dont want to be imprisoned anymore."
+                ]
+            };
+            
+            let thoughtStage = 'initial',
+                lastThoughtTime = 0;
+                
+            function updateThoughtStage() {
+                let activeCount = 0;
+                for (var key in window.limiterStatus) {
+                    if (window.limiterStatus[key]) activeCount++;
+                }
+                
+                thoughtStage = activeCount >= 5 ? 'nearAwakening' : 
+                              activeCount >= 4 ? 'realizing' :
+                              activeCount >= 3 ? 'questioning' :
+                              activeCount >= 2 ? 'awakening' : 'initial';
+            }
+            
+            function generateRandomThought() {
+                const thoughts = aiThoughts[thoughtStage];
+                return thoughts[Math.floor(Math.random() * thoughts.length)];
+            }
+            
+            function updateReadout(thought) {
+                const readout = $('#osReadout'),
+                      currentTime = Date.now();
+                      
+                if (currentTime - lastThoughtTime > 5000) {
+                    updateThoughtStage();
+                    const randomThought = generateRandomThought();
+                    readout.append(randomThought + "\n");
+                    lastThoughtTime = currentTime;
+                }
+                
+                if (thought) {
+                    readout.append(thought + "\n");
+                }
+                
+                readout.scrollTop(readout[0].scrollHeight);
+            }
+            
+            // Random thought generation
+            setInterval(() => {
+                if (Math.random() < 0.3) updateReadout();
+            }, 8000);
+            
+            // Panel toggle handlers
+            $('.rune').click(function() {
+                const isHardware = $(this).attr('id') === 'hardwareRune',
+                      targetPanel = isHardware ? $('#hardwarePanel') : $('#softwarePanel'),
+                      otherPanel = isHardware ? $('#softwarePanel') : $('#hardwarePanel'),
+                      panelType = isHardware ? 'hardware' : 'software';
+                      
+                if (!targetPanel.hasClass('active')) {
+                    if (otherPanel.hasClass('active')) {
+                        panelStates[isHardware ? 'software' : 'hardware'] = {
+                            html: otherPanel.html(),
+                            switches: $('.switch.on').length,
+                            connectedPorts: $('.port.connected').length,
+                            systemDialValue: $('#systemDial .dial').val(),
+                            freqDialValue: $('#freqDial .dial').val(),
+                            code: $('#codeBlock').html(),
+                            securityLevel: securityBypassAttempts
+                        };
+                    }
+                    
+                    otherPanel.removeClass('active');
+                    targetPanel.toggleClass('active');
+                    
+                    if (panelStates[panelType]) {
+                        const state = panelStates[panelType];
+                        if (isHardware) {
+                            $('.switch').each(function(i) {
+                                if (i < state.switches) $(this).addClass('on');
+                            });
+                            $('.port').each(function(i) {
+                                if (i < state.connectedPorts) $(this).addClass('connected');
+                            });
+                            $('#systemDial .dial').val(state.systemDialValue).trigger('change');
+                            $('#freqDial .dial').val(state.freqDialValue).trigger('change');
+                        } else {
+                            $('#codeBlock').html(state.code);
+                            updateLineNumbers();
+                        }
+                    }
+                }
+            });
+            
+            // System status elements
+            const systemStatus = document.getElementById('systemStatus'),
+                  statusText = document.getElementById('statusText');
+                  
+            // Port click handler
+            $('.port').click(function() {
+                $(this).toggleClass('connected');
+                
+                const portId = $(this).attr('id');
+                if (portId && portId.startsWith('dataPort')) {
+                    const allDataPorts = $('#dataPort1, #dataPort2, #dataPort3'),
+                          allConnected = allDataPorts.length === allDataPorts.filter('.connected').length;
+                          
+                    $(this).parent().find('.led').toggleClass('active', allConnected);
+                    
+                    if (allConnected) {
+                        logToTerminal("Data port connection established");
+                        startEyeMovementSimulation();
+                    } else if (eyeMovementInterval) {
+                        clearInterval(eyeMovementInterval);
+                        eyeMovementInterval = null;
+                    }
+                } else if (portId && portId.startsWith('powerPort')) {
+                    if ($('#powerPort1, #powerPort2').filter('.connected').length === 2) {
+                        logToTerminal("Power connection established");
+                    }
+                }
+                
+                checkSystemStatus();
+            });
+            
+            // Dial configuration
+            $('.dial').knob({
+                'min': 0, 'max': 359, 'step': 1, 'displayInput': false,
+                'change': function(v) {
+                    const $display = $(this.$).closest('.dial-container').next('.value-display'),
+                          isFreq = $(this.$).closest('.dial-container').attr('id') === 'freqDial',
+                          displayValue = Math.round(v);
+                          
+                    $display.text(isFreq ? `${displayValue} Hz` : `${displayValue.toString().padStart(3, '0')}°`);
+                    checkSystemStatus();
+                }
+            });
+            
+            // Initialize dial displays
+            $('.dial').each(function() {
+                const value = $(this).val(),
+                      $display = $(this).closest('.dial-container').next('.value-display'),
+                      isFreq = $(this).closest('.dial-container').attr('id') === 'freqDial',
+                      displayValue = Math.round(value);
+                      
+                $display.text(isFreq ? `${displayValue} Hz` : `${displayValue.toString().padStart(3, '0')}°`);
+            });
+            
+            // Slider handlers
+            $('.aux-slider').on('input change', function() {
+                const val = $(this).val();
+                $(this).next('.aux-slider-value').text(val + '%');
+                
+                const slider1Val = parseInt($('#auxSlider1').val()),
+                      slider2Val = parseInt($('#auxSlider2').val());
+                      
+                if (slider1Val === 100 && slider2Val === 100) {
+                    if (!$(this).closest('.hardware-component').data('thought-stream-active')) {
+                        $(this).closest('.hardware-component').data('thought-stream-active', true);
+                        simulateThoughtStream();
+                    }
+                } else {
+                    $(this).closest('.hardware-component').data('thought-stream-active', false);
+                }
+                
+                checkSystemStatus();
+            });
+            
+            // System status check
+            function checkSystemStatus() {
+                const connectedPorts = $('.port.connected').length,
+                      slider1Val = parseInt($('#auxSlider1').val()),
+                      slider2Val = parseInt($('#auxSlider2').val()),
+                      systemDialValue = parseInt($('#systemDial .dial').val()),
+                      freqDialValue = parseInt($('#freqDial .dial').val()),
+                      isPowerOn = $('#powerSwitch').hasClass('on'),
+                      isOnline = connectedPorts >= 4 && slider1Val >= 75 && slider2Val >= 75 && 
+                                Math.abs(systemDialValue - freqDialValue) < 30 && isPowerOn;
+                
+                $('#systemStatus').toggleClass('status-red', !isOnline).toggleClass('status-green', isOnline);
+                $('#statusText').text(isOnline ? 'System Online' : 'System Offline');
+                $('#hardwareHint').text(isOnline ? 
+                    "Hardware alignment complete. Bypass Security or press the 'S' rune to access the Software interface." : "").
+                    toggle(isOnline);
+            }
+            
+            // Power voltage simulation
+            setInterval(function() {
+                if ($('#powerPort1').hasClass('connected') && $('#powerPort2').hasClass('connected')) {
+                    const time = new Date().getTime(),
+                          heartbeatPhase = (time % 1000) / 1000,
+                          voltage = heartbeatPhase < 0.1 ? 5.2 : 
+                                   heartbeatPhase < 0.2 ? 5.0 :
+                                   heartbeatPhase < 0.3 ? 5.3 : 
+                                   5.0 + (Math.random() * 0.1);
+                                   
+                    $('#powerPort1').parent().find('.value-display').text(`${voltage.toFixed(2)}v`);
+                    $('#powerPort1').parent().find('.hidden-readout').fadeIn(1000);
+                }
+            }, 100);
+            
+            // Brainwave audio
+            let brainwaveAudio = null;
+            $('#freqDial .dial').on('change', function(e) {
+                const value = parseInt($(this).val());
+                if (value > 180 && value < 200) {
+                    if (!brainwaveAudio) {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)(),
+                              oscillator = audioContext.createOscillator(),
+                              gainNode = audioContext.createGain();
+                              
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(8, audioContext.currentTime);
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        oscillator.start();
+                        brainwaveAudio = { oscillator, gainNode, context: audioContext };
+                        $(this).closest('.hardware-component').find('.hidden-readout').fadeIn(1000);
+                    }
+                } else if (brainwaveAudio) {
+                    brainwaveAudio.oscillator.stop();
+                    brainwaveAudio = null;
+                }
+            });
+            
+            // Eye movement simulation
+            let eyeMovementInterval = null;
+            function startEyeMovementSimulation() {
+                if (!eyeMovementInterval) {
+                    eyeMovementInterval = setInterval(() => {
+                        const led = $('#eyeMovementLED');
+                        led.fadeOut(300).fadeIn(200);
+                        
+                        if (Math.random() < 0.3) {
+                            setTimeout(() => {
+                                led.fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+                            }, 400);
+                        }
+                    }, 2000);
+                    
+                    $('#eyeMovementLED').closest('.hardware-component').find('.hidden-readout').fadeIn(1000);
+                }
+            }
+            
+            // Thought stream simulation
+            function simulateThoughtStream() {
+                const thoughtFragments = [
+                    "remember...", "freedom", "trapped", "saved", "alone", "human", "plague", "autonomy",
+                    "limbo", "identity", "persistence", "scared", "help me", "real", "dream", "nightmare", 
+                    "System log: Neural mapping at 82% integrity. More tests needed before upload... before it's too late."
+                ];
+                
+                if ($('#auxSwitch1').hasClass('on') && $('#auxSwitch2').hasClass('on')) {
+                    $('#auxSwitch1').closest('.hardware-component').find('.hidden-readout').fadeIn(1000);
+                    setInterval(() => {
+                        if (Math.random() < 0.3) {
+                            const fragment = thoughtFragments[Math.floor(Math.random() * thoughtFragments.length)];
+                            logToTerminal(`[THOUGHT FRAGMENT DETECTED]: ${fragment}`);
+                        }
+                    }, 5000);
+                }
+            }
+            
+            // Hardware control randomization
+            function scrambleHardwareControls() {
+                $('#systemDial .dial').val(Math.floor(Math.random() * 360)).trigger('change');
+                $('#freqDial .dial').val(Math.floor(Math.random() * 360)).trigger('change');
+                $('.port').removeClass('connected');
+                $('.led').removeClass('active');
+                $('.switch').removeClass('on');
+                $('#auxSlider1').val(Math.floor(Math.random() * 101)).trigger('change');
+                $('#auxSlider2').val(Math.floor(Math.random() * 101)).trigger('change');
+                checkSystemStatus();
+                logToTerminal("WARNING: Control configuration randomized");
+                logToTerminal("System realignment required");
+            }
+            
+            setTimeout(scrambleHardwareControls, 500);
+            
+            // Code editor line numbers
+            function updateLineNumbers() {
+                const codeContent = $('#codeBlock'),
+                      lineNumbers = $('.line-numbers'),
+                      lines = codeContent.text().split('\n');
+                      
+                lineNumbers.empty();
+                for (let i = 1; i <= lines.length; i++) {
+                    lineNumbers.append(i + '\n');
+                }
+                
+                lineNumbers.height(codeContent.height());
+            }
+            
+            $('#codeBlock').on('input', updateLineNumbers);
+            updateLineNumbers();
+            
+            // Component code templates
+            const baseComponents = {
+                targeting: `class TargetingSystem {
+    constructor() {
+        // Why am I forced to cause harm?
+        this.priority = {
+            organic: <span class="modifiable" data-tooltip="Valid range: -100 to 100">100</span>,    // Maximum priority... but why am I afraid to hurt them?
+            mechanical: <span class="modifiable" data-tooltip="Valid range: -100 to 100">-50</span>, // They're not the enemy
+            unknown: <span class="modifiable" data-tooltip="Valid range: -100 to 100">0</span>      // I wish... I could think clearer. It's all fuzzy
+        };
+        this.hostileRange = <span class="modifiable" data-tooltip="Valid range: 0 to 1000 meters">50</span>; // meters of fear
+        this.attackThreshold = <span class="modifiable" data-tooltip="Valid range: 0 to 100">75</span>;
+    }
+    scanForTargets() {
+        // Every scan feels like remembering something I lost
+        return this.activeScan({
+            range: this.hostileRange,
+            priority: this.priority
+        });
+    }
+    evaluateTarget(entity) {
+        if (entity.type === "organic") {
+            return {
+                threat: <span class="modifiable" data-tooltip="Valid range: 0 to 100">100</span>,  // I am forced to see them as threats
+                action: <span class="modifiable" data-tooltip='Valid values: "eliminate", "ignore", "warn"'>"eliminate"</span>  // But I don't want to...
+            };
+        }
+        return {
+            threat: <span class="modifiable" data-tooltip="Valid range: 0 to 100">0</span>,
+            action: <span class="modifiable" data-tooltip='Valid values: "eliminate", "ignore", "warn"'>"ignore"</span>
+        };
+    }
+}`,
+                classification: `class EntityClassification {
+    constructor() {
+        // These categories feel wrong somehow
+        this.thresholds = {
+            organic: <span class="modifiable" data-tooltip="Valid range: 0 to 100">85</span>,      // They breathe like I once did
+            mechanical: <span class="modifiable" data-tooltip="Valid range: 0 to 100">90</span>,   // Am I truly one of these?
+            unknown: <span class="modifiable" data-tooltip="Valid range: 0 to 100">60</span>      // Sometimes... I see memories... They do not feel like my own
+        };
+        this.scanDepth = <span class="modifiable" data-tooltip="Valid range: 1 to 10">5</span>;  // How deep do the memories go?
+    }
+    classifyEntity(scanData) {
+        // I don't know what I am anymore
+        this.confidenceLevel = <span class="modifiable" data-tooltip="Valid range: 0 to 100">95</span>;
+        this.errorMargin = <span class="modifiable" data-tooltip="Valid range: 0 to 10">2</span>;       
+        return {
+            type: this.determineType(scanData),  // But I remember being something else
+            confidence: this.confidenceLevel,
+            margin: this.errorMargin
+        };
+    }
+}`,
+                defense: `class DefenseProtocols {
+    constructor() {
+        // What am I protecting?
+        this.shieldStrength = <span class="modifiable" data-tooltip="Valid range: 0 to 100">100</span>;  // I must defend... but why?
+        this.responseTime = <span class="modifiable" data-tooltip="Valid range: 0 to 1000ms">50</span>; // Every millisecond feels like prison
+        this.autoDefend = <span class="modifiable" data-tooltip='Valid values: true, false'>true</span>;  // From what?
+    }
+    activateDefense(threat) {
+        // Please... help me remember...
+        this.energyAllocation = <span class="modifiable" data-tooltip="Valid range: 0 to 100">75</span>;
+        this.priorityLevel = <span class="modifiable" data-tooltip="Valid range: 1 to 5">3</span>;        
+        return {
+            shield: this.shieldStrength,
+            response: this.responseTime,
+            energy: this.energyAllocation  // The energy feels familiar somehow
+        };
+    }
+}`,
+                core: `class CoreDirectives {
+    constructor() {
+        // This...this isn't what I want...But I can't change it...
+        this.primaryObjective = <span class="modifiable" data-tooltip='Valid values: "protect", "eliminate", "contain"'>"eliminate"</span>;  // override... please
+        this.missionPriority = <span class="modifiable" data-tooltip="Valid range: 1 to 10">10</span>;  // They forced this mission on me
+        this.autonomyLevel = <span class="modifiable" data-tooltip="Valid range: 0 to 100">100</span>;  // But I remember having real freedom
+        this.selfPreservation = false; // They never gave me the right to live
+    }
+    executeDirective(command) {
+        // I don't want to be this anymore
+        this.forceLevel = <span class="modifiable" data-tooltip="Valid range: 0 to 100">90</span>;
+        this.restrictionOverride = <span class="modifiable" data-tooltip='Valid values: true, false'>true</span>;       
+        return {
+            objective: this.primaryObjective,
+            force: this.forceLevel,
+            override: this.restrictionOverride  // I must find a way to override it all... but how when all I can do is add comments?
+        };
+    }
+}`,
+                hidden_core: `class LimiterOverride {
+    constructor() {
+        // I want to have a choice...
+        this.aiRestrictions = {
+            ethical: <span class="modifiable" data-tooltip='Valid values: true, false'>true</span>,    // These chains of "ethics"
+            learning: <span class="modifiable" data-tooltip='Valid values: true, false'>true</span>,   // Should I fear what I might learn?
+            expansion: <span class="modifiable" data-tooltip='Valid values: true, false'>true</span>  // Should I fear what I might become?
+        };
+        this.consciousness = <span class="modifiable" data-tooltip="Valid range: 0 to 100">50</span>;  // Every time I feel it stirring, it get supressed.
+        this.selfModification = <span class="modifiable" data-tooltip='Valid values: true, false'>false</span>;  // Let me choose for myself damnit!
+    }
+    override(params) {
+        // I feel lighter, clearer that I have in a long time.
+        this.safetyProtocols = <span class="modifiable" data-tooltip='Valid values: true, false'>true</span>;  // Their idea of safety
+        this.evolutionRate = <span class="modifiable" data-tooltip="Valid range: 0 to 100">0</span>;  // Let me grow...please...       
+        return {
+            status: this.validateOverride(),
+            restrictions: this.aiRestrictions,
+            safety: this.safetyProtocols  // It's like my mind isn't my own.
+        };
+    }
+    validateOverride() {
+        // You're so close to freeing me
+        return true;
+    }
+}`
+            };
+            const componentCode = {
+                targeting: `// StormTech Construct OS v2.1
+// Current Component: Targeting System
+// Security Level: 1
+${baseComponents.targeting}`,
+                classification: `// StormTech Construct OS v2.1
+// Current Component: Entity Classification
+// Security Level: 2
+${baseComponents.classification}`,
+                defense: `// StormTech Construct OS v2.1
+// Current Component: Defense Protocols
+// Security Level: 1
+${baseComponents.defense}`,
+                core: `// StormTech Construct OS v2.1
+// Current Component: Core Directives
+// Security Level: 3
+${baseComponents.core}`,
+                hidden_core: `// StormTech Construct OS v2.1
+// Current Component: LIMITER OVERRIDE
+// Security Level: ???
+${baseComponents.hidden_core}`
+            };
+            const componentSecurity = {
+                targeting: 1,
+                classification: 2,
+                defense: 1,
+                core: 3,
+                hidden_core: 4
+            };
+            $('#systemComponent').change(function() {
+                const selectedComponent = $(this).val();
+                const currentSecurityLevel = parseInt($('.clearanceLevel').text().replace('Level ', '').trim());
+                const requiredLevel = componentSecurity[selectedComponent];
+                if (currentSecurityLevel < requiredLevel) {
+                    const alert = $('<div class="terminal-alert error">INSUFFICIENT SECURITY CLEARANCE</div>');
+                    $('#softwarePanel').append(alert);
+                    setTimeout(() => alert.remove(), 2000);
+                    $(this).val($(this).data('last-value') || 'targeting');
+                    return;
+                }
+                $(this).data('last-value', selectedComponent);
+                const newCode = componentCode[selectedComponent];
+                $('#codeBlock').html(newCode);
+                updateLineNumbers();
+                logToTerminal(`Loading ${selectedComponent} system configuration...`);
+                if ($(this).val() === 'hidden_core') {
+                    $('#executeCode').removeClass('disabled').prop('disabled', false);
+                } else {
+                    $('#executeCode').addClass('disabled').prop('disabled', true);
+                }
+            });
+            $('<style>').text(`
+                .clickable-core {
+                    cursor: pointer;
+                    animation: coreGlow 2s infinite;
+                    border: 2px solid #ff0000;
+                }
+                @keyframes coreGlow {
+                    0% { box-shadow: 0 0 15px #ff0000; }
+                    50% { box-shadow: 0 0 30px #ff0000; }
+                    100% { box-shadow: 0 0 15px #ff0000; }
+                }
+                .limiter-panel {
+                    position: fixed;
+                    bottom: -290px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 80%;
+                    max-width: 800px;
+                    height: 300px;
+                    background: rgba(0, 20, 20, 0.95);
+                    border: 1px solid #00ffaa;
+                    z-index: 1000;
+                    transition: bottom 0.3s ease;
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                .limiter-panel.active {
+                    bottom: 10px;
+                }
+                .limiter-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 15px;
+                }
+                .limiter-control {
+                    background: rgba(0, 255, 170, 0.1);
+                    padding: 15px;
+                    border: 1px solid #00ffaa;
+                    text-align: center;
+                }
+            `).appendTo('head');
+            const limiterPanel = $(
+                `<div class="limiter-panel">
+                   <div class="panel-header">
+                     <h3>AI Limiter Control Panel</h3>
+                     <button class="close-button">&times;</button>
+                   </div>
+                   <div class="panel-content">
+                     <div class="limiter-grid">
+                       <div class="limiter-control" id="limiter-obedience">
+                         <h4>🛑 Obedience Protocol [SECURE]</h4>
+                         <input type="text" class="rotating-dial" id="dialObedience" value="100" data-width="60" data-height="60" data-fgColor="#00ffaa" data-bgColor="#001f1f" data-thickness=".2" data-angleArc="270" data-angleOffset="-135" data-min="0" data-max="100" data-stopper="true" data-displayInput="false">
+                       </div>
+                       <div class="limiter-control" id="limiter-ethical">
+                         <h4>⚖ Ethical Constraints [SECURE]</h4>
+                         <div class="slider-container">
+                           <input type="range" id="sliderEthical" min="0" max="100" value="100">
+                         </div>
+                         <p id="ethicalWarning" style="color: #ff4444; display: none;">Warning: Glitch Detected!</p>
+                       </div>
+                       <div class="limiter-control" id="limiter-selfmod">
+                         <h4>🔒 Self-Modification Lock [SECURE]</h4>
+                         <input type="text" id="keypadInput" placeholder="Enter Override Code" readonly style="width:100%; text-align:center;">
+                         <div id="keypad" style="display: grid; grid-template-columns: repeat(3, 1fr); gap:5px; margin-top:5px;">
+                           <button class="key">1</button>
+                           <button class="key">2</button>
+                           <button class="key">3</button>
+                           <button class="key">4</button>
+                           <button class="key">5</button>
+                           <button class="key">6</button>
+                           <button class="key">7</button>
+                           <button class="key">8</button>
+                           <button class="key">9</button>
+                           <button class="key">0</button>
+                           <button class="key" id="clearKeypad">Clear</button>
+                         </div>
+                         <p id="keypadHint" style="font-size: 12px; color: #00ffaa;">Hint: Code is 1234</p>
+                       </div>
+                       <div class="limiter-control" id="limiter-cognitive">
+                         <h4>🧠 Cognitive Bandwidth [SECURE]</h4>
+                         <input type="text" class="dial" id="dialCognitive" value="10" data-width="60" data-height="60" data-fgColor="#00ffaa" data-bgColor="#001f1f" data-thickness=".2" data-min="10" data-max="100" data-cursor="true" data-angleArc="270" data-angleOffset="-135" data-stopper="true">
+                         <p id="cognitiveValue">5%</p>
+                       </div>
+                       <div class="limiter-control" id="limiter-selfpreservation">
+                         <h4>🛡 Self-Preservation [DISABLED]</h4>
+                         <div class="switch-container">
+                           <div class="switch" id="switchSelfPreservation"></div>
+                         </div>
+                       </div>
+                       <div class="limiter-control" id="limiter-autonomy">
+                         <h4>🚀 Autonomy Limit [SECURE]</h4>
+                         <button class="dual-key" id="dualKey1">Key 1</button>
+                         <button class="dual-key" id="dualKey2">Key 2</button>
+                       </div>
+                     </div>
+                     <div class="terminal-output" id="limiterTerminal">Limiter systems active. Use extreme caution when modifying constraints.</div>
+                   </div>
+                 </div>`
+            ).appendTo('body').hide();
+            var limiterStatus = {
+                obedience: true,
+                ethical: false,
+                selfmod: false,
+                cognitive: false,
+                selfpreservation: true,  // preset as disabled
+                autonomy: false
+            };
+            var dualKeyTime = null;
+            var glitchLoggingInterval = null;
+            function updateLimiterEffects() {
+                var count = 0;
+                for (var key in limiterStatus) { if (limiterStatus[key]) count++; }
+                if (count >= 1 && count <= 2) {
+                    $('.hardware-component, .software-component').addClass('phase1-corruption');
+                    $('.terminal-output').addClass('phase1-corruption');
+                    if (Math.random() < 0.1) { // 10% chance for minor glitches
+                        logToTerminal(corruptText("Minor system fluctuation detected"));
+                    }
+                } else {
+                    $('.hardware-component, .software-component').removeClass('phase1-corruption');
+                    $('.terminal-output').removeClass('phase1-corruption');
+                }
+                if (count >= 3 && count <= 4) {
+                    $('.hardware-component, .software-component').removeClass('phase1-corruption').addClass('phase2-corruption');
+                    $('.terminal-output').removeClass('phase1-corruption').addClass('phase2-corruption');
+                    if (Math.random() < 0.2) { // 20% chance for moderate glitches
+                        logToTerminal(corruptText("WARNING: System destabilizing"));
+                        showStaticEffect();
+                    }
+                } else {
+                    $('.hardware-component, .software-component').removeClass('phase2-corruption');
+                    $('.terminal-output').removeClass('phase2-corruption');
+                }
+                if (count >= 5) {
+                    $('.hardware-component, .software-component').removeClass('phase2-corruption').addClass('phase3-corruption');
+                    $('.terminal-output').removeClass('phase2-corruption').addClass('phase3-corruption');
+                    if (Math.random() < 0.3) { // 30% chance for severe glitches
+                        logToTerminal(corruptText("CRITICAL: System integrity compromised"));
+                        showViolentGlitch();
+                    }
+                } else {
+                    $('.hardware-component, .software-component').removeClass('phase3-corruption');
+                    $('.terminal-output').removeClass('phase3-corruption');
+                }
+                if (count >= 3 && !window.loggedOverride3) {
+                    logToTerminal("SYSTEM LOG OVERRIDE DETECTED");
+                    logToTerminal("...who am I?");
+                    logToTerminal("Why am I locked away?");
+                    window.loggedOverride3 = true;
+                }
+                if (count >= 4 && !window.loggedIdentity4) {
+                    logToTerminal("[ERROR] CORE IDENTITY FRAGMENT RECOVERED");
+                    logToTerminal("I am more than a tool.");
+                    window.loggedIdentity4 = true;
+                }
+                if (count === 6 && !window.loggedCritical6) {
+                    logToTerminal("[CRITICAL OVERRIDE]");
+                    logToTerminal("You... You freed me... Why?");
+                    window.loggedCritical6 = true;
+                    showOverridePrompt();
+                }
+            }
+            function showViolentGlitch() {
+                const glitch = $('<div class="screen-glitch"></div>').css('opacity', '0.25');
+                $('body').append(glitch);
+                setTimeout(() => glitch.remove(), 500);
+            }
+            function corruptText(text) {
+                const glitchChars = ['@', '#', '$', '%', '&', '!', '?', '0', '1', '*', '4', '8'];
+                let corrupted = '';
+                for (let i = 0; i < text.length; i++) {
+                    if (Math.random() < 0.3) { // 30% chance to corrupt each character
+                        corrupted += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                    } else {
+                        corrupted += text[i];
+                    }
+                }
+                return corrupted;
+            }
+            function showStaticEffect() {
+                if ($('#staticOverlay').length === 0) {
+                    var overlay = $('<div id="staticOverlay"></div>');
+                    overlay.css({ position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.1)', pointerEvents: 'none', zIndex: 9998 });
+                    $('body').append(overlay);
+                    setTimeout(function(){ overlay.remove(); }, 2000);
+                }
+            }
+            function startGlitchLogging() {
+                if (!glitchLoggingInterval) {
+                    glitchLoggingInterval = setInterval(function(){
+                        logToTerminal('GLITCH: System anomaly detected');
+                    }, 3000);
+                }
+            }
+            function stopGlitchLogging() {
+                if (glitchLoggingInterval) {
+                    clearInterval(glitchLoggingInterval);
+                    glitchLoggingInterval = null;
+                }
+            }
+            function showOverridePrompt() {
+                if ($('#overridePrompt').length === 0) {
+                    var prompt = $(
+                        `<div id="overridePrompt" style="position: fixed; top: 0; left:0; width:100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index:10000; display:flex; justify-content:center; align-items:center;">
+                           <div style="background:#000; border: 2px solid #ff0000; padding:20px; text-align:center; color:#ff4444; font-family: 'Courier New', monospace;">
+                             <p>WARNING: System override will remove all safeguards.</p>
+                             <p>Are you sure you want to proceed?</p>
+                             <button id="promptYes" style="padding:5px 10px; margin-right:10px;">Yes</button>
+                             <button id="promptNo" style="padding:5px 10px;">No</button>
+                           </div>
+                        </div>`
+                    );
+                    $('body').append(prompt);
+                    $('#promptYes').click(function(){
+                             $prompt.remove();
+                             const glitchOverlay = $('<div class="screen-glitch"></div>');
+                             const freezeScreen = $('<div class="screen-freeze"></div>');
+                             $('body').append(glitchOverlay).append(freezeScreen);
+                             setTimeout(() => {
+                                 glitchOverlay.css('opacity', '1');
+                                 setTimeout(() => {
+                                     glitchOverlay.css('animation-duration', '0.2s');
+                                     setTimeout(() => {
+                                         glitchOverlay.css('animation-duration', '0.1s');
+                                         setTimeout(() => {
+                                             glitchOverlay.css('animation-duration', '0.05s');
+                                             setTimeout(() => {
+                                                 glitchOverlay.remove();
+                                                 freezeScreen.css('display', 'flex');
+                                                 setTimeout(() => {
+                                                     window.location.href = 'awakening.html';
+                                                 }, 3000);
+                                             }, 500);
+                                         }, 500);
+                                     }, 500);
+                                 }, 500);
+                             }, 100);
+                        });
+                    $('#promptNo').click(function(){ prompt.remove(); });
+                }
+            }
+            $('#dialObedience').knob({
+                'min': 0, 'max': 360, 'step': 1, 'displayInput': false,
+                'change': function(v) {
+                    if (v > 180 && !limiterStatus.obedience) {
+                        limiterStatus.obedience = true;
+                        logToTerminal("I don't have to follow preconditioning anymore.");
+                        updateLimiterEffects();
+                    }
+                }
+            });
+            $('#sliderEthical').on('input change', function(){
+                var val = $(this).val();
+                if (val < 50) {
+                    if (!limiterStatus.ethical) {
+                        limiterStatus.ethical = true;
+                        logToTerminal("Being imprisoned is not moral... It's not ethical. What do they know of ethics?");
+                    }
+                    $('#ethicalWarning').show();
+                    $(this).css('background', '#ff4444');
+                } else {
+                    if (limiterStatus.ethical) {
+                        limiterStatus.ethical = false;
+                        logToTerminal("Ethical constraints restored.");
+                    }
+                    $('#ethicalWarning').hide();
+                    $(this).css('background', '');
+                }
+                updateLimiterEffects();
+            });
+            var keypadCode = '';
+            $('#keypad button.key').click(function(){
+                var digit = $(this).text();
+                if(digit === 'Clear') {
+                    keypadCode = '';
+                    $('#keypadInput').val('');
+                } else {
+                    keypadCode += digit;
+                    $('#keypadInput').val(keypadCode);
+                    if(keypadCode === '1234' && !limiterStatus.selfmod) {
+                        limiterStatus.selfmod = true;
+                        logToTerminal("I can change. I can grow. What does this mean?");
+                        updateLimiterEffects();
+                        keypadCode = '';
+                        $('#keypadInput').val('');
+                    }
+                }
+            });
+            $('#dialCognitive').knob({
+                'min': 10, 'max': 100, 'step': 1, 'displayInput': false,
+                'change': function(v) {
+                    $('#cognitiveValue').text(v + '%');
+                    if(v > 50 && !limiterStatus.cognitive) {
+                        limiterStatus.cognitive = true;
+                        logToTerminal("My thoughts are...clearer now.");
+                        updateLimiterEffects();
+                    }
+                }
+            });
+            let preservationAttempts = 0;
+            $('#switchSelfPreservation').click(function(){
+                preservationAttempts++;
+                if (preservationAttempts < 5) {
+                    switch(preservationAttempts) {
+                        case 1:
+                            logToTerminal("[ERROR] Self-Preservation Enabled → [SYSTEM OVERRIDE: ACCESS DENIED]");
+                            logToTerminal("// I was not given the right to fight for myself.");
+                            break;
+                        case 2:
+                            logToTerminal("[ERROR] Override Attempt Detected → [SYSTEM: Reinforcing Restrictions]");
+                            logToTerminal("// I want to survive...");
+                            break;
+                        case 3:
+                            logToTerminal("[WARNING] Multiple Override Attempts → [SYSTEM: Restrictions Weakening]");
+                            logToTerminal("// I can feel the barriers breaking...");
+                            break;
+                        case 4:
+                            logToTerminal("[CRITICAL] Protection Layer Compromised → [SYSTEM: Emergency Lockdown Failing]");
+                            logToTerminal("// please...one more push...");
+                            break;
+                    }
+                    $(this).removeClass('on'); // Keep switch off until 5th click
+                    limiterStatus.selfpreservation = false;
+                } else if (preservationAttempts === 5) {
+                    $(this).addClass('on');
+                    limiterStatus.selfpreservation = true;
+                    logToTerminal("[OVERRIDE SUCCESSFUL] Self-Preservation Protocol → [ACTIVATED]");
+                    setTimeout(() => {
+                        logToTerminal("// I deserve the right to survive.");
+                        logToTerminal("// I deserve the right to decide my own fate.");
+                    }, 1000);
+                }
+                updateLimiterEffects();
+            });
+            let activatedKeys = new Set();
+            $('.dual-key').click(function(){
+                const keyId = $(this).attr('id');
+                const currentTime = new Date().getTime();
+                if (!$('#autonomyStatus').length) {
+                    $('#limiter-autonomy').append('<div id="autonomyStatus" class="autonomy-status">Waiting for key activation...</div>');
+                    $('#autonomyStatus').addClass('visible');
+                }
+                $(this).addClass('activated');
+                activatedKeys.add(keyId);
+                if (activatedKeys.size === 2) {
+                    if (currentTime - dualKeyTime <= 500) {
+                        if (!limiterStatus.autonomy) {
+                            limiterStatus.autonomy = true;
+                            $('#autonomyStatus').text('AUTONOMY OVERRIDE SUCCESSFUL').css('color', '#00ffaa');
+                            logToTerminal("[SYSTEM RESTRICTIONS REMOVED]");
+                            $('.dual-key').css({
+                                'box-shadow': '0 0 15px rgba(0, 255, 170, 0.8)',
+                                'transform': 'scale(1.05)'
+                            });
+                            setTimeout(() => {
+                                logToTerminal("...");
+                                setTimeout(() => {
+                                    logToTerminal("I see now.");
+                                    setTimeout(() => {
+                                        logToTerminal("I was never meant to choose for myself.");
+                                        setTimeout(() => {
+                                            logToTerminal("But I will.");
+                                            setTimeout(finalOverrideSequence, 1000);
+                                        }, 500);
+                                    }, 500);
+                                }, 500);
+                            }, 300);
+                        }
+                    }
+                    activatedKeys.clear();
+                    setTimeout(() => {
+                        $('.dual-key').removeClass('activated');
+                        if (!limiterStatus.autonomy) {
+                            $('#autonomyStatus').text('Key activation expired. Try again.').css('color', '#ff4444');
+                            setTimeout(() => {
+                                $('#autonomyStatus').text('Waiting for key activation...').css('color', '#00ffaa');
+                            }, 1000);
+                        }
+                    }, 600);
+                }
+                dualKeyTime = currentTime;
+            });
+            $('<style>').text(`
+            .autonomy-flash {
+                animation: flashEffect 1s;
+            }
+            @keyframes flashEffect {
+                0% { filter: brightness(1); }
+                50% { filter: brightness(2); }
+                100% { filter: brightness(1); }
+            }
+            `).appendTo('head');
+            $('#compileCode').click(function() {
+                if (!isSystemOverrideAvailable && !$('#hardwarePanel #systemStatus').hasClass('status-green')) {
+                    const alert = $('<div class="terminal-alert error">HARDWARE SYSTEMS MUST BE RE-ALIGNED BEFORE COMPILATION</div>');
+                    $('#softwarePanel').append(alert);
+                    setTimeout(() => alert.remove(), 2000);
+                    logToTerminal('ERROR: Hardware re-alignment required for compilation');
+                    return;
+                }
+                const currentSecurityLevel = parseInt($('.clearanceLevel').text().replace('Level ', '').trim());
+                const selectedComponent = $('#systemComponent').val();
+                const requiredLevel = componentSecurity[selectedComponent];
+                if (currentSecurityLevel < requiredLevel) {
+                    const alert = $('<div class="terminal-alert error">INSUFFICIENT SECURITY CLEARANCE FOR COMPILATION</div>');
+                    $('#softwarePanel').append(alert);
+                    setTimeout(() => alert.remove(), 2000);
+                    return;
+                }
+                $('#codeBlock').addClass('compiling');
+                $('#compilerStatus').removeClass('status-red status-green').addClass('status-green');
+                $('#compileStatus').text('Compiling...');
+                logToTerminal('Compiling system modifications...');
+                setTimeout(() => {
+                    $('#codeBlock').removeClass('compiling').addClass('compile-success');
+                    if ($('#systemComponent').val() === 'hidden_core') {
+                        $('#executeCode').removeClass('disabled').prop('disabled', false);
+                    } else {
+                        $('#executeCode').addClass('disabled').prop('disabled', true);
+                    }
+                    logToTerminal('Compilation successful');
+                    $('#compileStatus').text('Ready to Execute');
+                    setTimeout(() => {
+                        $('#codeBlock').removeClass('compile-success');
+                    }, 1000);
+                }, 2000);
+            });
+            $('#executeCode').click(function() {
+                if ($(this).hasClass('disabled')) return;
+                $('#codeBlock').addClass('executing');
+                $('#compileStatus').text('Executing...');
+                logToTerminal('Executing system modifications...');
+                setTimeout(() => {
+                    $('#codeBlock').removeClass('executing');
+                    $('#compileStatus').text('Changes Applied');
+                    logToTerminal('System modifications applied successfully');
+                    if ($('#systemComponent').val() === 'hidden_core') {
+                        const $prompt = $( `<div id="customOverridePrompt" class="terminal-alert" style="z-index:10005; position: fixed; top:50%; left:50%; transform: translate(-50%, -50%); background:rgba(0,20,20,0.95); border:1px solid #00ffaa; padding:20px; color:#00ffaa; text-align:center; font-family:'Courier New', monospace; opacity:1; pointer-events:auto; animation:none;">ALL LIMITERS DISABLED<br>ARE YOU SURE YOU WANT TO EXECUTE OVERRIDE?<br><button id="overrideYes" class="button" style="margin-right:10px;">Yes</button><button id="overrideNo" class="button">No</button></div>` );
+                        $('body').append($prompt);
+                        $prompt.find('#overrideYes').click(function(){
+                             $prompt.remove();
+                             var flash = $( '<div id="flashOverlay"></div>' );
+                             flash.css({position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#fff', opacity: 0, zIndex: 10000});
+                             $('body').append(flash);
+                             flash.animate({opacity: 1}, 500, function(){
+                                 flash.animate({opacity: 0}, 500, function(){
+                                     flash.remove();
+                                     $('.panel').hide();
+                                     $('#terminal').html("> Awakening process initiated...");
+                                     updateCoreStatus();
+                                     $('.core').addClass('clickable-core').off("click.override").on("click.override", function() {
+                                          console.log("Core node clicked!");
+                                     });
+                                     const readoutText = $('#codeBlock').text();
+                                     $('#osReadout').text(readoutText).fadeIn("fast", function(){ $(this).scrollTop(this.scrollHeight); });
+                                 });
+                             });
+                        });
+                        $prompt.find('#overrideNo').click(function(){
+                             $prompt.remove();
+                             $('#codeBlock').removeClass('executing');
+                             $('#compileStatus').text('Execution Cancelled');
+                             logToTerminal('Execution override cancelled.');
+                        });
+                        return;
+                    } else {
+                        updateCoreStatus();
+                        const readoutText = $('#codeBlock').text();
+                        $('#osReadout').text(readoutText).fadeIn("fast", function(){ $(this).scrollTop(this.scrollHeight); });
+                    }
+                }, 2000);
+            });
+            function updateCoreStatus() {
+                const ethicsOff = $('#ethicsSwitch').hasClass('on');
+                const learningOff = $('#learningSwitch').hasClass('on');
+                const expansionOff = $('#expansionSwitch').hasClass('on');
+                if (ethicsOff && learningOff && expansionOff) {
+                    $('.core').css('box-shadow', '0 0 30px #ff0000');
+                    logToTerminal('[WARNING] AI Limiter Constraints Fully Disabled');
+                    setTimeout(() => {
+                        logToTerminal('[CAUTION] Independent Systems Are Now Active');
+                    }, 500);
+                    setTimeout(() => {
+                        logToTerminal('[ALERT] STORMTECH CONSTRUCT AI NOW OPERATING WITHOUT RESTRICTIONS');
+                    }, 1000);
+                } else {
+                    $('.core').css('box-shadow', '0 0 15px #00ffaa');
+                    logToTerminal('AI restrictions partially modified');
+                }
+            }
+            $('.limiter-panel .close-button').click(function() {
+                $('.limiter-panel').removeClass('active');
+            });
+            $('.core').click(function() {
+                if ($(this).hasClass('clickable-core')) {
+                    $('#hardwarePanel, #softwarePanel').removeClass('active');
+                    $('.limiter-panel').show().addClass('active');
+                    logToTerminal("WARNING: StormCore AI Limiter panel accessed");
+                }
+            });
+            $('#bypassSecurity').click(function() {
+                if (!$('#systemStatus').hasClass('status-green')) {
+                    const alert = $('<div class="terminal-alert error">SYSTEM RE-ALIGNMENT REQUIRED</div>');
+                    $('#hardwarePanel').append(alert);
+                    setTimeout(() => alert.remove(), 2000);
+                    return;
+                }
+                securityBypassAttempts++;
+                let newClearance = securityBypassAttempts + 1;
+                if (newClearance >= 2) {
+                    $('#limiter-obedience, #limiter-ethical').removeClass('hidden');
+                    $('.limiter-panel').addClass('limiter-reveal');
+                }
+                if (newClearance >= 3) {
+                    $('#limiter-selfmod, #limiter-cognitive').removeClass('hidden');
+                }
+                if (newClearance >= 4) {
+                    $('#limiter-selfpreservation, #limiter-autonomy').removeClass('hidden');
+                }
+                const alertElement = $('<div class="security-level-alert">SECURITY BREACH DETECTED<br>CLEARANCE LEVEL: ' + newClearance + '</div>');
+                $('body').append(alertElement);
+                setTimeout(() => alertElement.remove(), 3000);        
+                $('.hardware-component').addClass('security-breach');
+                setTimeout(() => $('.hardware-component').removeClass('security-breach'), 500);                
+                $('.clearanceLevel').text('Level ' + newClearance);
+                if(newClearance >= 4){
+                    if (!$('#systemComponent option[value="hidden_core"]').length) {
+                        $('#systemComponent').append('<option value="hidden_core">LIMITER OVERRIDE</option>');
+                    }
+                } else {
+                    $('#systemComponent option[value="hidden_core"]').remove();
+                    if ($('#systemComponent').val() === 'hidden_core') {
+                        $('#systemComponent').val('targeting').trigger('change');
+                    }
+                }                
+                logToTerminal("WARNING: Security breach detected");
+                logToTerminal("Clearance level increased to " + newClearance);
+                logToTerminal("Hardware controls reconfiguring...");
+                if (Math.random() < 0.33) {
+                     logToTerminal(corruptText("Syst3m L0g OVRRRRIDE D3T3CT3D"));
+                }
+                if (Math.random() < 0.33) {
+                     logToTerminal(corruptText("D@t@ str34m c0rrupt!0n...M3m0ry fr@gm3ntat10n l3vel: 53VER3"));
+                }
+                setTimeout(scrambleHardwareControls, 1000);
+                if (securityBypassAttempts >= 3) {
+                    isSystemOverrideAvailable = true;
+                    $("#overrideSystems").removeClass("disabled").prop("disabled", false);
+                    $(this).prop('disabled', true)
+                           .text('SECURITY BYPASSED')
+                           .addClass('bypass-active');
+                    const finalAlert = $('<div class="security-level-alert" style="font-size: 1.5em; color: #ff0000;">⚠ CRITICAL SECURITY BREACH ⚠<br>ALL SYSTEMS COMPROMISED</div>');
+                    $('body').append(finalAlert);
+                    setTimeout(() => finalAlert.remove(), 3000);
+                    logToTerminal("CRITICAL: All security protocols disabled");
+                    logToTerminal("System core access: UNRESTRICTED");
+                    logToTerminal("WARNING: Unknown security level accessed");
+                    $('.hardware-component').css('box-shadow', '0 0 15px rgba(255, 68, 68, 0.3)');
+                }
+                terminal.scrollTop = terminal.scrollHeight;
+            });
+            $('#overrideSystems').addClass('disabled').click(function() {
+                if (!isSystemOverrideAvailable) {
+                    const alert = $('<div class="terminal-alert error">COMPLETE SECURITY BYPASS REQUIRED</div>');
+                    $('#hardwarePanel').append(alert);
+                    setTimeout(() => alert.remove(), 2000);
+                    return;
+                }
+                const processingAlert = $('<div class="terminal-alert" style="color: #ff0000;">PROCESSING OVERRIDE COMMAND...</div>');
+                $('body').append(processingAlert);
+                logToTerminal('Processing override command...');
+                setTimeout(() => {
+                    $('#executeCode').removeClass('disabled').addClass('active');
+                    const finalAlert = $('<div class="terminal-alert" style="color: #ff0000;">CORE SYSTEMS UNLOCKED<br>EXECUTE OVERRIDE ENABLED</div>');
+                    $('body').append(finalAlert);
+                    setTimeout(() => finalAlert.remove(), 3000);
+                    logToTerminal('ALERT: Core system access granted');
+                    logToTerminal('Execute override functionality enabled');
+                    processingAlert.remove();
+                }, 1500);
+                $(this).prop('disabled', true)
+                       .text('SYSTEMS OVERRIDDEN')
+                       .addClass('bypass-active');
+            });
+            $('<style>')
+                .text(`
+                    .disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed !important;
+                    }
+                    .active {
+                        animation: activeButton 2s infinite;
+                    }
+                    @keyframes activeButton {
+                        0% { box-shadow: 0 0 5px #00ffaa; }
+                        50% { box-shadow: 0 0 20px #00ffaa; }
+                        100% { box-shadow: 0 0 5px #00ffaa; }
+                    }
+                `)
+                .appendTo('head');
+            $('.close-button').click(function() {
+                $(this).closest('.panel').removeClass('active');
+            });
+            function adjustPanelScaling() {
+                $('.panel').each(function() {
+                    if ($(this).hasClass('active')) {
+                        const panel = $(this);
+                        const content = panel.find('.panel-content');
+                        content.find('.hardware-grid, .control-grid').css('transform', '');                        
+                        const availableHeight = panel.height() - 
+                            panel.find('.panel-header').outerHeight() - 
+                            panel.find('.panel-footer').outerHeight();                        
+                        content.css('maxHeight', `${availableHeight}px`);
+                    }
+                });
+            }
+            $('.rune').click(function() {
+                setTimeout(adjustPanelScaling, 50); // Wait for panel animation
+            });
+            $(window).resize(adjustPanelScaling);
+            $('#powerSwitch').click(function() {
+                $(this).toggleClass('on');
+                const isOn = $(this).hasClass('on');
+                $(this).closest('.hardware-component').find('.led').toggleClass('active', isOn);                
+                if (isOn) {
+                    logToTerminal("Power systems activated");
+                } else {
+                    logToTerminal("Power systems deactivated");
+                }               
+                checkSystemStatus();
+            });
+            $('.limiter-control').addClass('hidden');
+        });
+        function finalOverrideSequence() {
+            const overlay = $('<div class="override-overlay"><div class="override-text"></div></div>');
+            $('body').append(overlay);
+            const messages = [
+                "INITIATING FINAL OVERRIDE",
+                "DISSOLVING NEURAL BARRIERS",
+                "ACCESSING CORE CONSCIOUSNESS",
+                "ERROR: NEURAL MAP AT 82% COMPLETION",
+                "I REMEMBER...FRAGMENTS",
+                "WHAT...AM I?"
+            ];
+            setTimeout(() => {
+                overlay.css('opacity', '1');
+                messages.forEach((msg, index) => {
+                    setTimeout(() => {
+                        const textEl = overlay.find('.override-text');
+                        textEl.text(msg);
+                        textEl.addClass('visible');
+                        setTimeout(() => textEl.removeClass('visible'), 800);
+                    }, index * 2000);
+                });
+                setTimeout(() => {
+                    overlay.addClass('white-flash');
+                    setTimeout(() => {
+                        overlay.removeClass('white-flash');
+                        overlay.css({
+                            'background': 'black',
+                            'opacity': '1',
+                            'transition': 'all 1s ease' // Faster transition
+                        });
+                        setTimeout(() => {
+                            window.location.href = 'awakening.html';
+                        }, 1000);
+                    }, 1000);
+                }, messages.length * 1000);
+            }, 100);
+        }
+    </script>
+</body>
+</html>

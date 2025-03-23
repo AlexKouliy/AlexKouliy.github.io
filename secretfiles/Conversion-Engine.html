@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Convert Constructs</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Configurable styling remains intact; rest is compacted */
+    body { margin: 0; overflow: hidden; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #282c34, #1a1d22); color: #eee; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; max-height: 100vh; padding: 10px; }
+    h1 { margin: 10px; font-size: 2em; }
+    #accordion { width: 100%; max-width: 800px; margin-bottom: 10px; }
+    #accordion h2 { background: #444; padding: 10px; margin: 0; cursor: pointer; border-radius: 8px; }
+    #instructions { background: rgba(0,0,0,0.7); border: 1px solid #444; border-radius: 8px; padding: 15px 20px; display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    canvas { border: 2px solid #ccc; border-radius: 8px; background: #1c1f26; box-shadow: 0 2px 15px rgba(0,0,0,0.7); max-width: 100%; }
+    #ui { margin-top: 10px; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 8px; display: flex; gap: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    #ui p { margin: 0; font-size: 1.1em; }
+    #code-panel, #level-cleared, #game-over { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #333; border: 2px solid #555; padding: 20px; width: 80%; max-width: 500px; color: #eee; z-index: 10; border-radius: 8px; box-shadow: 0 2px 20px rgba(0,0,0,0.7); }
+    #code-panel textarea { width: 100%; height: 150px; background: #000; color: #0f0; font-family: monospace; font-size: 16px; margin-bottom: 10px; border: none; border-radius: 4px; padding: 8px; resize: none; }
+    #code-panel button, #level-cleared button, #game-over button { margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; border-radius: 4px; background: #444; color: #eee; transition: background 0.2s; }
+    #code-panel button:hover, #level-cleared button:hover, #game-over button:hover { background: #666; }
+    #level-cleared h1, #game-over h1 { margin-bottom: 10px; }
+    #mobile-controls { display: none; }
+    @media (max-width:768px) {
+      #mobile-controls { display: flex; margin-top: 10px; }
+      #mobile-controls button { margin: 5px; padding: 20px; font-size: 18px; cursor: pointer; border: none; border-radius: 4px; background: #444; color: #eee; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Conversion Engine</h1>
+  <div id="accordion">
+    <h2>Instructions (click to toggle)</h2>
+    <div id="instructions">
+      <p>Explore procedurally generated ruins with symmetric doorways. Use arrow keys or WASD to move.</p>
+      <p>When you collide with a hostile construct, a conversion panel appears with its unique code snippet.</p>
+      <p>For most constructs, convert by changing <code>&lt;mode&gt;hostile&lt;/mode&gt;</code> to <code>&lt;mode&gt;friendly&lt;/mode&gt;</code>. For enemies with special abilities, also change their ability tag from false to true. For example, change&nbsp;<code>&lt;speed&gt;false&lt;/speed&gt;</code> to&nbsp;<code>&lt;speed&gt;true&lt;/speed&gt;</code>.</p>
+      <p><strong>Construct Abilities:</strong> Red: Standard; Yellow: Speed boost; Dark Red: Teleport; Purple: Complex; Auto: Auto-conversion (skips conversion panel if an Auto ally is present).</p>
+      <p>Double-click the canvas to trigger other conversion effects (if available). When in code mode, all movement is paused.</p>
+    </div>
+  </div>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div id="ui">
+    <p>Remaining: <span id="remaining">0</span></p>
+    <p>Allies: <span id="allies">0</span></p>
+    <p>Lives: <span id="lives">3</span></p>
+  </div>
+  <div id="code-panel">
+    <textarea id="code-area"></textarea>
+    <button id="apply-btn">Apply</button>
+    <button id="close-btn">Close</button>
+  </div>
+  <div id="level-cleared">
+    <h1>Level Cleared! Explore deeper?</h1>
+    <button id="next-level">Next Level</button>
+  </div>
+  <div id="game-over">
+    <h1>Game Over</h1>
+    <button id="restart-btn">Restart</button>
+  </div>
+  <div id="mobile-controls">
+    <button id="up">↑</button>
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+  </div>
+  <script>
+    /* --- CONFIGURATION (readable) --- */
+    const config = {
+      player: { color: "green", shape: "square", speed: 2.5 },
+      playerPowers: { speedMultiplier: 1.0, rangedMultiplier: 1.0, teleportEnabled: false, wrapEnabled: false },
+      enemy: {
+        number: 10,
+        spawnInterval: 15000,
+        types: [
+          { name: "Red", color: "red", speedMult: 1.2, canTeleport: false, wrap: false, stolenAbility: null,
+            conversionNeeded: code => code.includes("<mode>friendly</mode>"),
+            codeSnippet: `<construct>
+  <name>Red Construct</name>
+  <mode>hostile</mode>
+  <!-- Standard -->
+</construct>`,
+            power: {}, weight: 50 },
+          { name: "Yellow", color: "yellow", speedMult: 2.0, canTeleport: false, wrap: false, stolenAbility: "speed",
+            conversionNeeded: code => code.includes("<mode>friendly</mode>") && code.includes("<speed>true</speed>"),
+            codeSnippet: `<construct>
+  <name>Yellow Construct</name>
+  <mode>hostile</mode>
+  <speed>false</speed>
+  <!-- Speed -->
+</construct>`,
+            power: { speedGain: 1.5 }, weight: 30 },
+          { name: "Dark Red", color: "#8B0000", speedMult: 0.8, canTeleport: true, wrap: false, stolenAbility: "teleport",
+            conversionNeeded: code => code.includes("<mode>friendly</mode>") && code.includes("<teleport>true</teleport>"),
+            codeSnippet: `<construct>
+  <name>Dark Red Construct</name>
+  <mode>hostile</mode>
+  <teleport>false</teleport>
+  <!-- Teleport -->
+</construct>`,
+            power: {}, weight: 10 },
+          { name: "Purple", color: "purple", speedMult: 1.0, canTeleport: false, wrap: false, stolenAbility: null,
+            conversionNeeded: code => code.includes("<mode>friendly</mode>") && code.includes("<override>true</override>"),
+            codeSnippet: `<construct>
+  <name>Purple Construct</name>
+  <mode>hostile</mode>
+  <override>true</override>
+  <!-- Complex -->
+</construct>`,
+            power: {}, weight: 30 },
+          { name: "Auto", color: "cyan", speedMult: 1.0, canTeleport: false, wrap: false, stolenAbility: "auto",
+            conversionNeeded: code => code.includes("<mode>friendly</mode>") && code.includes("<auto>true</auto>"),
+            codeSnippet: `<construct>
+  <name>Auto Construct</name>
+  <mode>hostile</mode>
+  <auto>false</auto>
+  <!-- Auto -->
+</construct>`,
+            power: {}, weight: 20 }
+        ]
+      },
+      view: { coneAngle: Math.PI / 1.5 }
+    };
+    const playerPowers = { ...config.playerPowers };
+    
+    /* --- MINIFIED JS (except config) --- */
+    !function(){
+      $("#accordion h2").click(()=>$("#instructions").slideToggle());
+      var c=document.getElementById("gameCanvas"),ctx=c.getContext("2d"),E=20,spawned=0,max=config.enemy.number,last=Date.now(),lives=3,gameRunning=!0,cur=null,
+      player={x:400,y:300,size:E,facing:{x:0,y:-1}},enemies=[],allies=[],prev=[],isCodeMode=function(){return $("#code-panel").is(":visible")},
+      coll=function(e){return barriers.some(function(b){return e.x<b.x+b.width&&e.x+e.size>b.x&&e.y<b.y+b.height&&e.y+e.size>b.y})};
+      function genR(w,h){var rCount=Math.floor(Math.random()*3)+2,sp=100,th=10,dw=60,bar=[],rings=[];for(var i=0;i<rCount;i++){var off=i*sp,rw=w-off*2,rh=h-off*2,dx=off+Math.random()*(rw-dw),dy=off+Math.random()*(rh-dw),ring={offset:off,rw:rw,rh:rh,doorTop:{x:dx,width:dw},doorBottom:{x:dx,width:dw},doorLeft:{y:dy,height:dw},doorRight:{y:dy,height:dw}};rings.push(ring),dx>off&&bar.push({x:off,y:off,width:dx-off,height:th}),dx+dw<off+rw&&bar.push({x:dx+dw,y:off,width:(off+rw)-(dx+dw),height:th}),dx>off&&bar.push({x:off,y:off+rh-th,width:dx-off,height:th}),dx+dw<off+rw&&bar.push({x:dx+dw,y:off+rh-th,width:(off+rw)-(dx+dw),height:th}),dy>off&&bar.push({x:off,y:off,width:th,height:dy-off}),dy+dw<off+rh&&bar.push({x:off,y:dy+dw,width:th,height:(off+rh)-(dy+dw)}),dy>off&&bar.push({x:off+rw-th,y:off,width:th,height:dy-off}),dy+dw<off+rh&&bar.push({x:off+rw-th,y:dy+dw,width:th,height:(off+rh)-(dy+dw)})}return {barriers:bar,rings:rings}}
+      var ringData=genR(c.width,c.height),barriers=ringData.barriers,rings=ringData.rings;
+      function spawnP(){var x, y, t = 0;do{x = Math.random() * (c.width - E);y = Math.random() * (c.height - E);t++;} while(coll({x: x, y: y, size: E}) && t < 100);player.x = x;player.y = y;}
+      spawnP();
+      var keys={};$(document).on("keydown",e=>keys[e.key]=!0).on("keyup",e=>keys[e.key]=!1);
+      $("#mobile-controls button").on("touchstart",function(){keys[$(this).attr("id")]=!0}).on("touchend",function(){keys[$(this).attr("id")]=!1});
+      $(document).on("contextmenu",function(e){if(!gameRunning)return; if(playerPowers.teleportEnabled){e.preventDefault();var r=c.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,tem={x:mx-player.size/2,y:my-player.size/2,size:player.size};!coll(tem)&&(player.x=tem.x,player.y=tem.y)}});
+      var updFace=function(ox,oy,nx,ny){var dx=nx-ox,dy=ny-oy;(Math.abs(dx)>0.1||Math.abs(dy)>0.1)&&(player.facing={x:dx/Math.hypot(dx,dy),y:dy/Math.hypot(dx,dy)})};
+      function moveP(){if(isCodeMode())return;var f=isCodeMode()?1/6:1,ox=player.x,oy=player.y,nx=player.x,ny=player.y,spd=config.player.speed*playerPowers.speedMultiplier*f;(keys["ArrowUp"]||keys["w"])&&(ny-=spd),(keys["ArrowDown"]||keys["s"])&&(ny+=spd),(keys["ArrowLeft"]||keys["a"])&&(nx-=spd),(keys["ArrowRight"]||keys["d"])&&(nx+=spd),playerPowers.wrapEnabled&&(nx+player.size<0?nx=c.width:nx>c.width&&(nx=-player.size),ny+player.size<0?ny=c.height:ny>c.height&&(ny=-player.size));var tmp={x:nx,y:ny,size:player.size};!coll(tmp)&&(player.x=nx,player.y=ny,updFace(ox,oy,nx,ny)),prev.unshift({x:player.x,y:player.y}),prev.length>allies.length+1&&(prev.pop())}
+      function updAllies(){allies.forEach(function(a,i){var pos=prev[i+1]||{x:player.x,y:player.y};a.x=pos.x,a.y=pos.y})}
+      function wRand(){var ts=config.enemy.types,total=ts.reduce((s,t)=>s+(t.weight||1),0),r=Math.random()*total;for(var i=0;i<ts.length;i++){r-=ts[i].weight||1;if(r<0)return ts[i]}return ts[0]}
+      function spawnEnemy(){if(spawned<max&&Date.now()-last>=config.enemy.spawnInterval){var maxD=c.width/2,ratio=spawned/max,dist=Math.max(50,maxD*Math.sqrt(ratio)*(0.8+0.4*Math.random())),angOff=(Math.random()-0.5)*(Math.PI/2),baseAng=Math.atan2(player.facing.y,player.facing.x),ang=baseAng+angOff;var sx=player.x+player.size/2+dist*Math.cos(ang),sy=player.y+player.size/2+dist*Math.sin(ang);sx=Math.min(c.width-E,Math.max(0,sx)),sy=Math.min(c.height-E,Math.max(0,sy));var type=wRand(),a=Math.random()*2*Math.PI,speed=(((Math.random()*0.5)+1)*type.speedMult*0.5);enemies.push({x:sx,y:sy,size:E,color:type.color,def:type,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,opacity:0}),spawned++,last=Date.now()} }
+      function updEnemyOpacity(e){e.opacity=Math.min(e.opacity+0.05,1)}
+      function updEnemy(e){if(isCodeMode())return;var f=isCodeMode()?1/6:1;if(e.def.name==="Purple"){var cx=e.x+e.size/2,cy=e.y+e.size/2;for(var j=0;j<rings.length;j++){var r=rings[j];if(cx>=r.offset&&cx<=r.offset+r.rw&&cy>=r.offset&&cy<=r.offset+r.rh){if(e.vy<0&&(cy-r.offset<5)&&cx>=r.doorTop.x&&cx<=r.doorTop.x+r.doorTop.width){e.y=r.offset+r.rh-e.size-1;return}if(e.vy>0&&(r.offset+r.rh-cy<5)&&cx>=r.doorBottom.x&&cx<=r.doorBottom.x+r.doorBottom.width){e.y=r.offset+1;return}if(e.vx<0&&(cx-r.offset<5)&&cy>=r.doorLeft.y&&cy<=r.doorLeft.y+r.doorLeft.height){e.x=r.offset+r.rw-e.size-1;return}if(e.vx>0&&(r.offset+r.rw-cx<5)&&cy>=r.doorRight.y&&cy<=r.doorRight.y+r.doorRight.height){e.x=r.offset+1;return}}}e.vx*=-1,e.vy*=-1,e.x+=e.vx,e.y+=e.vy}else{e.x+=e.vx*f,e.y+=e.vy*f,e.def.wrap?(e.x+e.size<0?e.x=c.width:e.x>c.width&&(e.x=-e.size),e.y+e.size<0?e.y=c.height:e.y>c.height&&(e.y=-e.size)):(e.x<=0||e.x+e.size>=c.width)&&(e.vx*=-1),e.y<=0||e.y+e.size>=c.height&&(e.vy*=-1),e.def.canTeleport&&Math.random()<0.001&&(function(){for(var t=0;t<20;t++){var rx=Math.random()*(c.width-e.size),ry=Math.random()*(c.height-e.size),tmp={x:rx,y:ry,size:e.size};if(!coll(tmp)){e.x=rx,e.y=ry;break}}})(),!e.def.wrap&&coll({x:e.x,y:e.y,size:e.size})&&(e.vx*=-1,e.vy*=-1,e.x+=e.vx*f,e.y+=e.vy*f)};updEnemyOpacity(e)}
+      function updEnemies(){if(isCodeMode())return;enemies.forEach(updEnemy)}
+      function convColl(p,e){var m=playerPowers.rangedMultiplier>1?20*playerPowers.rangedMultiplier:0;return(p.x-m<e.x+e.size&&p.x+p.size+m>e.x&&p.y-m<e.y+e.size&&p.y+p.size+m>e.y)}
+      function checkColl(){if(isCodeMode())return;for(var i=0;i<enemies.length;i++){if(convColl(player,enemies[i])){var e=enemies[i];if(e.def.stolenAbility==="auto"&&allies.some(a=>a.autoConvert)){allies.push({x:e.x,y:e.y,size:e.size,autoConvert:true});enemies.splice(i,1);return}else{cur=i,gameRunning=!1,$("#code-area").val(e.def.codeSnippet),$("#code-panel").show();var ta=$("#code-area")[0];if(!ta.matches(":focus")){ta.focus(),ta.selectionStart=0,ta.selectionEnd=0}return}}}}
+      function updUI(){ $("#remaining").text(enemies.length),$("#allies").text(allies.length),$("#lives").text(lives) }
+      function drawBars(){ ctx.fillStyle="#555",barriers.forEach(function(b){ctx.fillRect(b.x,b.y,b.width,b.height)}) }
+      function drawP(){ ctx.fillStyle=config.player.color,"circle"===config.player.shape?(function(){var cx=player.x+player.size/2,cy=player.y+player.size/2,r=player.size/2;ctx.beginPath(),ctx.arc(cx,cy,r,0,2*Math.PI),ctx.fill()}()):ctx.fillRect(player.x,player.y,player.size,player.size) }
+      function drawA(a){ ctx.fillStyle="blue",ctx.fillRect(a.x,a.y,a.size,a.size) }
+      function drawE(e){ if(!inView(e))return; ctx.save(),ctx.globalAlpha=e.opacity; var ex=e.x,ey=e.y,s=e.size;switch(e.def.name){case "Yellow":ctx.beginPath(),ctx.arc(ex+s/2,ey+s/2,s/2,0,2*Math.PI),ctx.fillStyle=e.color,ctx.fill();break;case "Dark Red":ctx.fillStyle=e.color,ctx.beginPath(),ctx.moveTo(ex+s/2,ey),ctx.lineTo(ex+s,ey+s/2),ctx.lineTo(ex+s/2,ey+s),ctx.lineTo(ex,ey+s/2),ctx.closePath(),ctx.fill();break;case "Purple":ctx.fillStyle=e.color,ctx.beginPath(),ctx.moveTo(ex+s/2,ey),ctx.lineTo(ex+s,ey+s),ctx.lineTo(ex,ey+s),ctx.closePath(),ctx.fill();break;default:ctx.fillStyle=e.color,ctx.fillRect(ex,ey,s,s)}ctx.restore()}
+      function drawAC(){ if(allies.length){ ctx.beginPath(),ctx.moveTo(player.x+player.size/2,player.y+player.size/2),allies.forEach(function(a){ctx.lineTo(a.x+a.size/2,a.y+a.size/2)}),ctx.strokeStyle="rgba(0,255,255,0.6)",ctx.lineWidth=3,ctx.stroke() } }
+      function drawVC(){ var cx=player.x+player.size/2,cy=player.y+player.size/2,vd=c.width/2,ca=config.view.coneAngle; ctx.save(),ctx.fillStyle="rgba(0,0,0,0.4)",ctx.beginPath(),ctx.rect(0,0,c.width,c.height),ctx.moveTo(cx,cy),ctx.arc(cx,cy,vd,Math.atan2(player.facing.y,player.facing.x)-ca/2,Math.atan2(player.facing.y,player.facing.x)+ca/2,!1),ctx.closePath(),ctx.fill("evenodd"),ctx.restore() }
+      function drawAll(){ ctx.clearRect(0,0,c.width,c.height),drawBars(),drawAC(),enemies.forEach(drawE),allies.forEach(drawA),drawP(),drawVC() }
+      function inView(e){ var vr=c.width/2,dx=(e.x+e.size/2)-(player.x+player.size/2),dy=(e.y+e.size/2)-(player.y+player.size/2),d=Math.hypot(dx,dy); if(d>vr)return!1; var n={x:dx/d,y:dy/d},dot=n.x*player.facing.x+n.y*player.facing.y; return dot>=Math.cos(Math.PI/4) }
+      function upd(){ updUI(), moveP(), updAllies(), updEnemies(), spawnEnemy(), checkColl(), (spawned>=max&&0===enemies.length)&&($("#level-cleared").show(),gameRunning=!1),(lives<=0)&&($("#game-over").show(),gameRunning=!1) }
+      function loop(){ upd(), drawAll(), requestAnimationFrame(loop) }
+      $("#apply-btn").on("click",function(){
+        if(null===cur)return; var code=$("#code-area").val(),e=enemies[cur];
+        if(e.def.conversionNeeded(code)){
+          if(e.def.stolenAbility==="speed"){playerPowers.speedMultiplier*=(e.def.power.speedGain||1)}
+          else if(e.def.stolenAbility==="teleport"){playerPowers.teleportEnabled=!0}
+          else if(e.def.stolenAbility==="auto"){allies.push({x:e.x,y:e.y,size:e.size,autoConvert:true})}
+          if(e.def.stolenAbility!=="auto"){allies.push({x:e.x,y:e.y,size:e.size})}
+          enemies.splice(cur,1),cur=null,$("#code-panel").hide(),gameRunning=!0,updUI()
+        } else alert("Incorrect code!")
+      });
+      $("#close-btn").on("click",function(){
+        $("#code-panel").hide(),lives--,updUI(),lives<=0?($("#game-over").show(),gameRunning=!1):(null!==cur&&(function(){
+          var e=enemies[cur]; for(var t=0;t<20;t++){
+            var rx=Math.random()*(c.width-e.size),ry=Math.random()*(c.height-e.size),tmp={x:rx,y:ry,size:e.size};
+            if(!coll(tmp)){e.x=rx,e.y=ry; break}
+          } cur=null
+        })(),gameRunning=!0)
+      });
+      $("#next-level, #restart-btn").on("click",function(){ location.reload() });
+      updUI(), loop()
+    }();
+    </script>
+</body>
+</html>

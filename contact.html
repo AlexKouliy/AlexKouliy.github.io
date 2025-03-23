@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - CyberWorld Navigation</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Load Orbitron for headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <div id="colorIndicator">
+      <img src="img/NT_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+  
+  <!-- Global Side Navigation -->
+  <nav class="nav" id="cyberNav">
+    <a href="index.html">Home</a>
+    <a href="projectlist.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  
+  <!-- Global Settings Gear Button & Panel -->
+  <div class="nav-buttons">
+    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+  </div>
+    <!-- Global Settings Panel -->
+    <div id="settingsPanel">
+        <label for="themePicker">Theme Color:</label>
+        <input type="color" id="themePicker" value="#00ffff">
+      
+        <!-- Presets Section -->
+        <div id="themePresets">
+          <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+          <span class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></span>
+          <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+          <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+          <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+        </div>
+    </div>
+  
+  <!-- Page-Specific Content -->
+  <div class="page-content">
+    <!-- Vertical Tier Navigation for Contact -->
+    <div class="nav-bar" id="contact-nav">
+      <a href="#contact-section" id="tier1-link"><img src="img/contact_icon.svg" alt="Contact"></a>
+    </div>
+    
+    <!-- Contact Section -->
+    <div id="contact-section" class="tier" style="background: url('img/contact_bg.jpg') center/cover;">
+      <div>
+        <div class="tier-title"><img src="img/contact_icon.svg" alt="Contact" class="tier-icon"><h1>Contact</h1><img src="img/contact_icon.svg" alt="Contact" class="tier-icon"></div>
+        <div class="tier-content">
+          <form action="mailto:nulltech_designs@gmail.com" method="post" enctype="text/plain">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <br>
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+            <br>
+            <button type="submit">Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer with Social Media Links -->
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+      </a>
+      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+        <img src="img/behance.svg" alt="Behance" width="40" height="40">
+      </a>
+      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+      </a>
+      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+      </a>
+    </div>
+  </footer>
+  
+  <!-- Global JavaScript -->
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tinkerer's Legacy: Tiered Workshop (Optimized jQuery)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      overflow: auto;
+      background: #2c2c2c;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #controls {
+      padding: 10px;
+      text-align: center;
+      width: 100%;
+      max-width: 900px;
+    }
+    #controls button,
+    #controls select {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #toggleRecipes { display: none; }
+    #gameContainer {
+      width: 90%;
+      max-width: 1100px;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      background: #3e3e3e;
+      border: 1px solid #fff;
+      display: block;
+    }
+    #message {
+      text-align: center;
+      margin-top: 10px;
+      width: 90%;
+      max-width: 1100px;
+    }
+    #recipeModule {
+      width: 90%;
+      max-width: 1100px;
+      background: #444;
+      color: #fff;
+      margin-top: 10px;
+      padding: 10px;
+      display: none;
+      font-size: 14px;
+      border: 1px solid #888;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    #recipeModule h3 { margin-top: 0; }
+  </style>
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div id="controls">
+    <button id="collect">Scavenge for Parts</button>
+    <button id="craftMechanism">Craft Mechanism</button>
+    <button id="assembleDevice">Assemble Device</button>
+
+    <select id="mechanismSelect">
+      <option value="Random">Random Mechanism</option>
+    </select>
+    <select id="deviceSelect">
+      <option value="Random">Random Device</option>
+    </select>
+    <select id="filterSelect" style="display: none;">
+      <option value="None">Filter: None</option>
+    </select>
+    <button id="toggleRecipes">Show Recipes</button>
+  </div>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="message"></div>
+  </div>
+  <div id="recipeModule"></div>
+  
+  <script>
+    $(document).ready(() => {
+      class Game {
+        constructor(canvasId, messageId) {
+          // Cache common jQuery selectors
+          this.$canvas = $(`#${canvasId}`);
+          this.$message = $(`#${messageId}`);
+          this.$filterSelect = $('#filterSelect');
+          this.$mechSelect = $('#mechanismSelect');
+          this.$deviceSelect = $('#deviceSelect');
+          this.$toggleRecipes = $('#toggleRecipes');
+          this.$recipeModule = $('#recipeModule');
+          
+          this.canvas = this.$canvas[0];
+          this.ctx = this.canvas.getContext('2d');
+          
+          // Raw parts list
+          this.partsList = ["Rope","Wheel","Beam","Pivot","Cog","Spring","Wire","Circuit","Screw","Nut","Bolt","Valve","Piston","Hydraulic Fluid","Gear","Sensor","Microchip","Resistor","Capacitor","Lever Arm","Panel","Switch","Memory Chip","Flywheel","Scrap","Display","Storm Core","Belt","Chain","CPU","Lightbulb","LED","Hinge","Lens","Button","Dial","Cable"];
+          
+          // Populate filter select
+          this.partsList.forEach(part => {
+            this.$filterSelect.append(`<option value="${part}">Filter: ${part}</option>`);
+          });
+          this.filterPart = "None";
+          this.$filterSelect.on('change', e => this.filterPart = e.target.value);
+          
+          // Define blueprints (mechanisms and devices)
+          this.blueprints = [
+            { name:"Sun-Powered Compound Gear Assembly", parts:["Gear","Cog","Flywheel"], type:"mechanism" },
+            { name:"Reactive Spring-Loaded Lever", parts:["Beam","Spring","Pivot"], type:"mechanism" },
+            { name:"Sand-Sifting Optical Sensor Unit", parts:["Sensor","Lens","LED"], type:"mechanism" },
+            { name:"Desert-Grade Digital Circuit Board", parts:["Circuit","Memory Chip","Wire"], type:"mechanism" },
+            { name:"Heavy-Duty Hydraulic Press Mechanism", parts:["Piston","Valve","Hydraulic Fluid"], type:"mechanism" },
+            { name:"Adaptive Illumination Module", parts:["Lightbulb","LED","Switch"], type:"mechanism" },
+            { name:"Integrated Control Circuit", parts:["CPU","Circuit","Resistor","Capacitor"], type:"mechanism" },
+            { name:"Flexible Articulated Joint", parts:["Lever Arm","Hinge","Pivot"], type:"mechanism" },
+            { name:"Precision Rotational Encoder", parts:["Wheel","Sensor","Cable"], type:"mechanism" },
+            { name:"Robust Chain Drive Mechanism", parts:["Chain","Belt","Gear"], type:"mechanism" },
+            { name:"Survivor's Display Module", parts:["Display","Circuit","Memory Chip"], type:"mechanism" },
+            { name:"Tactical Button Assembly", parts:["Button","Dial","Screw"], type:"mechanism" }
+          ];
+          // Device blueprints (sample subset)
+          this.blueprints.push(
+            { name:"Resource Tracker", parts:["Sun-Powered Compound Gear Assembly","Precision Rotational Encoder"], type:"device", tier:"simple" },
+            { name:"Remote Refinery", parts:["Reactive Spring-Loaded Lever","Sun-Powered Compound Gear Assembly"], type:"device", tier:"simple" },
+            { name:"Tactical Resource Transport", parts:["Adaptive Illumination Module","Integrated Control Circuit","Tactical Button Assembly"], type:"device", tier:"simple" },
+            { name:"Scavenger Drone", parts:["Integrated Control Circuit","Desert-Grade Digital Circuit Board","Sand-Sifting Optical Sensor Unit","Flexible Articulated Joint","Sun-Powered Compound Gear Assembly"], type:"device", tier:"advanced" },
+            { name:"Craft Bot", parts:["Integrated Control Circuit","Desert-Grade Digital Circuit Board","Tactical Button Assembly","Flexible Articulated Joint"], type:"device", tier:"advanced" },
+            { name:"Filter Module", parts:["Integrated Control Circuit","Desert-Grade Digital Circuit Board","Tactical Button Assembly","Flexible Articulated Joint"], type:"device", tier:"advanced" },
+            { name:"Recipe Module", parts:["Integrated Control Circuit","Desert-Grade Digital Circuit Board"], type:"device", tier:"advanced" }
+          );
+          
+          // Populate mechanism select drop-down
+          this.selectedMechanism = "Random";
+          this.$mechSelect.on('change', e => this.selectedMechanism = e.target.value);
+          this.blueprints.filter(bp => bp.type === "mechanism")
+            .forEach(bp => this.$mechSelect.append(`<option value="${bp.name}">${bp.name}</option>`));
+          
+          // Populate device select drop-down
+          this.selectedDevice = "Random";
+          this.$deviceSelect.on('change', e => this.selectedDevice = e.target.value);
+          this.blueprints.filter(bp => bp.type === "device")
+            .forEach(bp => this.$deviceSelect.append(`<option value="${bp.name}">${bp.name}</option>`));
+          
+          this.inventory = [];
+          this.mechanismNames = this.blueprints.filter(bp => bp.type === "mechanism").map(bp => bp.name);
+          this.deviceNames = this.blueprints.filter(bp => bp.type === "device").map(bp => bp.name);
+          
+          // Bind auto functions
+          this.autoScavenge = this.autoScavenge.bind(this);
+          this.autoCraft = this.autoCraft.bind(this);
+          this.$toggleRecipes.on('click', () => this.toggleRecipes());
+          
+          this.init();
+        }
+        
+        init() {
+          $('#collect').on('click', () => this.scavenge());
+          $('#craftMechanism').on('click', () => this.craftMechanism());
+          $('#assembleDevice').on('click', () => this.assembleDevice());
+          // Bind other buttons as needed...
+          this.resizeCanvas();
+          $(window).on('resize', () => this.resizeCanvas());
+          this.scheduleAutoScavenge();
+          this.scheduleAutoCraft();
+          this.render();
+        }
+        
+        resizeCanvas() {
+          const width = $('#gameContainer').width();
+          this.$canvas.attr('width', width);
+          this.render();
+        }
+        
+        displayMessage(text) {
+          this.$message.text(text);
+          setTimeout(() => {
+            if (this.$message.text() === text) this.$message.text('');
+          }, 3000);
+        }
+        
+        scavenge() {
+          const weighted = this.countItems(this.inventory)["Filter Module"] > 0 && this.filterPart !== "None"
+            ? this.partsList.concat([this.filterPart])
+            : this.partsList;
+          const part = weighted[Math.floor(Math.random() * weighted.length)];
+          this.inventory.push(part);
+          this.displayMessage(`You scavenged: ${part}`);
+          this.render();
+        }
+        
+        countItems(arr) {
+          return arr.reduce((acc, item) => { acc[item] = (acc[item] || 0) + 1; return acc; }, {});
+        }
+        
+        // Helper to remove required parts from inventory
+        removeRequiredParts(required) {
+          for (const part in required)
+            for (let i = 0; i < required[part]; i++) {
+              const idx = this.inventory.indexOf(part);
+              if (idx > -1) this.inventory.splice(idx, 1);
+            }
+        }
+        
+        craftMechanism() {
+          if (this.selectedMechanism !== "Random") {
+            const bp = this.blueprints.find(bp => bp.type === "mechanism" && bp.name === this.selectedMechanism);
+            if (!bp) return this.displayMessage("Selected mechanism not found.");
+            const available = this.countItems(this.inventory.filter(item => this.partsList.includes(item)));
+            const required = this.countItems(bp.parts);
+            if (Object.entries(required).every(([part, qty]) => available[part] >= qty)) {
+              this.removeRequiredParts(required);
+              this.inventory.push(bp.name);
+              this.displayMessage(`Crafted mechanism: ${bp.name}`);
+            } else {
+              this.displayMessage(`Not enough raw parts to craft ${bp.name}.`);
+            }
+          } else {
+            const mechBlueprints = this.blueprints.filter(bp => bp.type === "mechanism");
+            const available = this.countItems(this.inventory.filter(item => this.partsList.includes(item)));
+            const craftable = mechBlueprints.filter(bp => {
+              const req = this.countItems(bp.parts);
+              return Object.entries(req).every(([part, qty]) => available[part] >= qty);
+            });
+            if (craftable.length > 0) {
+              const bp = craftable[Math.floor(Math.random() * craftable.length)];
+              const req = this.countItems(bp.parts);
+              this.removeRequiredParts(req);
+              this.inventory.push(bp.name);
+              this.displayMessage(`Crafted mechanism: ${bp.name}`);
+            } else {
+              this.displayMessage('Not enough raw parts to craft any mechanism.');
+            }
+          }
+          this.render();
+        }
+        
+        tierOrder(tier) {
+          return tier === 'simple' ? 1 : tier === 'standard' ? 2 : tier === 'advanced' ? 3 : 99;
+        }
+        
+        assembleDevice() {
+          if (this.selectedDevice !== "Random") {
+            const bp = this.blueprints.find(bp => bp.type === "device" && bp.name === this.selectedDevice);
+            if (!bp) {
+              this.displayMessage("Selected device not found.");
+              return;
+            }
+            // Instead of filtering for mechanisms only, use the entire inventory.
+            const available = this.countItems(this.inventory);
+            const required = this.countItems(bp.parts);
+            if (Object.entries(required).every(([part, qty]) => available[part] >= qty)) {
+              this.removeRequiredParts(required);
+              this.inventory.push(bp.name);
+              this.displayMessage(`Assembled device (${bp.tier}): ${bp.name}`);
+            } else {
+              this.displayMessage(`Not enough components to assemble ${bp.name}.`);
+            }
+          } else {
+            const devices = this.blueprints.filter(bp => bp.type === "device")
+              .sort((a, b) => this.tierOrder(a.tier) - this.tierOrder(b.tier) || a.name.localeCompare(b.name));
+            const available = this.countItems(this.inventory);
+            let assembled = false;
+            for (const bp of devices) {
+              const required = this.countItems(bp.parts);
+              if (Object.entries(required).every(([part, qty]) => available[part] >= qty)) {
+                this.removeRequiredParts(required);
+                this.inventory.push(bp.name);
+                this.displayMessage(`Assembled device (${bp.tier}): ${bp.name}`);
+                assembled = true;
+                break;
+              }
+            }
+            if (!assembled) {
+              this.displayMessage('Not enough components to assemble any device.');
+            }
+          }
+          this.render();
+        }
+        
+        scheduleAutoScavenge() {
+          const delay = 5000 / (this.countItems(this.inventory)["Scavenger Drone"] || 1);
+          setTimeout(() => { this.autoScavenge(); this.scheduleAutoScavenge(); }, delay);
+        }
+        
+        autoScavenge() {
+          if (this.countItems(this.inventory)["Scavenger Drone"] > 0) {
+            let collected = [];
+            const droneCount = this.countItems(this.inventory)["Scavenger Drone"];
+            for (let i = 0; i < droneCount; i++) {
+              let weighted = this.countItems(this.inventory)["Filter Module"] > 0 && this.filterPart !== "None"
+                ? this.partsList.concat([this.filterPart])
+                : this.partsList;
+              const part = weighted[Math.floor(Math.random() * weighted.length)];
+              this.inventory.push(part);
+              collected.push(part);
+            }
+            this.displayMessage(`Scavenger Drone(s) collected: ${collected.join(", ")}`);
+          }
+          this.render();
+        }
+        
+        scheduleAutoCraft() {
+          const delay = 5000 / (this.countItems(this.inventory)["Craft Bot"] || 1);
+          setTimeout(() => { this.autoCraft(); this.scheduleAutoCraft(); }, delay);
+        }
+        
+        autoCraft() {
+          const botCount = this.countItems(this.inventory)["Craft Bot"] || 0;
+          if (botCount > 0) {
+            const prev = this.inventory.length;
+            this.craftMechanism();
+            if (this.inventory.length > prev) this.displayMessage("Craft Bot auto-crafted a mechanism!");
+          }
+          this.render();
+        }
+        
+        updateFilterVisibility() {
+          if (this.countItems(this.inventory)["Filter Module"] > 0)
+            this.$filterSelect.show();
+          else {
+            this.$filterSelect.hide().val("None");
+            this.filterPart = "None";
+          }
+        }
+        
+        updateRecipeVisibility() {
+          if (this.countItems(this.inventory)["Recipe Module"] > 0)
+            $('#toggleRecipes').show();
+          else {
+            $('#toggleRecipes').hide();
+            this.$recipeModule.hide();
+            $('#toggleRecipes').text("Show Recipes");
+          }
+        }
+        
+        toggleRecipes() {
+          if (this.$recipeModule.is(':hidden')) {
+            let html = "<h3>Mechanism Recipes:</h3><ul>";
+            this.blueprints.filter(bp => bp.type === "mechanism").forEach(bp => {
+              html += `<li><strong>${bp.name}</strong>: ${bp.parts.join(", ")}</li>`;
+            });
+            html += "</ul><h3>Device Recipes:</h3><ul>";
+            this.blueprints.filter(bp => bp.type === "device").forEach(bp => {
+              html += `<li><strong>${bp.name}</strong> (Tier: ${bp.tier}): ${bp.parts.join(", ")}</li>`;
+            });
+            html += "</ul>";
+            this.$recipeModule.html(html).show();
+            $('#toggleRecipes').text("Hide Recipes");
+          } else {
+            this.$recipeModule.hide();
+            $('#toggleRecipes').text("Show Recipes");
+          }
+        }
+        
+        render() {
+          // Aggregate inventory counts
+          const raw = this.inventory.filter(item => this.partsList.includes(item));
+          const mech = this.inventory.filter(item => this.mechanismNames.includes(item));
+          const dev = this.inventory.filter(item => this.deviceNames.includes(item));
+          const rawCounts = this.countItems(raw);
+          const mechCounts = this.countItems(mech);
+          const devCounts = this.countItems(dev);
+          const maxLines = Math.max(Object.keys(rawCounts).length, Object.keys(mechCounts).length, Object.keys(devCounts).length);
+          const newHeight = Math.max(400, 40 + maxLines * 20 + 20);
+          this.$canvas.attr('height', newHeight);
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.ctx.fillStyle = "white";
+          this.ctx.font = "16px Arial";
+          this.ctx.fillText("Raw Parts:", 10, 20);
+          let idx = 0;
+          for (const [item, count] of Object.entries(rawCounts)) {
+            this.ctx.fillText(`${item} x${count}`, 10, 40 + idx * 20);
+            idx++;
+          }
+          this.ctx.fillText("Crafted Mechanisms:", this.canvas.width * 0.35, 20);
+          idx = 0;
+          for (const [item, count] of Object.entries(mechCounts)) {
+            this.ctx.fillText(`${item} x${count}`, this.canvas.width * 0.35, 40 + idx * 20);
+            idx++;
+          }
+          this.ctx.fillText("Assembled Devices:", this.canvas.width * 0.70, 20);
+          idx = 0;
+          for (const [item, count] of Object.entries(devCounts)) {
+            this.ctx.fillText(`${item} x${count}`, this.canvas.width * 0.70, 40 + idx * 20);
+            idx++;
+          }
+          this.updateFilterVisibility();
+          this.updateRecipeVisibility();
+        }
+      }
+      
+      new Game('gameCanvas', 'message');
+    });
+  </script>
+</body>
+</html>
