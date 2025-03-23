@@ -8,6 +8,23 @@
   <link rel="stylesheet" href="css/main.css">
   <!-- Load Orbitron for headings -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>.video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            margin: 0 auto;
+          }
+          
+          .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+  </style>
 </head>
 <body>
   <!-- GLOBAL HEADER -->
@@ -83,15 +100,14 @@
               <div class="accordion-content">
                 <h3>Path of the Ancients: Arena of the Forgotten</h3>
                 
-                  <iframe 
-                    width="100%" 
-                    height="400" 
-                    src="https://www.youtube.com/watch?v=Bj0HBJoYjEw&ab_channel=NulltechDesigns" 
-                    title="YouTube video player" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
+                  <div class="video-container">
+                    <iframe 
+                      src="https://www.youtube.com/embed/VIDEO_ID" 
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                      allowfullscreen>
+                    </iframe>
+                  </div>
                
               </div>
             </div>
