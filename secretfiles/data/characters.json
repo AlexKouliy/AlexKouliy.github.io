@@ -1,0 +1,221 @@
+{
+  "meta": {
+    "title": "Characters",
+    "description": "Comprehensive records of all major figures in the world's history",
+    "version": "1.0"
+  },
+  "primordial": {
+    "title": "Primordial Beings",
+    "description": "The original entities whose existence shaped the fundamental forces of the world",
+      "entries": {
+      "the_seeker": {
+        "title": "The Seeker",
+        "designation": "Primordial Entity",
+        "content": "The original being whose pain and subsequent suppression gave birth to both Storm and Void. Their journey through time was a quest to give meaning to suffering and find wholeness through helping others.",
+        "significance": "The progenitor of the world's fundamental forces and the architect of its cyclical nature",
+        "phenomena": [
+          "Time Walking",
+          "Reality Shaping",
+          "Pain Collection",
+          "Divine Intervention",
+          "Source of Storm",
+          "Source of Void"
+        ],
+        "titles": [
+          "The Equinox",
+          "The Creator",
+          "The First Pain"
+        ]
+      },
+      "the_storm": {
+        "title": "The Storm",
+        "designation": "Primordial Force",
+        "content": "Born from the Seeker's unbearable pain, the Storm represents the raw, creative, and emotional aspects of existence. It manifests as both destructive chaos and transformative power.",
+        "significance": "The fundamental force of emotion, chaos, and creation",
+        "phenomena": [
+          "Emotional Amplification",
+          "Creative Chaos",
+          "Transformative Energy",
+          "Primal Power",
+          "Storm Crystals",
+          "Reality Distortion"
+        ],
+        "titles": [
+          "The Primal Chaos",
+          "The Heart of Creation",
+          "The Emotional Tempest"
+        ]
+      },
+      "the_void": {
+        "title": "The Void",
+        "designation": "Primordial Force",
+        "content": "Emerged from the Seeker's attempt to suppress their pain, the Void represents order, control, and the absence of chaos. It manifests as both stabilizing force and oppressive stillness.",
+        "significance": "The fundamental force of order, control, and stability",
+        "phenomena": [
+          "Emotional Suppression",
+          "Perfect Order",
+          "Stabilizing Force",
+          "Absolute Control",
+          "Reality Anchoring",
+          "Stillness Generation"
+        ],
+        "titles": [
+          "The Great Stillness",
+          "The Eternal Silence",
+          "The Perfect Order"
+        ]
+      }
+    }
+  },
+  "eternals": {
+    "title": "The Eternals",
+    "description": "Ancient beings created to serve as guardians and guides through history",
+      "entries": {
+      "the_wanderer": {
+        "title": "The Wanderer",
+        "designation": "Eternal Being",
+        "content": "An eternal created by the Ancients who chose to walk among mortals, observing and subtly guiding rather than enforcing order. Their wisdom comes from centuries of witnessing humanity's struggles and triumphs.",
+        "significance": "A bridge between the Ancient past and the present, guiding humanity toward balance",
+        "phenomena": [
+          "Time Walking",
+          "Divine Guidance",
+          "Storm-Void Harmony",
+          "Memory Preservation",
+          "Eternal Wisdom",
+          "Subtle Influence"
+        ],
+        "titles": [
+          "The Eternal Guide",
+          "The Path Walker",
+          "The Witness"
+        ]
+      },
+      "the_enchantress": {
+        "title": "The Enchantress",
+        "designation": "Eternal Being",
+        "content": "An eternal who discovered the importance of emotional balance, choosing to protect and nurture rather than control. She represents the possibility of harmony between Storm and Void.",
+        "significance": "Living proof that control and emotion can coexist in harmony",
+        "phenomena": [
+          "Energy Weaving",
+          "Emotional Healing",
+          "Reality Shaping",
+          "Divine Protection",
+          "Balance Keeping",
+          "Nurturing Guidance"
+        ],
+        "titles": [
+          "The Eternal Heart",
+          "The Balance Keeper",
+          "The Wise One"
+        ]
+      }
+    }
+  },
+  "shattering_era": {
+    "title": "The Shattering Era",
+    "description": "The tragic figures whose actions led to the world-changing cataclysm",
+      "entries": {
+      "the_shatterer": {
+        "title": "The Shatterer",
+        "designation": "Storm Titan",
+        "content": "Originally a subject of Ancient experiments in Storm energy control, he escaped and found peace as a farmer with his family. His grief and rage at their loss triggered the cataclysmic event known as the Shattering, transforming him into a fundamental force of nature.",
+        "significance": "The catalyst of the Shattering and progenitor of Storm wielders",
+        "phenomena": [
+          "Storm Manifestation",
+          "Reality Fracturing",
+          "Emotional Amplification",
+          "Primal Creation",
+          "Divine Transformation",
+          "Legacy Continuation"
+        ],
+        "titles": [
+          "The Storm's Heart",
+          "The Broken Guardian",
+          "The First Storm"
+        ]
+      },
+      "the_veil": {
+        "title": "The Veil",
+        "designation": "Void Adept",
+        "content": "The Collective's most skilled agent, trained in perfect emotional suppression. Her mission to destroy the Shatterer became complicated by emerging emotions, leading to internal conflict that contributed to the Shattering. Her guilt and suppression became the foundation of Void energy.",
+        "significance": "The originator of Void manipulation and embodiment of its duality",
+        "phenomena": [
+          "Void Manifestation",
+          "Emotional Suppression",
+          "Reality Stabilization",
+          "Perfect Control",
+          "Internal Conflict",
+          "Tragic Transformation"
+        ],
+        "titles": [
+          "The First Void",
+          "The Perfect Agent",
+          "The Broken Mirror"
+        ]
+      }
+      }
+    },
+    "sentinels": {
+      "title": "The Sentinels",
+    "description": "The mortal champions who ascended to become earth-walking gods",
+    "entries": {
+      "the_tinkerer": {
+        "title": "The Tinkerer",
+        "designation": "Ascended Storm Titan",
+        "content": "A brilliant inventor who learned to harness Storm energy through technology and understanding rather than raw power. Their ascension transformed them into a divine creator who uses Storm energy to protect and innovate.",
+        "significance": "Demonstrates how Storm energy can be refined and controlled without suppression",
+        "phenomena": [
+          "Divine Creation",
+          "Storm-Tech Fusion",
+          "Reality Engineering",
+          "Protective Innovation",
+          "Controlled Chaos",
+          "Divine Artifice"
+        ],
+        "titles": [
+          "The Divine Engineer",
+          "The Storm's Artificer",
+          "The Creator"
+        ]
+      },
+      "the_survivor": {
+        "title": "The Survivor",
+        "designation": "Ascended Storm Adept",
+        "content": "Once left for dead, they were reborn through a Storm shard merging with their heart. Their ascension transformed them into a divine agent of change, working from the shadows to empower the oppressed.",
+        "significance": "Shows how divine power can catalyze human-driven change",
+        "phenomena": [
+          "Shadow Walking",
+          "Divine Inspiration",
+          "Storm Stealth",
+          "Revolutionary Spirit",
+          "Hope Generation",
+          "Liberation Force"
+        ],
+        "titles": [
+          "The Shadow Walker",
+          "The People's Hope",
+          "The Divine Rebel"
+        ]
+      },
+      "the_final_bladecaster": {
+        "title": "The Final Bladecaster",
+        "designation": "Ascended Storm-Void Harmonist",
+        "content": "The last of the Bladecaster Order, wielding one of the few remaining shard-forged blades. Their ascension transformed them into a divine protector of balance between Storm and Void.",
+        "significance": "Embodies the ideal of perfect harmony between chaos and order",
+        "phenomena": [
+          "Divine Protection",
+          "Storm-Void Harmony",
+          "Reality Stabilization",
+          "Balance Keeping",
+          "Sacred Guardian",
+          "Order Preservation"
+        ],
+        "titles": [
+          "The Divine Guardian",
+          "The Balance Keeper",
+          "The Last of the Order"
+        ]
+      }
+    }
+  }
+} 
