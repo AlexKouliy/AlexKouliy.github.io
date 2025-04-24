@@ -13,9 +13,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+
   <!-- Sliding Doors Overlay (Home-specific) -->
   <div id="container">
-    <img src="img/NT_icon.webp" alt="Logo" id="doorLogo" loading="lazy">
+    <img src="img/nt_icon.webp" alt="Logo" id="doorLogo" loading="lazy">
     <div id="leftDoor" class="door"></div>
     <div id="rightDoor" class="door"></div>
     <button id="openButton" aria-label="Enter site">Enter</button>
@@ -28,12 +31,12 @@
     <!-- Wordmark or Logo -->
     <div class="wordmark">
       <a href="index.html">
-        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
+        <img src="img/nt_wordmark_r.svg" alt="Nulltech">
       </a>
     </div>
     <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
     <div id="colorIndicator">
-      <img src="img/NT_scarab_w.svg" alt="Scarab">
+      <img src="img/nt_scarab_w.svg" alt="Scarab">
     </div>
   </div>
     
@@ -55,201 +58,148 @@
     <!-- Global Settings Panel -->
     <aside id="settingsPanel" aria-label="Theme settings">
       <label for="themePicker">Theme Color:</label>
-      <input type="color" id="themePicker" value="#00ffff">
+      <input type="color" id="themePicker" value="#8df33f">
       <div id="themePresets" role="group" aria-label="Theme presets">
         <button class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></button>
-        <button class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></button>
+        <button class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></button>
         <button class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></button>
         <button class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></button>
         <button class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></button>
       </div>
     </aside>
     
-    <!-- Home Page Specific Content -->
-    <section class="world-tiers">
-      <nav class="nav-bar" aria-label="Project navigation">
-        <a href="#tier1" id="link1">
-          <img src="img/aA_icon.svg" alt="Access Ability Icon" title="Access Ability">
-        </a>
-        <a href="#tier2" id="link2">
-          <img src="img/path_icon.svg" alt="Path of the Ancients Icon" title="Path of the Ancients">
-        </a>
-        <a href="#tier3" id="link3">
-          <img src="img/usc_icon.svg" alt="Unified Science of Color Icon" title="Unified Science of Color">
-        </a>
-        <a href="#tier4" id="link4">
-          <img src="img/tT_icon.svg" alt="TecTonic Icon" title="TecTonic">
-        </a>
-        <a href="#tier5" id="link5">
-          <img src="img/NT_scarab_w.svg" alt="Nulltech Apparel Icon" title="Nulltech Apparel">
-        </a>
-      </nav>
-      
-      <!-- INDEX PAGE MAIN CONTENT AREA -->
-      <div class="page-content">
-        <template id="tier-template">
-          <article class="tier">
-            <div class="tier-title">
-              <img class="tier-icon" alt="">
-              <h2></h2>
-              <img class="tier-icon" alt="">
+    <!-- Main Content -->
+    <main class="content-wrapper">
+      <!-- Project Grid -->
+      <div class="projects-container">
+        <div class="project-grid">
+          <!-- Project Cards -->
+          <article class="project-item" data-project="access-ability">
+            <div class="project-icon-wrapper">
+              <img src="img/aa_icon.svg" alt="Access Ability" class="project-icon" loading="lazy">
             </div>
-            <div class="tier-content">
-              <div class="accordion">
-                <details>
-                  <summary>Overview</summary>
-                  <p></p>
-                </details>
-                <details>
-                  <summary></summary>
-                  <p></p>
-                </details>
-              </div>
-              <a class="learn-more">Learn More →</a>
-            </div>
-          </article>
-        </template>
-
-        <!-- Tier 1: Access Ability -->
-        <article id="tier1" class="tier">
-          <div class="tier-title">
-            <img src="img/aA_icon.svg" alt="" class="tier-icon">
             <h2>Access Ability</h2>
-            <img src="img/aA_icon.svg" alt="" class="tier-icon">
-          </div>
-          <div class="tier-content">
-            <div class="accordion">
-              <details>
-                <summary>Overview</summary>
-                <img src="img/aA_ad.webp" alt="Access Ability Ad">
-                <p>An innovative accessibility-focused project designed to foster inclusive, user-friendly environments across digital and physical platforms.</p>
-              </details>
-              <details>
-                <summary>Inspiration</summary>
-                <p>Rooted in a commitment to human-centered design, learn how Access Ability harnesses colour theory, inclusive technology, and gestalt principles.</p>
-              </details>
+            <p>Neurodiversity resources</p>
+          </article>
+          
+          <article class="project-item" data-project="path-ancients">
+            <div class="project-icon-wrapper">
+              <img src="img/path_icon.svg" alt="Path of the Ancients" class="project-icon" loading="lazy">
             </div>
-            <a href="aA.html" class="learn-more">Learn More →</a>
-          </div>
-        </article>
-
-        <!-- Tier 2: Path of the Ancients -->
-        <article id="tier2" class="tier">
-          <div class="tier-title">
-            <img src="img/path_icon.svg" alt="" class="tier-icon">
             <h2>Path of the Ancients</h2>
-            <img src="img/path_icon.svg" alt="" class="tier-icon">
-          </div>
-          <div class="tier-content">
-            <div class="accordion">
-              <details>
-                <summary>Overview</summary>
-                <img src="img/pota_posters.webp" alt="Path of the Ancients Posters">
-                <p>A deeply emotional, lore-rich roguelike card game that explores themes of resilience, transformation, and balance through powerful narrative storytelling.</p>
-              </details>
-              <details>
-                <summary>Concept & Design</summary>
-                <p>Discover the world-building, character development, and unique mechanics that define this immersive gaming experience.</p>
-              </details>
+            <p>Lore-rich card game</p>
+          </article>
+          
+          <article class="project-item" data-project="unified-color">
+            <div class="project-icon-wrapper">
+              <img src="img/usc_icon.svg" alt="Unified Science of Color" class="project-icon" loading="lazy">
             </div>
-            <a href="path.html" class="learn-more">Learn More →</a>
-          </div>
-        </article>
-
-        <!-- Tier 3: The Unified Science of Colour -->
-        <article id="tier3" class="tier">
-          <div class="tier-title">
-            <img src="img/usc_icon.svg" alt="" class="tier-icon">
-            <h2>The Unified Science of Colour</h2>
-            <img src="img/usc_icon.svg" alt="" class="tier-icon">
-          </div>
-          <div class="tier-content">
-            <div class="accordion">
-              <details>
-                <summary>Overview</summary>
-                <img src="img/usc1.webp" alt="USC Cover">
-                <p>An infographic-driven exploration of colour, blending scientific accuracy with artistic expression across multiple disciplines.</p>
-              </details>
-              <details>
-                <summary>Educational Impact</summary>
-                <p>Learn how scientific understanding can enhance artistic practice through accessible, visually engaging educational content.</p>
-              </details>
+            <h2>Unified Science of Color</h2>
+            <p>Color theory exploration</p>
+          </article>
+          
+          <article class="project-item" data-project="tectonic">
+            <div class="project-icon-wrapper">
+              <img src="img/tt_icon.svg" alt="TecTonic" class="project-icon" loading="lazy">
             </div>
-            <a href="usc.html" class="learn-more">Learn More →</a>
-          </div>
-        </article>
-
-        <!-- Tier 4: TecTonic -->
-        <article id="tier4" class="tier">
-          <div class="tier-title">
-            <img src="img/tT_icon.svg" alt="" class="tier-icon">
-            <h2>TecTonic</h2>
-            <img src="img/tT_icon.svg" alt="" class="tier-icon">
-          </div>
-          <div class="tier-content">
-            <div class="accordion">
-              <details>
-                <summary>Overview</summary>
-                <img src="img/tT_ad.webp" alt="TecTonic Ad">
-                <p>A groundbreaking energy drink blending bold design, vibrant flavours, and neuroprotective ingredients to support health-conscious consumers.</p>
-              </details>
-              <details>
-                <summary>Brand & Vision</summary>
-                <p>Explore the inspiration behind TecTonic's seismic branding and unique market positioning.</p>
-              </details>
+            <h2>TecTonic Energy</h2>
+            <p>Energy drink branding</p>
+          </article>
+          
+          <article class="project-item" data-project="nulltech-apparel">
+            <div class="project-icon-wrapper">
+              <img src="img/nt_scarab_w.svg" alt="Nulltech Apparel" class="project-icon" loading="lazy">
             </div>
-            <a href="tecTonic.html" class="learn-more">Learn More →</a>
-          </div>
-        </article>
-
-        <!-- Tier 5: Nulltech Apparel -->
-        <article id="tier5" class="tier">
-          <div class="tier-title">
-            <img src="img/NT_scarab_w.svg" alt="" class="tier-icon">
             <h2>Nulltech Apparel</h2>
-            <img src="img/NT_scarab_w.svg" alt="" class="tier-icon">
-          </div>
-          <div class="tier-content">
-            <div class="accordion">
-              <details>
-                <summary>Overview</summary>
-                <img src="img/nt_hood.webp" alt="Nulltech Apparel Ad">
-                <p>A personal clothing and merchandise brand embodying transformation and innovation through symbolic and contemporary designs.</p>
-              </details>
-              <details>
-                <summary>Brand Ethos</summary>
-                <p>Discover how Nulltech Apparel merges symbolism, style, and sustainability in its product offerings.</p>
-              </details>
-            </div>
-            <a href="apparel.html" class="learn-more">Learn More →</a>
-          </div>
-        </article>
+            <p>Symbolic merchandise line</p>
+          </article>
+        </div>
       </div>
-    </section>
+
+      <!-- Tagline Section -->
+      <div class="tagline-section">
+        <img src="img/tagline.webp" alt="Nulltech Designs - Where Innovation Meets Imagination" class="tagline-image">
+      </div>
+    </main>
   </main>
+  
+  <!-- Lightbox Structure -->
+  <div class="lightbox">
+    <div class="lightbox-content">
+      <div class="lightbox-media-section">
+        <div class="lightbox-media-container">
+          <div class="lightbox-carousel"></div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-prev">&lt;</button>
+          <div class="carousel-indicators"></div>
+          <button class="carousel-next">&gt;</button>
+        </div>
+      </div>
+      <div class="lightbox-details">
+        <h2 class="lightbox-title"></h2>
+        <p class="lightbox-description"></p>
+        <div class="lightbox-accordion">
+          <details class="lightbox-accordion-item">
+            <summary>Overview</summary>
+            <div class="lightbox-accordion-content">
+              <div class="overview-content"></div>
+            </div>
+          </details>
+          <details class="lightbox-accordion-item">
+            <summary>Description</summary>
+            <div class="lightbox-accordion-content">
+              <div class="description-content"></div>
+            </div>
+          </details>
+          <details class="lightbox-accordion-item">
+            <summary>Rationale</summary>
+            <div class="lightbox-accordion-content">
+              <div class="rationale-content"></div>
+            </div>
+          </details>
+          <details class="lightbox-accordion-item">
+            <summary>Key Features</summary>
+            <div class="lightbox-accordion-content">
+              <div class="features-content"></div>
+            </div>
+          </details>
+        </div>
+        <div class="lightbox-links"></div>
+      </div>
+      <button class="prev-project">&lt;</button>
+      <button class="next-project">&gt;</button>
+      <button class="close-lightbox">&times;</button>
+    </div>
+  </div>
   
   <!-- Footer with Social Media Links -->
   <footer class="footer">
+    <div class="theme-hint">
+      <span>psst... try the white theme</span>
+    </div>
     <div class="social-links">
       <h2>Find Me On</h2>
       <nav aria-label="Social media links">
         <a href="https://instagram.com/nulltech_designs" target="_blank" rel="noopener" aria-label="Instagram">
-          <img src="img/instagram.svg" alt="" width="40" height="40">
+          <img src="img/instagram.svg" alt="" width="40" height="40" loading="lazy">
         </a>
         <a href="https://behance.net/alexanderkouliy" target="_blank" rel="noopener" aria-label="Behance">
-          <img src="img/behance.svg" alt="" width="40" height="40">
+          <img src="img/behance.svg" alt="" width="40" height="40" loading="lazy">
         </a>
         <a href="https://youtube.com/@NulltechDesigns" target="_blank" rel="noopener" aria-label="YouTube">
-          <img src="img/youtube.svg" alt="" width="40" height="40">
+          <img src="img/youtube.svg" alt="" width="40" height="40" loading="lazy">
         </a>
         <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <img src="img/linkedin.svg" alt="" width="40" height="40">
+          <img src="img/linkedin.svg" alt="" width="40" height="40" loading="lazy">
         </a>
       </nav>
     </div>
   </footer>
 
-  <!-- Global JS -->
-  <script src="js/main.js" defer></script>
+  <!-- Scripts -->
+  <script src="js/particles.js"></script>
+  <script src="js/lightbox.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
