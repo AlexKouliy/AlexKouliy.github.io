@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact Nulltech Designs - Digital Art and Design Studio">
+  <title>Contact - Nulltech Designs</title>
   <!-- Global CSS -->
   <link rel="stylesheet" href="css/main.css">
-  <!-- Load Orbitron for headings -->
+  <!-- Load Orbitron from Google Fonts for headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+  
   <!-- GLOBAL HEADER -->
   <div class="header">
     <!-- Hamburger Menu Toggle -->
@@ -17,91 +23,163 @@
     <!-- Wordmark or Logo -->
     <div class="wordmark">
       <a href="index.html">
-        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
+        <img src="img/nt_wordmark_r.svg" alt="Nulltech">
       </a>
     </div>
-    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <!-- Color Indicator -->
     <div id="colorIndicator">
-      <img src="img/NT_scarab_w.svg" alt="Scarab">
+      <img src="img/nt_scarab_w.svg" alt="Scarab">
     </div>
   </div>
   
   <!-- Global Side Navigation -->
   <nav class="nav" id="cyberNav">
-    <a href="index.html">Home</a>
-    <a href="projectlist.html">Projects</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projectlist.html">Projects</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" aria-current="page">Contact</a></li>
+    </ul>
   </nav>
   
-  <!-- Global Settings Gear Button & Panel -->
+  <!-- Global Settings -->
   <div class="nav-buttons">
-    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+    <button id="settingsButton" onclick="toggleSettings()" aria-label="Toggle settings">⚙️</button>
   </div>
-    <!-- Global Settings Panel -->
-    <div id="settingsPanel">
-        <label for="themePicker">Theme Color:</label>
-        <input type="color" id="themePicker" value="#00ffff">
-      
-        <!-- Presets Section -->
-        <div id="themePresets">
-          <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
-          <span class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></span>
-          <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
-          <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
-          <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
-        </div>
-    </div>
   
-  <!-- Page-Specific Content -->
-  <div class="page-content">
-    <!-- Vertical Tier Navigation for Contact -->
-    <div class="nav-bar" id="contact-nav">
-      <a href="#contact-section" id="tier1-link"><img src="img/contact_icon.svg" alt="Contact"></a>
+  <!-- Settings Panel -->
+  <aside id="settingsPanel" aria-label="Theme settings">
+    <label for="themePicker">Theme Color:</label>
+    <input type="color" id="themePicker" value="#00ffff">
+    <div id="themePresets" role="group" aria-label="Theme presets">
+      <button class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></button>
+      <button class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></button>
+      <button class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></button>
+      <button class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></button>
+      <button class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></button>
     </div>
+  </aside>
+  
+  <!-- Contact Content -->
+  <main class="contact-wrapper">
+    <h1 class="contact-title">Let's Create Something Amazing</h1>
     
-    <!-- Contact Section -->
-    <div id="contact-section" class="tier" style="background: url('img/contact_bg.jpg') center/cover;">
-      <div>
-        <div class="tier-title"><img src="img/contact_icon.svg" alt="Contact" class="tier-icon"><h1>Contact</h1><img src="img/contact_icon.svg" alt="Contact" class="tier-icon"></div>
-        <div class="tier-content">
-          <form action="mailto:nulltech_designs@gmail.com" method="post" enctype="text/plain">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-            <br>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            <br>
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
-            <br>
-            <button type="submit">Send</button>
-          </form>
-        </div>
+    <div class="contact-main">
+      <!-- Contact Categories -->
+      <div class="contact-categories">
+        <section class="contact-category">
+          <h2>Commissions</h2>
+          <p>Looking for custom artwork or design work? I specialize in:</p>
+          <ul>
+            <li>Digital illustrations</li>
+            <li>Character design</li>
+            <li>Worldbuilding concepts</li>
+            <li>Brand identity</li>
+            <li>UI/UX design</li>
+          </ul>
+          <a href="#contact-form" class="contact-button" data-category="commission">Request Commission</a>
+        </section>
+
+        <section class="contact-category">
+          <h2>Projects</h2>
+          <p>Have a project in mind? I'm interested in:</p>
+          <ul>
+            <li>Web development</li>
+            <li>Interactive experiences</li>
+            <li>Game design</li>
+            <li>Accessibility consulting</li>
+            <li>Creative direction</li>
+          </ul>
+          <a href="#contact-form" class="contact-button" data-category="project">Discuss Project</a>
+        </section>
+
+        <section class="contact-category">
+          <h2>Collaborations</h2>
+          <p>Want to work together? I'm open to:</p>
+          <ul>
+            <li>Art collaborations</li>
+            <li>Design partnerships</li>
+            <li>Creative workshops</li>
+            <li>Community projects</li>
+            <li>Research initiatives</li>
+          </ul>
+          <a href="#contact-form" class="contact-button" data-category="collaboration">Start Collaboration</a>
+        </section>
+
+        <section class="contact-category">
+          <h2>Research</h2>
+          <p>Interested in exploring new ideas? Areas of focus:</p>
+          <ul>
+            <li>Accessibility studies</li>
+            <li>Design systems</li>
+            <li>Interactive narratives</li>
+            <li>Cultural preservation</li>
+            <li>Digital archaeology</li>
+          </ul>
+          <a href="#contact-form" class="contact-button" data-category="research">Start Research</a>
+        </section>
       </div>
+
+      <!-- Contact Form -->
+      <form id="contact-form" class="contact-form">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="">Select a category</option>
+            <option value="commission">Commission</option>
+            <option value="project">Project</option>
+            <option value="collaboration">Collaboration</option>
+            <option value="research">Research</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        
+        <button type="submit" class="submit-button">Send Message</button>
+      </form>
     </div>
-  </div>
+  </main>
   
-  <!-- Footer with Social Media Links -->
+  <!-- Footer -->
   <footer class="footer">
+    <div class="theme-hint">
+      <span>psst... try the white theme</span>
+    </div>
     <div class="social-links">
       <h2>Find Me On</h2>
-      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
-        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
-      </a>
-      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
-        <img src="img/behance.svg" alt="Behance" width="40" height="40">
-      </a>
-      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
-        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
-      </a>
-      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
-        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
-      </a>
+      <nav aria-label="Social media links">
+        <a href="https://instagram.com/nulltech_designs" target="_blank" rel="noopener" aria-label="Instagram">
+          <img src="img/instagram.svg" alt="" width="40" height="40" loading="lazy">
+        </a>
+        <a href="https://behance.net/alexanderkouliy" target="_blank" rel="noopener" aria-label="Behance">
+          <img src="img/behance.svg" alt="" width="40" height="40" loading="lazy">
+        </a>
+        <a href="https://youtube.com/@NulltechDesigns" target="_blank" rel="noopener" aria-label="YouTube">
+          <img src="img/youtube.svg" alt="" width="40" height="40" loading="lazy">
+        </a>
+        <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <img src="img/linkedin.svg" alt="" width="40" height="40" loading="lazy">
+        </a>
+      </nav>
     </div>
   </footer>
-  
-  <!-- Global JavaScript -->
+
+  <!-- Scripts -->
+  <script src="js/particles.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
