@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Alexander Kouliy">
+  <meta name="description" content="accessAbility - Inclusive Digital Environments for All">
+  <title>accessAbility</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Project-specific CSS -->
+  <link rel="stylesheet" href="css/projects.css">
+  <!-- Load Orbitron for headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/nt_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator -->
+    <div id="colorIndicator">
+      <img src="img/nt_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+  
+  <!-- GLOBAL SIDE NAVIGATION -->
+  <nav class="nav" id="cyberNav">
+    <a href="index.html">Home</a>
+    <a href="projectlist.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="nav-buttons">
+    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+  </div>
+  <div id="settingsPanel">
+    <label for="themePicker">Theme Color:</label>
+    <input type="color" id="themePicker" value="#00ffff">
+    <div id="themePresets">
+      <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+      <span class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></span>
+      <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+      <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+      <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <img src="img/aa_logo_c.png" alt="accessAbility Logo" class="hero-logo">
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content access-content">
+
+    <!-- Overview Section -->
+    <section class="project-section" id="overview">
+      <h2 class="section-title">Project Overview</h2>
+      <div class="section-content">
+        <div class="content-text">
+          <p>accessAbility is a visionary project designed to bridge the gap between technology, design, and human experience, fostering environments that are welcoming and accessible to everyone, regardless of their abilities and provoiding access to support resources.</p>
+          <p>At its core, accessAbility is about creating a digital and physical platform where inclusivity is not just an add-on but a central design principle. The project aspires to empower users, enhance usability, and foster community collaboration.</p>
+        </div>
+        <div class="content-image">
+          <img src="img/aa_site.webp" alt="accessAbility Interface" class="feature-image">
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="project-section" id="features">
+      <h2 class="section-title">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>User-Centric Design</h3>
+          <p>Integrate personalized adjustments—scalable fonts, adaptable colour contrasts, and simplified navigation schemes based on W3C standards.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Inclusive Design</h3>
+          <p>Apply color theory and gestalt principles to ensure the platform is both accessible and aesthetically compelling.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Community Innovation</h3>
+          <p>Offer forums and collaborative spaces where stakeholders can contribute insights and influence design iterations.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Learning Hub</h3>
+          <p>Access a comprehensive library of resources, from user stories to academic studies on accessibility.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Design System Section -->
+    <section class="project-section" id="design">
+      <h2 class="section-title">Design System</h2>
+      <div class="accordion">
+        <div class="accordion-item">
+          <button class="accordion-header">Logo Symbolism</button>
+          <div class="accordion-content">
+            <p>The accessAbility logo combines a screw and gear, symbolizing customization and user empowerment. The gear represents systematic problem-solving and adaptability, while the screw symbolizes deep integration of personalized support.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Color Palette</button>
+          <div class="accordion-content">
+            <img src="img/aa_style.webp" alt="accessAbility Style Guide" class="feature-image">
+            <p>The color palette is carefully chosen to support accessibility while creating a welcoming environment:</p>
+            <ul>
+              <li>Green hues evoke growth, renewal, and calm</li>
+              <li>High contrast supports visual accessibility</li>
+              <li>Subtle transitions reduce cognitive load</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Typography</button>
+          <div class="accordion-content">
+            <p>Typography choices prioritize readability and accessibility:</p>
+            <ul>
+              <li>ITC Avante Garde Gothic for headlines</li>
+              <li>Quicksand for body text</li>
+              <li>Optimized spacing and sizing for readability</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+      </a>
+      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+        <img src="img/behance.svg" alt="Behance" width="40" height="40">
+      </a>
+      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+      </a>
+      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+      </a>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="js/particles.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/projects.js"></script>
+</body>
+</html>
+
