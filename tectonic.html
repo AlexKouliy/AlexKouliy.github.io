@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Alexander Kouliy">
+  <meta name="description" content="TecTonic Energy Drink Branding">
+  <title>TecTonic</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Project-specific CSS -->
+  <link rel="stylesheet" href="css/projects.css">
+  <!-- Load Orbitron for headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/nt_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <div id="colorIndicator">
+      <img src="img/nt_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+
+  <nav class="nav" id="cyberNav">
+    <a href="index.html">Home</a>
+    <a href="projectlist.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="nav-buttons">
+    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+  </div>
+  <div id="settingsPanel">
+    <label for="themePicker">Theme Color:</label>
+    <input type="color" id="themePicker" value="#00ffff">
+    <div id="themePresets">
+      <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+      <span class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></span>
+      <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+      <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+      <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <img src="img/tt_full_logo.png" alt="TecTonic Logo" class="hero-logo">
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content tecTonic-content">
+    <!-- Overview Section -->
+    <section class="project-section" id="overview">
+      <h2 class="section-title">Project Overview</h2>
+      <div class="section-content">
+        <div class="content-text">
+          <p><strong>TecTonic</strong> is a bold new energy drink that harnesses the raw, unstoppable power of seismic energy. Inspired by tectonic shifts, its energy levels are marked on the Richter scale—9.5, 8.6, and 5.8—each corresponding to a unique flavour experience.</p>
+          <p>With a striking visual identity that features simplified tectonic plates illuminated by a rear glow, TecTonic's design is as dynamic as its taste. The powerful "Destruction Manual" typography and the tagline "Groundbreaking Energy" encapsulate its high-impact character.</p>
+        </div>
+        <div class="content-image">
+          <img src="img/tt_app.webp" alt="TecTonic App Ad" class="feature-image">
+        </div>
+      </div>
+    </section>
+
+    <!-- Description Section -->
+    <section class="project-section" id="description">
+      <h2 class="section-title">Project Description</h2>
+      <div class="section-content">
+        <div class="content-text">
+          <h3>Product Features</h3>
+          <ul>
+            <li><strong>Richter Scale Energy Levels:</strong> TecTonic's flavours are precisely marked with energy levels—9.5, 8.6, and 5.8—each indicating a distinct burst of power.</li>
+            <li><strong>Distinctive Flavours:</strong> 
+              <br><em>Tectonic 9.5:</em> Blueberry + Mint for a robust yet refreshing punch.
+              <br><em>Tectonic 8.6:</em> Raspberry + Lemon for a tangy, invigorating kick.
+              <br><em>Tectonic 5.8:</em> Sour Apple + Grape for a balanced, approachable taste.
+            </li>
+            <li><strong>Clean, Organic Ingredients:</strong> Formulated with natural caffeine sources and organic extracts to provide sustained energy without the crash.</li>
+          </ul>
+        </div>
+        <div class="content-image">
+          <img src="img/tt_ad.webp" alt="TecTonic App Ad" class="feature-image">
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="project-section" id="features">
+      <h2 class="section-title">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>Visual Identity</h3>
+          <p>The visual identity uses glowing tectonic plate imagery with colour-coded rear glows that correspond to each flavour's energy level, making it instantly recognizable.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Typography</h3>
+          <p>The "Destruction Manual" font and the tagline "Groundbreaking Energy" further emphasize TecTonic's bold, transformative character.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Energy Levels</h3>
+          <p>Three distinct energy levels (9.5, 8.6, 5.8) allow consumers to choose the perfect intensity for their needs.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Flavor Profiles</h3>
+          <p>Unique flavor combinations that match the energy levels, from robust to balanced, ensuring there's a perfect match for every taste preference.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rationale Section -->
+    <section class="project-section" id="rationale">
+      <h2 class="section-title">Project Rationale</h2>
+      <div class="accordion">
+        <div class="accordion-item">
+          <button class="accordion-header">Visual and Functional Design</button>
+          <div class="accordion-content">
+            <ul>
+              <li>The bold "Destruction Manual" typography paired with the tagline "Groundbreaking Energy" visually encapsulates the drink's powerful, transformative appeal.</li>
+              <li>Use of glowing, energetic color schemes creates immediate visual impact and brand recognition, aiding consumers in easily selecting the ideal energy level.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-header">Consumer Experience and Guidance</button>
+          <div class="accordion-content">
+            <ul>
+              <li>The intuitive design clearly differentiates each energy level, allowing consumers to effortlessly choose products that align with their individual energy and cognitive needs.</li>
+              <li>Combines aesthetic appeal with clear, practical messaging, making tecTonic both appealing and user-friendly in a crowded marketplace.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-header">Long-term Vision and Market Impact</button>
+          <div class="accordion-content">
+            <ul>
+              <li>tecTonic aims to redefine consumer expectations for energy drinks by prioritizing health, mental clarity, and sustained energy, positioning itself uniquely in the wellness-oriented beverage market.</li>
+              <li>Long-term vision includes expanding flavor profiles and neuroprotective formulations, continuously evolving to meet consumer demand for functional, health-conscious energy solutions.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+      </a>
+      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+        <img src="img/behance.svg" alt="Behance" width="40" height="40">
+      </a>
+      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+      </a>
+      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+      </a>
+    </div>
+  </footer>
+
+  <!-- Global JavaScript -->
+  <script src="js/particles.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/projects.js"></script>
+</body>
+</html>
+
