@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Alexander Kouliy">
+    <meta name="description" content="Unified Science of Colour - A groundbreaking infographic book that unites scientific inquiry with artistic exploration.">
+    <title>Unified Science of Colour</title>
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Project-specific CSS -->
+    <link rel="stylesheet" href="css/projects.css">
+    <!-- Load Orbitron for headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <!-- Particle Background -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- GLOBAL HEADER -->
+    <div class="header">
+      <!-- Hamburger Menu Toggle -->
+      <div class="menu-toggle" onclick="toggleNav()">☰</div>
+      <!-- Wordmark or Logo -->
+      <div class="wordmark">
+        <a href="index.html">
+          <img src="img/nt_wordmark_r.svg" alt="Nulltech">
+        </a>
+      </div>
+      <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+      <div id="colorIndicator">
+        <img src="img/nt_scarab_w.svg" alt="Scarab">
+      </div>
+    </div>
+
+    <nav class="nav" id="cyberNav">
+      <a href="index.html">Home</a>
+      <a href="projectlist.html">Projects</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="nav-buttons">
+      <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+    </div>
+    <div id="settingsPanel">
+      <label for="themePicker">Theme Color:</label>
+      <input type="color" id="themePicker" value="#00ffff">
+      <div id="themePresets">
+        <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+        <span class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></span>
+        <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+        <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+        <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <img src="img/usc_w_c.webp" alt="Colour Infographic" class="hero-logo">
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content unified-content">
+      <!-- Overview Section -->
+      <section class="project-section" id="overview">
+        <h2 class="section-title">Project Overview</h2>
+        <div class="section-content">
+          <div class="content-text">
+            <p><strong>Unified Science of Colour (USC)</strong> is a groundbreaking infographic book that unites scientific inquiry with artistic exploration. USC reveals that colour is, at its core, simply light—wavelengths interacting with matter—to unravel the complex, multifaceted role colour plays in art, design, and human emotion.</p>
+            <p>Born from a personal quest to decode the mysteries of colour through the Munsell system and beyond, this project provides active learning exercises, regular recaps, and a comprehensive guide that bridges disciplines. It's your all-in-one codex to mastering colour.</p>
+            <p>The book features an extensive, visually engaging infographic that breaks down the scientific, cultural, and psychological aspects of colour in a clear, digestible format.</p>
+            <p>The book will be available in print and digital formats.</p>
+            <p>the goal of this book is to provide a comprehensive guide to colour theory that is accessible to everyone, and to provide a resource for artists, designers, and students to learn about colour.</p>
+            <p>From the quantum physics of light to the social conciousness and dialgoues around us today. USC positions itself as a nexus of knowledge, bridging the gap between science and art.</p>
+          </div>
+          <div class="content-image"><img src="img/infographic.webp" alt="Colour Infographic" class="feature-image"></div>
+        </div>
+      </section>
+
+      <!-- Description Section -->
+      <section class="project-section" id="description">
+        <h2 class="section-title">Project Description</h2>
+        <div class="section-content">
+          <div class="content-text">
+            <p>USC explores the external forces that create colour, tracing the journey of photons, the interplay of light and pigment, and the historical evolution of colour theory. Discover how digital screens emulate these natural processes and how traditional art harnesses them through pigment and technique.</p>
+            <p>The book features an extensive, visually engaging infographic that breaks down the scientific, cultural, and psychological aspects of colour in a clear, digestible format.</p>
+          </div>
+          <div class="content-image">
+            <img src="img/usc1.webp" alt="Colour Infographic cover" class="feature-image">
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="project-section" id="features">
+        <h2 class="section-title">Key Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Scientific Foundation</h3>
+            <p>Explore the physics of light, chemistry of pigments, and psychology of color perception through engaging infographics and clear explanations.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Practical Applications</h3>
+            <p>Learn how to apply color theory in digital and traditional media, with practical exercises and real-world examples.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Historical Context</h3>
+            <p>Discover the evolution of color theory from ancient times to modern digital applications.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Interactive Learning</h3>
+            <p>Engage with active learning exercises and regular recaps to reinforce understanding and application.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rationale Section -->
+      <section class="project-section" id="rationale">
+        <h2 class="section-title">Project Rationale</h2>
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-header">Educational Impact and Application</button>
+            <div class="accordion-content">
+              <ul>
+                <li>Addresses the gap between scientific research and practical artistic application, bridging these worlds through accessible and engaging content that fosters deeper creative exploration.</li>
+                <li>Supports artists and designers by providing them with scientifically grounded insights to strategically and effectively harness colour, enhancing their creative practices.</li>
+                <li>Positions colour not merely as an aesthetic choice but as a multifaceted tool shaped by deep psychological, cultural, and scientific influences.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">Visual Design and Accessibility</button>
+            <div class="accordion-content">
+              <ul>
+                <li>Utilizes carefully selected colour palettes and visual elements rooted in colour psychology, enhancing learning retention and emotional engagement.</li>
+                <li>Employs clear typography, intuitive layouts, and gestalt principles to ensure maximum readability, comprehension, and accessibility for diverse users, including neurodiverse and visually sensitive audiences.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">Long-term Vision and Impact</button>
+            <div class="accordion-content">
+              <ul>
+                <li>Aims to become an essential educational resource for visual creators, students, and educators, continually expanding and evolving alongside new scientific discoveries.</li>
+                <li>Promotes an integrative approach to colour, advocating for informed, intentional design choices and deeper appreciation of colour's role in human experience, culture, and communication.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div class="social-links">
+        <h2>Find Me On</h2>
+        <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+          <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+        </a>
+        <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+          <img src="img/behance.svg" alt="Behance" width="40" height="40">
+        </a>
+        <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+          <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+        </a>
+        <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+          <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+        </a>
+      </div>
+    </footer>
+    
+    <!-- GLOBAL JAVASCRIPT -->
+    <script src="js/particles.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/projects.js"></script>
+  </body>
+</html>
