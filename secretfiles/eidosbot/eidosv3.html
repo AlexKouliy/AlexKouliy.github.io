@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eidos: The Friendly AI V3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    body{background:url("img/botBg.webp") no-repeat center center fixed;background-size:cover;font-family:'Orbitron',sans-serif;margin:0;padding:0;height:100vh;position:relative;}
+    .container{text-align:center;position:fixed;bottom:50px;left:50%;transform:translateX(-50%);width:100%;max-width:600px;}
+    h1{color:#edeeda;margin-bottom:20px;font-size:90px;text-shadow:0 0 10px #201e1e;}
+    button{padding:10px 20px;font-size:16px;background-color:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:5px;cursor:pointer;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px #292928!important;}
+    button:hover{background-color:#f1e255!important;transform:scale(1.05);}
+    button.active{background-color:#f1e255!important;box-shadow:0 0 8px #fffce0!important;}
+    select,input[type="range"]{background:#201e1e;border:1px solid #f57c19;color:#edeeda;}
+    select:hover,input[type="range"]:hover{border-color:#f1e255;}
+    .minigame-container{background:rgba(32,30,30,0.95)!important;border:2px solid #f57c19!important;color:#edeeda!important;}
+    .bar{background:#201e1e;border:1px solid #f57c19;}
+    #charge .bar-fill{background:#f57c19;box-shadow:0 0 10px rgba(245,124,25,0.3);}
+    #durability .bar-fill{background:#f57c19;box-shadow:0 0 10px rgba(245,124,25,0.3);}
+    #complexity .bar-fill{background:#f57c19;box-shadow:0 0 10px rgba(245,124,25,0.3);}
+    .tab-nav li button{background-color:#f57c19!important;color:#201e1e!important;}
+    .tab-nav li button:hover{background-color:#f1e255!important;}
+    .tab-content{background:rgba(32,30,30,0.95);border:1px solid #f57c19;color:#edeeda;}
+    #analysis-results{background:rgba(32,30,30,0.95);border:2px solid #f57c19;color:#edeeda;}
+    .progress-item{background:rgba(245,124,25,0.05);border:1px solid #f57c19;}
+    .progress-bar{background:linear-gradient(90deg,#f57c19,#f1e255)!important;}
+    #tinkererGame{background:rgba(32,30,30,0.95);border:2px solid #f57c19;position:fixed;bottom:180px;left:20px;right:20px;top:25px;width:auto;max-height:900px;border-radius:12px;padding:15px;display:none;z-index:1000;font-family:'Orbitron',sans-serif;box-shadow:0 0 20px rgba(245,124,25,0.3);transition:all 0.3s ease;overflow-y:auto;}
+    #tinkererGame.show{display:block;}
+    #tinkererGame #gameCanvas{width:100%;height:500px;background:#201e1e;border:1px solid #f57c19;margin-bottom:10px;border-radius:6px;cursor:default;transition:all 0.3s ease;}
+    #tinkererGame #gameCanvas.analyze-mode{cursor:crosshair;border-color:#f1e255;box-shadow:0 0 15px rgba(241,226,85,0.3);}
+    .analyze-toggle{padding:8px 12px;background:rgba(32,30,30,0.95)!important;color:#edeeda!important;border:1px solid #f57c19!important;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:14px;cursor:pointer;transition:all 0.3s ease;}
+    .analyze-toggle.active{background:rgba(245,124,25,0.2)!important;color:#f1e255!important;border-color:#f1e255!important;box-shadow:0 0 15px rgba(241,226,85,0.3);}
+    .analyze-toggle:hover{background:rgba(245,124,25,0.2)!important;transform:scale(1.05);}
+    .unanalyzed-icon{display:inline-block;margin-left:5px;color:#f57c19;font-size:0.8em;animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%{opacity:0.5;}50%{opacity:1;}100%{opacity:0.5;}}
+    .hover-info{position:absolute;background:rgba(32,30,30,0.95);border:1px solid #f57c19;border-radius:4px;padding:5px 8px;color:#edeeda;font-size:12px;pointer-events:none;z-index:1002;display:none;box-shadow:0 0 10px rgba(245,124,25,0.3);}
+    #tinkererGame #controls button{background:#201e1e;color:#edeeda;border:1px solid #f57c19;}
+    #tinkererGame #controls button:hover{background:#f1e255;color:#201e1e;}
+    ::-webkit-scrollbar-track{background:#201e1e;}
+    ::-webkit-scrollbar-thumb{background:#f57c19;border:2px solid #201e1e;}
+    ::-webkit-scrollbar-thumb:hover{background:#f1e255;}
+    #tooltipReadout,#botThoughts{color:#edeeda;font-size:16px;text-shadow:0 0 10px #201e1e;margin:10px 0;}
+    #tooltipReadout{position:relative;width:100%;min-height:20px;padding:5px 0;}
+    #creatureContainer{width:500px;height:400px;position:relative;margin:0 auto;}
+    #creature{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:block;max-width:100%;max-height:100%;}
+    #settingsButton{position:fixed;top:20px;right:80px;background:none!important;color:#201e1e!important;font-size:24px;padding:8px;border-radius:8px;cursor:pointer;z-index:1000;font-family:'Orbitron',sans-serif;transition:all 0.3s ease;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:none!important;box-shadow:none!important;}
+    #settingsButton:hover{color:#201e1e!important;background-color:#f1e255!important;}
+    #voiceSettings{position:fixed;bottom:180px;left:20px;right:20px;top:25px;width:auto;height:auto;background:rgba(32,30,30,0.95);border:2px solid #f57c19;border-radius:12px;padding:20px;display:none;z-index:1000;font-family:'Orbitron',sans-serif;box-shadow:0 0 20px rgba(245,124,25,0.3);}
+    #voiceSettings.show{display:block;}
+    #voiceSettings>div{margin-bottom:15px;}
+    #voiceSettings label{margin-bottom:8px;}
+    #voiceSettings select,#voiceSettings input[type="range"]{margin-bottom:15px;}
+    #voiceSettings h2{color:#edeeda;font-size:1.4em;margin:0 0 20px 0;text-shadow:none;}
+    #voiceSettings label{display:block;margin:12px 0 4px;color:#edeeda;font-size:0.9em;text-shadow:0 0 5px rgba(237,238,218,0.5);}
+    #voiceSettings select{width:100%;padding:8px;background:#201e1e;color:#edeeda;border:1px solid #f57c19;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:0.9em;cursor:pointer;transition:all 0.2s ease;}
+    #voiceSettings select:hover{background:#f1e255;color:#201e1e;}
+    #voiceSettings select option{background:#201e1e;color:#edeeda;}
+    #voiceSettings input[type="range"]{height:6px;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,#f57c19,#f1e255);}
+    #voiceSettings input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#edeeda;border:2px solid #f57c19;border-radius:50%;cursor:pointer;transition:all 0.3s ease;box-shadow:0 0 5px rgba(245,124,25,0.5);}
+    #voiceSettings input[type="range"]::-webkit-slider-thumb:hover{background:#f1e255;border-color:#f57c19;}
+    #testVoice{width:100%;margin-top:15px;background:#201e1e;color:#f57c19;border:none;}
+    #testVoice:hover{background:#f1e255;color:#201e1e;}
+    #voiceSettings input[type="text"] { width: 100%; padding: 8px; margin: 4px 0 12px; background: #201e1e; color: #edeeda; border: 1px solid #f57c19; border-radius: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.9em; transition: all 0.2s ease; }
+    #voiceSettings input[type="text"]:focus { outline: none; border-color: #f1e255; box-shadow: 0 0 10px rgba(241, 226, 85, 0.3); }
+    #voiceSettings input[type="text"]::placeholder { color: rgba(237, 238, 218, 0.5); }
+    #speakCustom { width: 100%; padding: 12px; padding-right: 20px; background: #f57c19; color: #201e1e; border: none; border-radius: 8px 0 0 8px; font-family: 'Orbitron', sans-serif; font-size: 1em; cursor: pointer; transition: all 0.2s ease; font-weight: bold; white-space: nowrap; }
+    #speakCustom:hover { background: #f1e255; transform: scale(1.02); box-shadow: 0 0 15px rgba(241, 226, 85, 0.5); }
+    .message-input-container { position: fixed; bottom: 20px; right: 0; width: 280px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+    .message-input-container input[type="text"] { width: 100%; padding: 12px; padding-right: 20px; background: rgba(32, 30, 30, 0.95); color: #edeeda; border: 2px solid #f57c19; border-radius: 8px 0 0 8px; font-family: 'Orbitron', sans-serif; font-size: 0.9em; transition: all 0.2s ease; box-shadow: 0 0 12px rgba(245, 124, 25, 0.2); }
+    .message-input-container input[type="text"]:focus { outline: none; border-color: #f1e255; box-shadow: 0 0 15px rgba(241, 226, 85, 0.3); }
+    .message-input-container input[type="text"]::placeholder { color: rgba(237, 238, 218, 0.5); }
+    #state-overview { position: fixed; left: 20px; top: 20px; width: 250px; background: rgba(32, 30, 30, 0.95); padding: 20px; border: 2px solid #f57c19; border-radius: 12px; display: none; opacity: 0; transition: all 0.3s ease-in-out; }
+    #state-overview.show { display: block; opacity: 1; }
+    .state-section { margin-bottom: 10px; }
+    .state-section p { color: #edeeda; font-size: 0.9em; margin: 0 0 3px 0; text-shadow: 0 0 5px rgba(237, 238, 218, 0.5); }
+    .bar { background: #201e1e; border-radius: 5px; height: 8px; width: 100%; position: relative; overflow: hidden; border: 1px solid #f57c19; }
+    .bar-fill { height: 100%; width: 0; transition: width 1s ease-in-out; }
+    #charge .bar-fill { background: #00ff66; box-shadow: 0 0 10px rgba(0, 255, 102, 0.3); }
+    #durability .bar-fill { background: #ffcc00; box-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
+    #complexity .bar-fill { background: #ff3366; box-shadow: 0 0 10px rgba(255, 51, 102, 0.3); }
+    #minigame-buttons { position: fixed; left: 300px; top: 20px; display: none; gap: 10px; flex-direction: column; align-items: flex-start; }
+    #minigame-buttons.show { display: flex; }
+    #minigame-buttons button { padding: 12px 20px; background: #f57c19 !important; color: #201e1e !important; border: none !important; border-radius: 8px; font-family: 'Orbitron', sans-serif; font-size: 1em; cursor: pointer; transition: all 0.2s ease; font-weight: bold; white-space: nowrap; width: 150px; }
+    #minigame-buttons button:hover { background: #f1e255 !important; transform: scale(1.02); box-shadow: 0 0 15px rgba(241, 226, 85, 0.5); }
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; }
+    .minigame-container { background: rgba(32, 30, 30, 0.95) !important; padding: 20px; border: 2px solid #f57c19 !important; border-radius: 12px; width: 300px; text-align: center; color: #edeeda !important; }
+    .minigame-container h2 { color: #f57c19; font-size: 1.4em; margin: 0 0 20px 0; text-shadow: 0 0 8px rgba(245, 124, 25, 0.5); }
+    .minigame-message { font-size: 1em; margin: 10px 0; height: 1.2em; color: #00ff99; }
+    #battery-game { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin: 20px auto; padding: 20px; }
+    #full-battery, #empty-battery { font-size: 3em; transition: opacity 0.3s ease; }
+    #full-battery { color: #00ff99; opacity: 0; }
+    #empty-battery { color: #888; opacity: 1; }
+    #bolt-game { margin: 20px auto; text-align: center; padding: 20px; position: relative; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    #loose-bolt{font-size:3em;cursor:pointer;user-select:none;transition:transform 0.5s ease;display:inline-block;position:relative;z-index:2;}
+    #repair-dial{width:120px;height:120px;border:8px solid #444;border-radius:50%;position:relative;margin:10px auto;background:radial-gradient(circle at center,#333,#222);box-shadow:inset 0 0 20px rgba(0,0,0,0.5),0 0 15px rgba(245,124,25,0.3);cursor:grab;transform:rotate(0deg);transition:transform 0.5s cubic-bezier(0.4,2,0.3,1);}
+    #repair-dial::before{content:'';position:absolute;width:8px;height:40px;background:#f57c19;bottom:50%;left:calc(50% - 4px);transform-origin:bottom center;border-radius:4px;box-shadow:0 0 10px rgba(245,124,25,0.5);}
+    #repair-dial::after{content:'';position:absolute;width:24px;height:24px;background:radial-gradient(circle at center,#f57c19,#d65b00);border-radius:50%;top:calc(50% - 12px);left:calc(50% - 12px);box-shadow:0 0 10px rgba(245,124,25,0.5),inset 0 0 6px rgba(0,0,0,0.3);}
+    .dial-marker{position:absolute;width:4px;height:12px;background:#666;transform-origin:bottom center;border-radius:2px;box-shadow:inset 0 0 2px rgba(0,0,0,0.5);}
+    .dial-marker.major{height:16px;width:6px;background:#f57c19;box-shadow:0 0 5px rgba(245,124,25,0.3);}
+    #repair-dial.success{border-color:#00ff99;}
+    #repair-dial.success::before{background:#00ff99;box-shadow:0 0 15px rgba(0,255,153,0.5);}
+    #repair-dial.success::after{background:radial-gradient(circle at center,#00ff99,#00cc7a);box-shadow:0 0 15px rgba(0,255,153,0.5);}
+    #repair-dial:active{cursor:grabbing;}
+    @keyframes glow{0%{box-shadow:0 0 5px #f57c19;}50%{box-shadow:0 0 20px #f1e255;}100%{box-shadow:0 0 5px #f57c19;}}
+    #loose-bolt.rotating{transform:rotate(-360deg)!important;}
+    #repair-arrow{font-size:2em;color:#00ff99;margin-top:10px;animation:pulse 1s infinite;}
+    @keyframes pulse{0%{opacity:0.5;}50%{opacity:1;}100%{opacity:0.5;}}
+    #blocks-game{margin:10px auto;display:flex;flex-direction:column;gap:6px;width:100%;max-width:200px;padding:8px;perspective:1000px;}
+    .block{padding:8px;background:rgba(32,30,30,0.95);border:1px solid;border-radius:6px;cursor:pointer;transition:all 0.3s ease;font-family:'Courier New',monospace;font-size:12px;box-shadow:0 2px 4px rgba(0,0,0,0.2);transform-style:preserve-3d;backface-visibility:hidden;text-align:center;min-height:32px;display:flex;align-items:center;justify-content:center;text-shadow:0 0 10px currentColor;word-break:break-word;hyphens:auto;margin:0 auto;width:100%;max-width:200px;}
+    .block:hover{transform:translateY(-5px);box-shadow:0 6px 12px rgba(245,124,25,0.3);text-shadow:0 0 15px currentColor;}
+    .block.selected{animation:pulse 1.5s infinite;box-shadow:0 0 20px currentColor;transform:translateY(-5px);}
+    @media (max-width:480px){#blocks-game{padding:8px;gap:8px;}.block{padding:12px;font-size:13px;min-height:50px;}}
+    #refactor-overlay .minigame-container{max-width:90vw;width:300px;min-width:280px;background:rgba(20,20,20,0.98)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:15px;}
+    @media (max-width:480px){#refactor-overlay .minigame-container{width:90%;}}
+    #refactor-message{color:#00ff99;font-size:1em;margin:10px 0;text-shadow:0 0 10px rgba(0,255,153,0.3);min-height:1.5em;padding:0 10px;word-wrap:break-word;}
+    #resetState { width: 100%; padding: 10px; margin-top: 10px; color: #201e1e; border: none; border-radius: 6px; font-family: 'Orbitron', sans-serif; font-size: 1em; cursor: pointer; transition: all 0.2s ease; }
+    #resetState:hover { background: #ff6699; transform: scale(1.02); box-shadow: 0 0 10px rgba(255, 51, 102, 0.5); }
+    #tinkererGame{position:fixed;bottom:180px;left:20px;right:20px;top:25px;width:auto;max-height:900px;background:rgba(20,20,20,0.95);border:2px solid #f57c19;border-radius:12px;padding:15px;display:none;z-index:1000;font-family:'Orbitron',sans-serif;box-shadow:0 0 20px rgba(245,124,25,0.3);transition:all 0.3s ease;overflow-y:auto;}
+    #tinkererGame.show{display:block;}
+    #tinkererGame .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f57c19;}
+    #tinkererGame .header-controls{display:flex;gap:10px;align-items:center;}
+    #resetTinkerer{background:none;border:none;color:#f57c19;cursor:pointer;font-size:16px;padding:5px 10px;margin:0;line-height:1;transition:all 0.3s ease;font-family:'Orbitron',sans-serif;border-radius:4px;}
+    #resetTinkerer:hover{color:#f1e255;background:rgba(241,226,85,0.1);}
+    #tinkererGame .header h3{margin:0;color:#f57c19;font-size:18px;font-family:'Orbitron',sans-serif;text-shadow:0 0 10px rgba(245,124,25,0.3);}
+    #tinkererGame #closeGame{background:none;border:none;color:#f57c19;font-size:24px;font-weight:bold;cursor:pointer;padding:5px 10px;margin:0;line-height:1;transition:all 0.3s ease;font-family:Arial,sans-serif;}
+    #tinkererGame #closeGame:hover{color:#f1e255;transform:scale(1.1);}
+    #tinkererGame #controls{display:flex;flex-direction:column;gap:10px;margin:10px 0;}
+    #tinkererGame #controls button{padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;}
+    #tinkererGame #controls button:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
+    #tinkererGame #controls select{flex:1;padding:8px 12px;font-size:14px;background:rgba(20,20,20,0.95);color:#edeeda;border:1px solid #f57c19;border-radius:6px;-webkit-appearance:none;appearance:none;font-family:'Courier New',monospace;min-width:200px;transition:all 0.3s ease;}
+    #tinkererGame #controls select:hover{border-color:#f1e255;box-shadow:0 0 10px rgba(241,226,85,0.3);}
+    #tinkererGame select option{background:rgba(20,20,20,0.95);color:#edeeda;font-family:'Courier New',monospace;}
+    #tinkererGame #message{color:#edeeda;font-size:14px;margin-top:5px;min-height:20px;text-align:center;position:relative;display:flex;justify-content:space-between;align-items:center;font-family:'Courier New',monospace;}
+    #tinkererGame .blueprint-name{font-family:'Courier New',monospace;color:#f57c19;font-size:14px;margin-bottom:5px;}
+    #tinkererGame .progress-text{font-family:'Courier New',monospace;color:#edeeda;font-size:12px;}
+    #tinkererGame .stats{font-family:'Courier New',monospace;color:#edeeda;font-size:14px;margin:10px 0;padding:10px;background:rgba(245,124,25,0.1);border-radius:6px;border:1px solid #f57c19;}
+    #tinkererGame .button-row{display:flex;gap:10px;margin:10px 0;}
+    #tinkererGame .button-row button{flex:1;white-space:nowrap;}
+    #tinkererGame::-webkit-scrollbar{width:8px;background:#201e1e;}
+    #tinkererGame::-webkit-scrollbar-thumb{background:#f57c19;border-radius:4px;}
+    #tinkererGame::-webkit-scrollbar-thumb:hover{background:#f1e255;}
+    #tinkererGame .info-panel{font-family:'Courier New',monospace;background:rgba(20,20,20,0.95);border:1px solid #f57c19;border-radius:6px;padding:10px;margin:10px 0;color:#edeeda;}
+    #tinkererGame .info-panel h4{font-family:'Orbitron',sans-serif;color:#f57c19;margin:0 0 10px 0;font-size:16px;}
+    #tinkererGame .code-block{font-family:'Courier New',monospace;background:#201e1e;border:1px solid #f57c19;border-radius:4px;padding:8px;margin:5px 0;color:#edeeda;font-size:12px;overflow-x:auto;}
+    #toggleTinkerer{position:fixed;bottom:20px;left:20px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;padding:10px 15px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;z-index:9999;transition:all 0.3s ease;font-weight:bold;display:block;}
+    #toggleTinkerer:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3);}
+    #crafting-overlay{position:fixed;top:auto;bottom:100px;left:auto;right:20px;transform:none;width:auto;height:auto;background:none;display:none;justify-content:center;align-items:center;z-index:2000;}
+    #crafting-overlay .minigame-container{background:rgba(32,30,30,0.95)!important;padding:15px;border:2px solid #f57c19!important;border-radius:12px;width:250px;text-align:center;color:#edeeda!important;box-shadow:0 0 20px rgba(245,124,25,0.3);}
+    #crafting-overlay .minigame-container h2{font-size:1.2em;margin:0 0 10px 0;}
+    #crafting-animation{display:flex;justify-content:center;align-items:center;gap:15px;margin:10px 0;height:40px;}
+    .crafting-icon{font-size:1.5em;animation:craftBounce 0.6s infinite alternate;}
+    @keyframes craftBounce{from{transform:translateY(0);}to{transform:translateY(-8px);}}
+    #crafting-message{font-size:0.9em;margin:5px 0;height:1.2em;color:#00ff99;}
+    .overlay#assembly-overlay{position:fixed;top:auto;bottom:100px;left:auto;right:20px;transform:none;width:auto;height:auto;background:none;display:none;justify-content:center;align-items:center;z-index:2000;}
+    #assembly-overlay .minigame-container{background:rgba(32,30,30,0.95)!important;padding:15px;border:2px solid #f57c19!important;border-radius:12px;width:250px;text-align:center;color:#edeeda!important;box-shadow:0 0 20px rgba(245,124,25,0.3);}
+    #assembly-overlay .minigame-container h2{font-size:1.2em;margin:0 0 10px 0;}
+    #assembly-animation{display:flex;justify-content:center;align-items:center;gap:15px;margin:10px 0;height:40px;}
+    .assembly-icon{font-size:1.5em;animation:assemblyRotate 2s infinite linear;}
+    @keyframes assemblyRotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    #assembly-message{font-size:0.9em;margin:5px 0;height:1.2em;color:#00ff99;}
+    #crafting-animation-container,#assembly-animation-container{position:absolute;right:0;bottom:0;display:none;background:rgba(20,20,20,0.95);border:1px solid #f57c19;border-radius:6px;padding:8px;width:auto;min-width:150px;}
+    #crafting-animation,#assembly-animation{display:flex;justify-content:center;align-items:center;gap:10px;margin:5px 0;height:30px;}
+    .crafting-icon,.assembly-icon{font-size:1.2em;}
+    #crafting-message,#assembly-message{font-size:0.8em;margin:2px 0;height:1em;color:#00ff99;text-align:center;}
+    #analysis-results{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;max-height:80vh;background:rgba(20,20,20,0.95);border:2px solid #f57c19;border-radius:12px;padding:20px;color:#edeeda;display:none;z-index:2500;font-family:'Orbitron',sans-serif;box-shadow:0 0 20px rgba(245,124,25,0.3);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#f57c19 #201e1e;}
+    #analysis-results::-webkit-scrollbar{width:10px;background:#201e1e;border-radius:5px;}
+    #analysis-results::-webkit-scrollbar-track{background:#201e1e;border-radius:5px;margin:4px;}
+    #analysis-results::-webkit-scrollbar-thumb{background:#f57c19;border-radius:5px;border:2px solid #201e1e;transition:background-color 0.3s ease;}
+    #analysis-results::-webkit-scrollbar-thumb:hover{background:#f1e255;}
+    #analysis-results{scrollbar-width:thin;scrollbar-color:#f57c19 #201e1e;}
+    #analysis-results .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #f57c19;background:rgba(245,124,25,0.1);padding:10px;border-radius:8px;}
+    #analysis-results .header h2{margin:0;color:#f57c19;font-size:1.4em;}
+    #analysis-results .close-btn{background:none;border:none;color:#f57c19;cursor:pointer;font-size:20px;padding:0;margin:0;line-height:1;transition:color 0.3s ease;}
+    #analysis-results .close-btn:hover{color:#f1e255;}
+    #analysis-results .result-message{margin:15px 0;font-size:1.2em;text-align:center;color:#00ff99;text-shadow:0 0 10px rgba(0,255,153,0.3);background:rgba(0,255,153,0.1);padding:10px;border-radius:8px;border:1px solid #00ff99;}
+    #analysis-results .progress-section{margin:15px 0;background:rgba(20,20,20,0.8);border-radius:12px;border:1px solid #f57c19;}
+    #analysis-results .progress-section h3{color:#f57c19;font-size:1.2em;margin:0;padding:15px;border-bottom:1px solid #f57c19;display:flex;align-items:center;gap:10px;}
+    #analysis-results .progress-section h3::before{content:"📊";}
+    #analysis-results .progress-items{padding:15px;display:flex;flex-direction:column;gap:15px;}
+    #analysis-results .progress-item{background:rgba(245,124,25,0.05);border-radius:8px;padding:15px;transition:all 0.3s ease;border:1px solid rgba(245,124,25,0.2);display:flex;flex-direction:column;gap:10px;font-family:"Courier New",monospace;color:#00ff99;}
+    #analysis-results .progress-item:hover{background:rgba(245,124,25,0.1);transform:translateX(5px);}
+    #analysis-results .progress-item .blueprint-name{font-size:1.1em;color:#00ff99;display:flex;align-items:center;gap:8px;font-family:"Courier New",monospace;}
+    #analysis-results .progress-item .blueprint-name.mechanism::before{content:"⚙️";}
+    #analysis-results .progress-item .blueprint-name.device::before{content:"🔧";}
+    #analysis-results .progress-item .progress-bar-container{width:100%;height:12px;background:rgba(20,20,20,0.5);border-radius:6px;overflow:hidden;border:1px solid rgba(245,124,25,0.3);position:relative;}
+    #analysis-results .progress-item .progress-bar{height:100%;background:linear-gradient(90deg,#f57c19,#f1e255);transition:width 0.8s ease-in-out;border-radius:6px;position:relative;overflow:hidden;}
+    #analysis-results .progress-item .progress-bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,rgba(255,255,255,0.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.2) 50%,rgba(255,255,255,0.2) 75%,transparent 75%);background-size:20px 20px;animation:progressStripes 1s linear infinite;}
+    @keyframes progressStripes{0%{background-position:0 0;}100%{background-position:20px 0;}}
+    #analysis-results .progress-item .progress-text{font-size:0.9em;color:#00ff99;margin-top:4px;display:flex;justify-content:space-between;align-items:center;font-family:"Courier New",monospace;}
+    #analysis-results .progress-item .progress-text .percentage{color:#00ff99;font-weight:bold;}
+    #analysis-results .result-history{margin:20px 0;padding:15px;border-top:2px solid #f57c19;background:rgba(20,20,20,0.8);border-radius:12px;border:1px solid #f57c19;}
+    #analysis-results .result-history h3{color:#f57c19;font-size:1.2em;margin:0 0 15px 0;display:flex;align-items:center;gap:10px;}
+    #analysis-results .result-history h3::before{content:"📜";}
+    #analysis-results .history-entry{margin:8px 0;padding:10px;border-radius:6px;background:rgba(245,124,25,0.05);border:1px solid rgba(245,124,25,0.2);transition:all 0.3s ease;display:flex;align-items:center;gap:8px;}
+    #analysis-results .history-entry:hover{background:rgba(245,124,25,0.1);transform:translateX(5px);}
+    #analysis-results .history-entry.discovery::before{content:"🌟";}
+    #analysis-results .history-entry.progress::before{content:"📈";}
+    @keyframes progressStripes{0%{background-position:0 0;}100%{background-position:20px 0;}}
+    #analysis-results .progress-item .progress-text{font-size:0.9em;color:#00ff99;margin-top:4px;display:flex;justify-content:space-between;align-items:center;font-family:"Courier New",monospace;}
+    #analysis-results .progress-item .progress-text .percentage{color:#00ff99;font-weight:bold;}
+    #analysis-results .result-history{margin:20px 0;padding:15px;border-top:2px solid #f57c19;background:rgba(20,20,20,0.8);border-radius:12px;border:1px solid #f57c19;}
+    #analysis-results .result-history h3{color:#f57c19;font-size:1.2em;margin:0 0 15px 0;display:flex;align-items:center;gap:10px;}
+    #analysis-results .result-history h3::before{content:"📜";}
+    #analysis-results .history-entry{margin:8px 0;padding:10px;border-radius:6px;background:rgba(245,124,25,0.05);border:1px solid rgba(245,124,25,0.2);transition:all 0.3s ease;display:flex;align-items:center;gap:8px;}
+    #analysis-results .history-entry:hover{background:rgba(245,124,25,0.1);transform:translateX(5px);}
+    #analysis-results .history-entry.discovery::before{content:"🌟";}
+    #analysis-results .history-entry.progress::before{content:"📈";}
+    #voiceSettings h3{color:#f57c19;margin-bottom:15px;font-size:1.2em;text-shadow:0 0 8px rgba(245,124,25,0.5);}
+    .stats-section{margin-top:10px;padding:15px;background:#f57c19;border:none;border-radius:8px;}
+    .stats-grid{display:flex;flex-direction:column;gap:10px;}
+    .stat-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;color:#201e1e;font-size:0.9em;border:none;border-radius:4px;background:#f57c19;transition:all 0.3s ease;font-weight:bold;}
+    .stat-item:hover{background:#f1e255;transform:translateX(5px);}
+    .stat-value{font-weight:bold;color:#201e1e;}
+    #settings-tabs .ui-tabs-nav{background:none;border:none;padding:0;margin-bottom:20px;display:flex;gap:10px;}
+    #settings-tabs .ui-tabs-nav li{background:rgba(245,124,25,0.1);border:1px solid #f57c19;border-radius:6px;margin:0;padding:0;flex:1;list-style:none;transition:all 0.3s ease;position:relative;overflow:hidden;}
+    #settings-tabs .ui-tabs-nav li::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,rgba(245,124,25,0.1),rgba(241,226,85,0.1));opacity:0;transition:opacity 0.3s ease;}
+    #settings-tabs .ui-tabs-nav li:hover::before{opacity:1;}
+    #settings-tabs .ui-tabs-nav li.ui-tabs-active{background:rgba(245,124,25,0.2);border-color:#f1e255;box-shadow:0 0 10px rgba(241,226,85,0.3);}
+    #settings-tabs .ui-tabs-nav li a{color:#f57c19;padding:8px;width:100%;text-align:center;display:block;text-decoration:none;font-size:0.9em;transition:all 0.3s ease;position:relative;z-index:1;}
+    #settings-tabs .ui-tabs-nav li.ui-tabs-active a{color:#f1e255;text-shadow:0 0 5px rgba(241,226,85,0.5);}
+    #settings-tabs .ui-tabs-panel{background:rgba(20,20,20,0.95);border:1px solid rgba(245,124,25,0.3);border-radius:8px;padding:15px;margin-top:10px;}
+    #voiceSettings label{color:#00ff99;font-size:0.9em;margin:10px 0 5px;display:block;text-align:left;text-shadow:0 0 5px rgba(0,255,153,0.3);}
+    #voiceSettings select,#voiceSettings input[type="range"]{width:100%;padding:8px;background:#201e1e;color:#edeeda;border:1px solid #f57c19;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:0.9em;cursor:pointer;transition:all 0.2s ease;}
+    #voiceSettings select:hover,#voiceSettings select:focus,#voiceSettings input[type="text"]:hover,#voiceSettings input[type="text"]:focus{border-color:#f1e255;box-shadow:0 0 10px rgba(241,226,85,0.3);outline:none;}
+    #voiceSettings input[type="range"]{height:6px;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,#f57c19,#f1e255);}
+    #voiceSettings input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#00ff99;border:2px solid #f57c19;border-radius:50%;cursor:pointer;transition:all 0.3s ease;box-shadow:0 0 5px rgba(0,255,153,0.5);}
+    #voiceSettings input[type="range"]::-webkit-slider-thumb:hover{background:#f1e255;transform:scale(1.1);box-shadow:0 0 10px rgba(241,226,85,0.5);}
+    #testVoice{background:linear-gradient(45deg,#f57c19,#f1e255);color:#201e1e;border:none;border-radius:6px;padding:10px 20px;font-family:'Orbitron',sans-serif;font-size:0.9em;cursor:pointer;transition:all 0.3s ease;margin-top:10px;text-shadow:0 0 2px rgba(32,30,30,0.5);position:relative;overflow:hidden;}
+    #testVoice:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.5);}
+    #testVoice:active{transform:scale(0.95);}
+    .stats-section{background:rgba(20,20,20,0.8);border:1px solid #f57c19;border-radius:8px;padding:15px;margin-top:10px;}
+    .stats-grid{display:flex;flex-direction:column;gap:10px;}
+    .stat-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;color:#edeeda;font-size:0.9em;border:1px solid #f57c19;border-radius:4px;background:rgba(20,20,20,0.95);transition:all 0.3s ease;}
+    .stat-item:hover{background:rgba(245,124,25,0.1);border-color:#f1e255;transform:translateX(5px);}
+    .stat-value{font-weight:bold;color:#f1e255;text-shadow:0 0 5px rgba(241,226,85,0.3);}
+    .slider-container{margin:15px 0;width:100%;}
+    .slider-container label{display:block;margin-bottom:8px;color:#edeeda;font-size:0.9em;}
+    .slider-container input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#f57c19;border-radius:3px;outline:none;border:none;margin:10px 0;}
+    .slider-container input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;background:#f57c19;border:none;border-radius:50%;cursor:pointer;transition:all 0.3s ease;}
+    .slider-container input[type="range"]::-webkit-slider-thumb:hover{background:#f1e255;transform:scale(1.1);}
+    .slider-container input[type="range"]::-moz-range-thumb{width:16px;height:16px;background:#f57c19;border:none;border-radius:50%;cursor:pointer;transition:all 0.3s ease;}
+    .slider-container input[type="range"]::-moz-range-thumb:hover{background:#f1e255;transform:scale(1.1);}
+    .settings-tabs{width:100%;margin-bottom:20px;}
+    .tab-nav{display:flex;gap:10px;margin-bottom:15px;padding:0;list-style:none;}
+    .tab-nav li{flex:1;}
+    .tab-nav li button{width:100%;padding:8px;background-color:#f57c19!important;color:#201e1e!important;border:none;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:0.9em;cursor:pointer;transition:all 0.3s ease;}
+    .tab-nav li.active button{background-color:#f1e255!important;color:#201e1e!important;}
+    .tab-nav li button:hover{background-color:#f1e255!important;color:#201e1e!important;transform:scale(1.02);}
+    .tab-content{display:none;background:#f57c19;border:none;border-radius:8px;padding:15px;color:#201e1e;}
+    .tab-content.active{display:block;}
+    #state-tab button{width:100%;margin:5px 0;background:#201e1e;color:#f57c19;border:none;}
+    #state-tab button:hover{background:#f1e255;color:#201e1e;}
+    #state-tab button#saveState{background:linear-gradient(45deg,#00ff66,#00cc66);color:#201e1e;}
+    #state-tab button#resetState{background:linear-gradient(45deg,#ff3366,#ff6699);color:#201e1e;}
+    #state-tab button:active{transform:scale(0.95);}
+    #voiceSettings::-webkit-scrollbar{width:8px;background:#f57c19;}
+    #voiceSettings::-webkit-scrollbar-track{background:#f57c19;border-radius:4px;}
+    #voiceSettings::-webkit-scrollbar-thumb{background:#201e1e;border-radius:4px;}
+    #voiceSettings::-webkit-scrollbar-thumb:hover{background:#f1e255;}
+    .minigame-container{background:rgba(32,30,30,0.95)!important;border:2px solid #f57c19!important;color:#edeeda!important;}
+    .minigame-container button{background-color:#f57c19!important;color:#201e1e!important;}
+    .minigame-container button:hover{background-color:#f1e255!important;}
+    #state-tab button{background:rgba(20,20,20,0.95)!important;color:#edeeda!important;border:1px solid #f57c19!important;}
+    #state-tab button:hover{background:rgba(245,124,25,0.2)!important;border-color:#f1e255!important;}
+    #testVoice{background:rgba(20,20,0,0.95)!important;background:rgba(20,20,20,0.95)!important;color:#edeeda!important;border:1px solid #f57c19!important;}
+    #testVoice:hover{background:rgba(245,124,25,0.2)!important;border-color:#f1e255!important;}
+    #speakCustom{background:rgba(20,20,20,0.95);color:#edeeda;border:1px solid #f57c19;}
+    #speakCustom:hover{background:rgba(245,124,25,0.2);border-color:#f1e255;}
+    button{background:rgba(20,20,20,0.95)!important;color:#edeeda!important;border:1px solid #f57c19!important;transition:all 0.3s ease!important;}
+    button:hover{background:rgba(245,124,25,0.2)!important;border-color:#f1e255!important;box-shadow:0 0 10px rgba(241,226,85,0.3);}
+    .message-input-container input[type="text"]{background:rgba(32,30,30,0.95);color:#edeeda;border:2px solid #f57c19;}
+    .message-input-container input[type="text"]:focus{background:rgba(32,30,30,0.95);border-color:#f1e255;}
+    .settings-tabs{width:100%;margin-bottom:20px;}
+    .tab-nav{display:flex;gap:10px;margin-bottom:15px;padding:0;list-style:none;}
+    .tab-nav li{flex:1;background:rgba(20,20,20,0.95);border:1px solid #f57c19;border-radius:6px;overflow:hidden;transition:all 0.3s ease;}
+    .tab-nav li button{width:100%;padding:8px;background:none!important;border:none!important;color:#f57c19!important;font-family:'Orbitron',sans-serif;font-size:0.9em;cursor:pointer;transition:all 0.3s ease;}
+    .tab-nav li.active{background:rgba(245,124,25,0.2);border-color:#f1e255;box-shadow:0 0 10px rgba(241,226,85,0.3);}
+    .tab-nav li.active button{color:#f1e255!important;text-shadow:0 0 5px rgba(241,226,85,0.5);}
+    .tab-nav li:hover:not(.active){border-color:#f1e255;background:rgba(245,124,25,0.1);}
+    .tab-content{display:none;background:rgba(20,20,20,0.95);border:1px solid rgba(245,124,25,0.3);border-radius:8px;padding:15px;}
+    .tab-content.active{display:block;}
+    #container{background:linear-gradient(45deg,#ff6b00,#ff8800);border:2px solid #ffa500;box-shadow:0 0 10px #ffa500;}
+    #chatContainer{background:rgba(255,165,0,0.1);border:2px solid #ffa500;}
+    #inputContainer{background:rgba(255,165,0,0.1);border-top:2px solid #ffa500;}
+    #userInput{background:rgba(0,0,0,0.3);border:2px solid #ffa500;color:#00ff00;}
+    #voiceSettings{background:rgba(255,165,0,0.1);border:2px solid #ffa500;}
+    button{background:linear-gradient(45deg,#ff6b00,#ff8800);border:2px solid #ffa500;color:#000;}
+    button:hover{background:linear-gradient(45deg,#ff8800,#ffa500);box-shadow:0 0 10px #ffa500;}
+    .botMessage,.userMessage{background:rgba(255,165,0,0.1);border:2px solid #ffa500;}
+    .stat-grid{background:rgba(255,165,0,0.1);border:2px solid #ffa500;}
+    .stat-item{border:1px solid #ffa500;}
+    ::-webkit-scrollbar-track{background:rgba(255,165,0,0.1);}
+    ::-webkit-scrollbar-thumb{background:#ffa500;border:2px solid #ff8800;}
+    #settings-tabs .ui-tabs-nav{background:rgba(255,165,0,0.1);border-bottom:2px solid #ffa500;}
+    #settings-tabs .ui-tabs-nav li{background:rgba(255,165,0,0.1);border:2px solid #ffa500;}
+    #settings-tabs .ui-tabs-active{background:linear-gradient(45deg,#ff6b00,#ff8800);}
+    #settings-tabs .ui-tabs-panel{background:rgba(255,165,0,0.1);border:2px solid #ffa500;}
+    body{color:#00ff00;}
+    select,input[type="range"]{background:rgba(255,165,0,0.1);border:2px solid #ffa500;color:#00ff00;}
+    #modeButtonsContainer{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:10px;}
+    #modeButtonsContainer button{display:block;padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;}
+    #modeButtonsContainer button:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
+    #modeButtonsContainer button.active{background:#f1e255!important;box-shadow:0 0 15px rgba(241,226,85,0.5)!important;}
+    #modeButtonsContainer button:not(#on){display:none;}
+    #speakCustom{width:100%;padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;}
+    #speakCustom:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
+    #minigame-buttons button{padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;width:150px;}
+    #minigame-buttons button:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
+    #recharge-btn-minigame,#repair-btn-minigame,#refactor-btn-minigame{padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;}
+    #recharge-btn-minigame:hover,#repair-btn-minigame:hover,#refactor-btn-minigame:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
+    #refactor-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(32,30,30,0.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1100;padding:20px;font-family:'Orbitron',sans-serif;}
+    #refactor-overlay h2{color:#f57c19;margin-bottom:20px;text-shadow:0 0 10px rgba(245,124,25,0.3);}
+    #refactor-overlay p{color:#edeeda;margin-bottom:20px;text-align:center;}
+    #blocks-game{margin:15px auto;display:flex;flex-direction:column;gap:6px;width:100%;max-width:200px;padding:10px;perspective:1000px;}
+    .block{padding:8px;font-size:12px;min-height:32px;max-width:200px;}
+    .block:hover{transform:translateY(-5px);box-shadow:0 6px 12px rgba(245,124,25,0.3);text-shadow:0 0 15px currentColor;}
+    .block.selected{animation:pulse 1.5s infinite;box-shadow:0 0 20px currentColor;transform:translateY(-5px);}
+    #refactor-message{color:#00ff99;font-size:1em;margin:10px 0;text-shadow:0 0 10px rgba(0,255,153,0.3);min-height:1.5em;padding:0 10px;word-wrap:break-word;}
+    #voiceSettings{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:400px;background:rgba(32,30,30,0.95);border:2px solid #f57c19;border-radius:12px;padding:20px;display:none;z-index:1000;font-family:'Orbitron',sans-serif;box-shadow:0 0 20px rgba(245,124,25,0.3);max-height:80vh;overflow-y:auto;}
+    #voiceSettings h2{color:#f57c19;margin-bottom:20px;text-align:center;text-shadow:0 0 10px rgba(245,124,25,0.3);}
+    #voiceSettings label{display:block;margin:12px 0 4px;color:#edeeda;font-size:0.9em;text-shadow:0 0 5px rgba(237,238,218,0.5);}
+    #voiceSettings select,#voiceSettings input[type="text"]{width:100%;padding:8px;margin:4px 0 12px;background:#201e1e;color:#edeeda;border:1px solid #f57c19;border-radius:6px;font-family:'Orbitron',sans-serif;transition:all 0.3s ease;}
+    #voiceSettings select:hover,#voiceSettings select:focus,#voiceSettings input[type="text"]:hover,#voiceSettings input[type="text"]:focus{border-color:#f1e255;box-shadow:0 0 10px rgba(241,226,85,0.3);outline:none;}
+    #voiceSettings input[type="range"] {width: 100%;height: 6px;background: linear-gradient(to right, #f57c19, #f1e255);border-radius: 3px;outline: none;-webkit-appearance: none;appearance: none;margin: 10px 0;}
+    #voiceSettings input[type="range"]::-webkit-slider-thumb {-webkit-appearance: none;width: 18px;height: 18px;background: #f57c19;border: 2px solid #edeeda;border-radius: 50%;cursor: pointer;transition: all 0.3s ease;}
+    #voiceSettings input[type="range"]::-webkit-slider-thumb:hover {background: #f1e255;transform: scale(1.1);box-shadow: 0 0 10px rgba(241, 226, 85, 0.5);}
+    /* Analysis Type Selection Overlay */
+    #analysis-type-overlay {position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);width: auto;height: auto;background: none;display: none;justify-content: center;align-items: center;z-index: 2000;}
+    #analysis-type-overlay .minigame-container {background: rgba(32, 30, 30, 0.95) !important;padding: 20px;border: 2px solid #f57c19 !important;border-radius: 12px;width: 300px;text-align: center;color: #edeeda !important;box-shadow: 0 0 20px rgba(245, 124, 25, 0.3);}
+    #analysis-type-overlay .header {display: flex;justify-content: space-between;align-items: center;margin: -20px -20px 15px -20px;padding: 15px 20px;border-bottom: 2px solid #f57c19;background: rgba(245, 124, 25, 0.1);border-radius: 10px 10px 0 0;}
+    #analysis-type-overlay .header h2 {margin: 0;color: #f57c19;font-size: 1.4em;text-shadow: 0 0 10px rgba(245, 124, 25, 0.3);}
+    #analysis-type-overlay .close-btn {background: none !important;border: none !important;color: #f57c19 !important;cursor: pointer;font-size: 24px;font-weight: bold;padding: 5px 10px;margin: 0;line-height: 1;transition: all 0.3s ease;font-family: Arial, sans-serif;}
+    #analysis-type-overlay .close-btn:hover {color: #f1e255 !important;transform: scale(1.1);}
+    .analysis-type-buttons {display: flex;flex-direction: column;gap: 10px;margin: 15px 0;}
+    .analysis-type-buttons button {padding: 12px 20px;background: #f57c19 !important;color: #201e1e !important;border: none !important;border-radius: 8px;cursor: pointer;font-family: 'Orbitron', sans-serif;font-size: 14px;transition: all 0.3s ease;font-weight: bold;box-shadow: 0 0 8px rgba(245, 124, 25, 0.3) !important;}
+    .analysis-type-buttons button:hover {background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
+    /* Item Selection Overlay */
+    #item-selection-overlay {position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);width: auto;height: auto;background: none;display: none;justify-content: center;align-items: center;z-index: 2000;}
+    #item-selection-overlay .minigame-container {background: rgba(32, 30, 30, 0.95) !important;padding: 20px;border: 2px solid #f57c19 !important;border-radius: 12px;width: 400px;max-height: 80vh;text-align: center;color: #edeeda !important;box-shadow: 0 0 20px rgba(245, 124, 25, 0.3);overflow-y: auto;}
+    .item-selection-list {display: flex;flex-direction: column;gap: 10px;margin: 15px 0;max-height: 50vh;overflow-y: auto;padding: 10px;}
+    .item-selection-list button {padding: 12px 20px;background: rgba(245, 124, 25, 0.1) !important;color: #edeeda !important;border: 1px solid #f57c19 !important;border-radius: 8px;cursor: pointer;font-family: 'Orbitron', sans-serif;font-size: 14px;transition: all 0.3s ease;text-align: left;display: flex;justify-content: space-between;align-items: center;}
+    .item-selection-list button:hover {background: rgba(245, 124, 25, 0.2) !important;border-color: #f1e255 !important;transform: translateX(5px);}
+    .item-selection-list button .item-count {color: #f57c19;font-size: 0.9em;}
+    #cancel-item-selection {padding: 10px 20px;background: rgba(255, 51, 102, 0.2) !important;color: #edeeda !important;border: 1px solid #ff3366 !important;border-radius: 8px;cursor: pointer;font-family: 'Orbitron', sans-serif;font-size: 14px;transition: all 0.3s ease;margin-top: 10px;}
+    #cancel-item-selection:hover {background: rgba(255, 51, 102, 0.3) !important;transform: scale(1.05);}
+    /* Add background cycle button */
+    #cycleBackground {position: fixed;top: 20px;right: 20px;padding: 8px;background: none !important;color: #201e1e !important;border: none !important;border-radius: 8px;cursor: pointer;font-family: 'Orbitron', sans-serif;font-size: 24px;transition: all 0.3s ease;z-index: 999;width: 40px;height: 40px;display: flex;align-items: center;justify-content: center;box-shadow: none !important;}
+    #cycleBackground:hover {color: #f1e255 !important;transform: scale(1.1);}
+    /* Add background styles */
+    body {transition: background 0.5s ease;background-color: #201e1e; /* Fallback color if image fails to load */}
+    body[data-bg="abyss"] { background: url("img/abyss.webp") no-repeat center center fixed; background-size: cover; }
+    body[data-bg="cavern"] { background: url("img/cavern.webp") no-repeat center center fixed; background-size: cover; }
+    body[data-bg="grove"] { background: url("img/grove.webp") no-repeat center center fixed; background-size: cover; }
+    body[data-bg="oasis"] { background: url("img/oasis.webp") no-repeat center center fixed; background-size: cover; }
+    body[data-bg="surface"] { background: url("img/surface.webp") no-repeat center center fixed; background-size: cover; }
+    body[data-bg="ruins"] { background: url("img/ruins.webp") no-repeat center center fixed; background-size: cover; }
+    body[data-bg="botBg"] { background: url("img/botBg.webp") no-repeat center center fixed; background-size: cover; }
+    /* Remove duplicate background-size property */
+    body[data-bg] {background-size: cover !important;}
+    /* Common button styles */
+    .game-button {padding: 10px 15px;background: #f57c19 !important;color: #201e1e !important;border: none !important;border-radius: 8px;cursor: pointer;font-family: 'Orbitron', sans-serif;font-size: 14px;transition: all 0.3s ease;font-weight: bold;box-shadow: 0 0 8px rgba(245, 124, 25, 0.3) !important;}
+    .game-button:hover {background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
+    #minigame-buttons button { width: 150px;}
+    #minigame-buttons button:hover { background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
+    #minigame-buttons button:hover { background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
+    /* Update recharge, repair, and refactor buttons in minigames */
+    #recharge-btn-minigame:hover,#repair-btn-minigame:hover,#refactor-btn-minigame:hover {background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
+    /* Add new repair slider styles */
+    #repair-slider {width: 200px;height: 20px;-webkit-appearance: none;appearance: none;background: #201e1e;outline: none;border-radius: 10px;margin: 20px 0;border: 2px solid #f57c19;transition: all 0.3s ease;}
+    #repair-slider::-webkit-slider-thumb {-webkit-appearance: none;appearance: none;width: 30px;height: 30px;background: #f57c19;border-radius: 50%;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 0 10px rgba(245, 124, 25, 0.3);}
+    #repair-slider::-webkit-slider-thumb:hover {background: #f1e255;transform: scale(1.1);box-shadow: 0 0 15px rgba(241, 226, 85, 0.5);}
+    #repair-slider::-moz-range-thumb {width: 30px;height: 30px;background: #f57c19;border-radius: 50%;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 0 10px rgba(245, 124, 25, 0.3);border: none;}
+    #repair-slider::-moz-range-thumb:hover {background: #f1e255;transform: scale(1.1);box-shadow: 0 0 15px rgba(241, 226, 85, 0.5);}
+    #repair-slider::-webkit-slider-runnable-track {height: 20px;border-radius: 10px;}
+    #repair-slider::-moz-range-track {height: 20px;border-radius: 10px;}
+    #repair-slider.success {border-color: #00ff99;}
+    #repair-slider.success::-webkit-slider-thumb {background: #00ff99;box-shadow: 0 0 15px rgba(0, 255, 153, 0.5);}
+    #repair-slider.success::-moz-range-thumb {background: #00ff99;box-shadow: 0 0 15px rgba(0, 255, 153, 0.5);}
+  </style>
+</head>
+<body data-bg="botBg">
+  <!-- Add background cycle button -->
+  <button id="cycleBackground">🌍</button>
+
+  <!-- Existing elements -->
+  <button id="settingsButton">⚙️</button>
+
+  <!-- 🔹 Voice Settings Panel -->
+  <div id="voiceSettings">
+    <h2>⚙️ Settings</h2>
+    <div class="settings-tabs">
+      <ul class="tab-nav">
+        <li class="active"><button data-tab="voice-tab">🎙️ Voice</button></li>
+        <li><button data-tab="stats-tab">📊 Stats</button></li>
+        <li><button data-tab="state-tab">💾 State</button></li>
+      </ul>
+      
+      <div id="voice-tab" class="tab-content active">
+        <div class="slider-container">
+          <label for="voiceSelect">🗣️ Select Voice</label>
+          <select id="voiceSelect"></select>
+        </div>
+        
+        <div class="slider-container">
+          <label for="volumeSlider">🔊 Volume</label>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+        </div>
+        
+        <div class="slider-container">
+          <label for="rateSlider">⚡ Speed</label>
+          <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+        </div>
+        
+        <div class="slider-container">
+          <label for="pitchSlider">🎵 Pitch</label>
+          <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+        </div>
+        
+        <button id="testVoice">🔈 Test Voice</button>
+      </div>
+      
+      <div id="stats-tab" class="tab-content">
+        <div class="stats-section">
+          <div class="stats-grid">
+            <div class="stat-item">
+              Pets Given: <span class="stat-value" id="petCount">0</span>
+            </div>
+            <div class="stat-item">
+              Time Active: <span class="stat-value" id="activeTime">0m</span>
+            </div>
+            <div class="stat-item">
+              Mode Changes: <span class="stat-value" id="modeChanges">0</span>
+            </div>
+            <div class="stat-item">
+              Messages Sent: <span class="stat-value" id="messageCount">0</span>
+            </div>
+            <div class="stat-item">
+              Parts Found: <span class="stat-value" id="partsFound">0</span>
+            </div>
+            <div class="stat-item">
+              Devices Built: <span class="stat-value" id="devicesBuilt">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="state-tab" class="tab-content">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button id="saveState">💾 Save State</button>
+          <button id="resetState">🔄 Reset State</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Custom Message Input -->
+  <div class="message-input-container">
+    <input type="text" id="customMessage" placeholder="Type a message for Eidos...">
+    <button id="speakCustom">💬 Speak Message</button>
+  </div>
+
+  <div class="container">
+    <h1>Eidos: The Friendly AI</h1>
+    <div id="modeButtonsContainer">
+      <button id="on" title="Activate Eidos">On</button>
+      <button id="default" title="Return to default state">Default</button>
+      <button id="off" title="I'll miss you">Off</button>
+      <button id="flight" title="I believe I can fly!">Flight</button>
+      <button id="analysis" title="Analyse Incoming Data">Analysis</button>
+      <button id="defense" title="He Protec, He attack">Defense</button>
+      <button id="done" title="FML">Flop</button>
+    </div>
+
+    <div id="botThoughts">...</div>
+    <div id="tooltipReadout"></div>
+    <div id="creatureContainer">
+      <img id="creature" src="img/off.webp" alt="Creature in off state">
+    </div>
+  </div>
+
+  <!-- Add minigame elements -->
+  <div id="state-overview">
+    <div id="charge" class="state-section">
+      <p>Charge: <span id="charge-text">80</span>%</p>
+      <div class="bar">
+        <div class="bar-fill" id="charge-bar"></div>
+      </div>
+    </div>
+    <div id="durability" class="state-section">
+      <p>Durability: <span id="durability-text">70</span>%</p>
+      <div class="bar">
+        <div class="bar-fill" id="durability-bar"></div>
+      </div>
+    </div>
+    <div id="complexity" class="state-section">
+      <p>Code Complexity: <span id="complexity-text">50</span>%</p>
+      <div class="bar">
+        <div class="bar-fill" id="complexity-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="minigame-buttons">
+    <button class="game-button" id="recharge-btn">Recharge</button>
+    <button class="game-button" id="repair-btn">Repair</button>
+    <button class="game-button" id="refactor-btn">Refactor</button>
+  </div>
+
+  <div class="overlay" id="recharge-overlay">
+    <div class="minigame-container">
+      <h2>Recharge Minigame</h2>
+      <p>Press the button to recharge Eidos's battery.</p>
+      <div id="battery-game">
+        <div id="full-battery">🔋</div>
+        <button class="game-button" id="recharge-btn-minigame">Recharge Now</button>
+        <div id="empty-battery">🪫</div>
+      </div>
+      <div class="minigame-message" id="recharge-message"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="repair-overlay">
+    <div class="minigame-container">
+      <h2>Repair Minigame</h2>
+      <p>Slide to repair Eidos</p>
+      <div id="bolt-game">
+        <div id="loose-bolt">🔧</div>
+        <input type="range" id="repair-slider" min="0" max="100" value="0">
+      </div>
+      <div class="minigame-message" id="repair-message"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="emergency-power-overlay">
+    <div class="minigame-container">
+      <h2>Emergency Power Restoration</h2>
+      <p>Connect power nodes to restore emergency power</p>
+      <canvas id="power-canvas"></canvas>
+      <div class="minigame-message" id="emergency-message"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="refactor-overlay">
+    <div class="minigame-container">
+      <h2>Refactor Minigame</h2>
+      <p>Click the matching code blocks to optimize.</p>
+      <div id="blocks-game"></div>
+      <div class="minigame-message" id="refactor-message"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="crafting-overlay">
+    <div class="minigame-container">
+      <h2>Crafting in Progress</h2>
+      <div id="crafting-animation">
+        <div class="crafting-icon">⚙️</div>
+        <div class="crafting-icon">⚡</div>
+        <div class="crafting-icon">🔧</div>
+      </div>
+      <div class="minigame-message" id="crafting-message"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="assembly-overlay">
+    <div class="minigame-container">
+      <h2>Assembly in Progress</h2>
+      <div id="assembly-animation">
+        <div class="assembly-icon">🔄</div>
+        <div class="assembly-icon">⚡</div>
+        <div class="assembly-icon">🛠️</div>
+      </div>
+      <div class="minigame-message" id="assembly-message"></div>
+    </div>
+  </div>
+
+  <div id="tinkererGame">
+    <div class="header">
+      <h3>Tinkerer's Legacy</h3>
+      <div class="header-controls">
+        <button id="resetTinkerer" title="Reset Progress">↺</button>
+        <button id="closeGame">✖</button>
+      </div>
+    </div>
+    <div id="controls"></div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="message">
+      <span id="message-text"></span>
+      <div id="crafting-animation-container">
+        <div id="crafting-animation">
+          <div class="crafting-icon">⚙️</div>
+          <div class="crafting-icon">⚡</div>
+          <div class="crafting-icon">🔧</div>
+        </div>
+        <div id="crafting-message"></div>
+      </div>
+      <div id="assembly-animation-container">
+        <div id="assembly-animation">
+          <div class="assembly-icon">🔄</div>
+          <div class="assembly-icon">⚡</div>
+          <div class="assembly-icon">🛠️</div>
+        </div>
+        <div id="assembly-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="toggleTinkerer">Show Game</button>
+
+  <!-- Add the analysis results panel -->
+  <div id="analysis-results">
+    <div class="header">
+      <h2>Analysis Results</h2>
+      <button class="close-btn">✖</button>
+    </div>
+    <div class="result-message"></div>
+    <div class="progress-section">
+      <h3>Analysis Progress</h3>
+      <div class="progress-items"></div>
+    </div>
+    <div class="result-history"></div>
+  </div>
+
+  <!-- Add the analysis type selection overlay -->
+  <div class="overlay" id="analysis-type-overlay">
+    <div class="minigame-container">
+      <div class="header">
+        <h2>Select Analysis Type</h2>
+        <button class="close-btn">✖</button>
+      </div>
+      <div class="analysis-type-buttons">
+        <button id="analyze-part" class="type-button">
+          <span class="type-name">Parts</span>
+          <span class="type-count">0</span>
+        </button>
+        <button id="analyze-mechanism" class="type-button">
+          <span class="type-name">Mechanisms</span>
+          <span class="type-count">0</span>
+        </button>
+        <button id="analyze-device" class="type-button">
+          <span class="type-name">Devices</span>
+          <span class="type-count">0</span>
+        </button>
+      </div>
+      <div class="minigame-message" id="analysis-type-message"></div>
+    </div>
+  </div>
+
+  <!-- Add the item selection overlay -->
+  <div class="overlay" id="item-selection-overlay">
+    <div class="minigame-container">
+      <div class="header">
+        <h2>Select Item to Analyze</h2>
+        <button class="close-btn">✖</button>
+      </div>
+      <div class="item-selection-list"></div>
+      <div class="button-row">
+        <button id="cancel-item-selection">Cancel</button>
+      </div>
+      <div class="minigame-message" id="item-selection-message"></div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Custom tabs functionality
+      const tabButtons = document.querySelectorAll('.tab-nav button');
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.getAttribute('data-tab');
+          tabButtons.forEach(btn => { btn.parentElement.classList.remove('active'); });
+          tabContents.forEach(content => { content.classList.remove('active'); });
+          button.parentElement.classList.add('active');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+    
+      // Voice-related elements
+      const voiceSelect = document.getElementById("voiceSelect");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const rateSlider = document.getElementById("rateSlider");
+      const pitchSlider = document.getElementById("pitchSlider");
+      const settingsButton = document.getElementById("settingsButton");
+      const voiceSettings = document.getElementById("voiceSettings");
+      const customMessage = document.getElementById("customMessage");
+      const speakCustomBtn = document.getElementById("speakCustom");
+      let voices = [];
+      const defaultThoughts = [
+        "Eidos: Double click to pet me!",
+        "Eidos: Standing by...",
+        "Eidos: What to do today?"
+      ];
+      const flightThoughts = [
+        "Eidos: I can see so much from up here!",
+        "Eidos: The sky is so vast!",
+        "Eidos: Flying feels free!"
+      ];
+      let analysisTimeout = null, defaultInterval = null, flightThoughtInterval = null, defaultIndex = 0, flightIndex = 0;
+    
+      function loadVoices() {
+        voices = speechSynthesis.getVoices();
+        voiceSelect.innerHTML = "";
+        voices.forEach((voice, index) => {
+          let option = document.createElement("option");
+          option.value = index;
+          option.textContent = `${voice.name} (${voice.lang})`;
+          voiceSelect.appendChild(option);
+        });
+        voiceSelect.value = voices.findIndex(v => v.name.includes("Microsoft Zira")) || 0;
+      }
+    
+      function speak(text) {
+        speechSynthesis.cancel();
+        return new Promise(resolve => {
+          setTimeout(() => {
+            let speech = new SpeechSynthesisUtterance(text);
+            let selectedVoice = voices[voiceSelect.value];
+            speech.voice = selectedVoice;
+            speech.volume = volumeSlider.value;
+            speech.rate = rateSlider.value;
+            speech.pitch = pitchSlider.value;
+            speech.onend = () => resolve();
+            speech.onerror = () => resolve();
+            if (!text.startsWith(',')) { text = ', ' + text; }
+            speech.text = text;
+            speechSynthesis.speak(speech);
+          }, 100);
+        });
+      }
+    
+      function initializeVoices() {
+        voices = speechSynthesis.getVoices();
+        if (voices.length === 0) { setTimeout(initializeVoices, 100); return; }
+        loadVoices();
+      }
+    
+      speechSynthesis.onvoiceschanged = initializeVoices;
+      initializeVoices();
+    
+      settingsButton.addEventListener("click", () => voiceSettings.classList.toggle("show"));
+      document.getElementById("testVoice").addEventListener("click", () => speak("Hello! I am Eidos, your friendly AI."));
+    
+      function changeCreatureImage(src) { $("#creature").attr("src", src); }
+      function clearTimers() {
+        if (analysisTimeout) { clearTimeout(analysisTimeout); analysisTimeout = null; }
+        if (defaultInterval) { clearInterval(defaultInterval); defaultInterval = null; }
+        if (flightThoughtInterval) { clearInterval(flightThoughtInterval); flightThoughtInterval = null; }
+      }
+      function getCurrentStateImage() {
+        if ($("#default").hasClass("active")) return "img/idle.gif";
+        if ($("#done").hasClass("active")) return "img/done.webp";
+        if ($("#defense").hasClass("active")) return "img/defense.webp";
+        return "img/idle.gif";
+      }
+      async function updateBotThoughts(text, shouldSpeak = false) {
+        $("#botThoughts").text(text);
+        if (shouldSpeak) { await speak(text.replace("Eidos: ", "")); }
+      }
+      $("button").on("mouseenter", function () {
+        $(this).data("prevTooltipText", $("#tooltipReadout").text());
+        $("#tooltipReadout").text($(this).attr("title"));
+      }).on("mouseleave", function () {
+        $("#tooltipReadout").text($(this).data("prevTooltipText") || "");
+      });
+    
+      $("#on").click(function () {
+        clearTimers();
+        $(this).addClass("active");
+        changeCreatureImage("img/activation.gif");
+        updateBotThoughts("Eidos: Activating systems...", true);
+        setTimeout(function () {
+          changeCreatureImage("img/idle.gif");
+          $("#on").removeClass("active");
+          $("#modeButtonsContainer button").show();
+          $("#on").hide();
+          $("#default").addClass("active");
+          updateBotThoughts(defaultThoughts[0], true);
+          defaultIndex = 0;
+          defaultInterval = setInterval(function () {
+            defaultIndex = (defaultIndex + 1) % defaultThoughts.length;
+            updateBotThoughts(defaultThoughts[defaultIndex], false);
+          }, 10000);
+        }, 3000);
+      });
+    
+      $("#default").click(function () {
+        clearTimers();
+        changeCreatureImage("img/idle.gif");
+        $("#modeButtonsContainer button").removeClass("active");
+        $(this).addClass("active");
+        updateBotThoughts(defaultThoughts[0], true);
+        defaultIndex = 0;
+        defaultInterval = setInterval(function () {
+          defaultIndex = (defaultIndex + 1) % defaultThoughts.length;
+          updateBotThoughts(defaultThoughts[defaultIndex], false);
+        }, 10000);
+      });
+    
+      $("#done").click(function () {
+        clearTimers();
+        changeCreatureImage("img/done.webp");
+        $("#modeButtonsContainer button").removeClass("active");
+        $(this).addClass("active");
+        updateBotThoughts("Eidos: I'm just so done with life... even AI needs a break sometimes.", true);
+      });
+    
+      $("#off").click(function () {
+        clearTimers();
+        changeCreatureImage("img/off.webp");
+        $("#modeButtonsContainer button").hide();
+        $("#on").show();
+        updateBotThoughts("Eidos: I'm taking a little break. Let me know when you need me.", true);
+        $("#modeButtonsContainer button").removeClass("active");
+      });
+    
+      $("#flight").click(function () {
+        clearTimers();
+        $("#modeButtonsContainer button").removeClass("active");
+        $(this).addClass("active");
+        changeCreatureImage("img/flight.gif");
+        updateBotThoughts(flightThoughts[0], true);
+        flightIndex = 0;
+        flightThoughtInterval = setInterval(function () {
+          flightIndex = (flightIndex + 1) % flightThoughts.length;
+          updateBotThoughts(flightThoughts[flightIndex], false);
+        }, 10000);
+      });
+    
+      $("#analysis").click(async function () {
+        clearTimers();
+        $("#modeButtonsContainer button").removeClass("active");
+        $(this).addClass("active");
+        changeCreatureImage("img/analyse.gif");
+        await updateBotThoughts("Eidos: Analyzing...", true);
+      });
+    
+      $("#defense").click(function () {
+        clearTimers();
+        $("#modeButtonsContainer button").removeClass("active");
+        $(this).addClass("active");
+        changeCreatureImage("img/defense.webp");
+        updateBotThoughts("Eidos: I'll keep you safe, I promise!", true);
+      });
+    
+      $("#creature").dblclick(function () {
+        if ($("#modeButtonsContainer button:visible").length > 0) {
+          var current = getCurrentStateImage();
+          if ($("#flight").hasClass("active")) {
+            changeCreatureImage("img/flyhappy.gif");
+            updateBotThoughts("Eidos: So happy up here!", false);
+            speak("So happy up here!");
+            setTimeout(function () { changeCreatureImage("img/flight.gif"); }, 1000);
+          } else {
+            changeCreatureImage("img/happy.webp");
+            updateBotThoughts("Eidos: Yay!", false);
+            speak("Yay!");
+            setTimeout(function () { changeCreatureImage(current); }, 1000);
+          }
+        }
+      });
+    
+      speakCustomBtn.addEventListener("click", () => {
+        const message = customMessage.value.trim();
+        if (message) { updateBotThoughts(`Eidos: ${message}`, true); customMessage.value = ''; }
+      });
+      customMessage.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          const message = customMessage.value.trim();
+          if (message) { updateBotThoughts(`Eidos: ${message}`, true); customMessage.value = ''; }
+        }
+      });
+    
+      let charge = 80, durability = 70, complexity = 50, minigameActive = false, stateDecayInterval = null;
+      let chargePauseTimer = null, durabilityPauseTimer = null, complexityPauseTimer = null;
+      const PAUSE_DURATION = 3000;
+      let optimalMessageShown = false;
+    
+      $('#saveState').on('click', function () {
+        const state = { charge, durability, complexity };
+        localStorage.setItem('eidosState', JSON.stringify(state));
+        updateBotThoughts("Eidos: Current state saved!", true);
+      });
+    
+      $('#resetState').on('click', function () {
+        if (confirm('Are you sure you want to reset Eidos\'s state to default values?')) {
+          resetState();
+          updateBotThoughts("Eidos: State reset to factory defaults!", true);
+        }
+      });
+    
+      function updateBars() {
+        $("#charge-bar").css("width", charge + "%");
+        $("#durability-bar").css("width", durability + "%");
+        $("#complexity-bar").css("width", complexity + "%");
+        $("#charge-text").text(Math.round(charge));
+        $("#durability-text").text(Math.round(durability));
+        $("#complexity-text").text(Math.round(complexity));
+        if (charge >= 99 && durability >= 99 && complexity <= 1) {
+          if (!optimalMessageShown) {
+            optimalMessageShown = true;
+            if ($("#flight").hasClass("active")) {
+              changeCreatureImage("img/flyhappy.gif");
+              updateBotThoughts("Eidos: Flying at peak efficiency!", true);
+              setTimeout(function () { changeCreatureImage("img/flight.gif"); optimalMessageShown = false; }, 1000);
+            } else {
+              const current = getCurrentStateImage();
+              changeCreatureImage("img/happy.gif");
+              updateBotThoughts("Eidos: All systems optimal!", true);
+              setTimeout(function () { changeCreatureImage(current); optimalMessageShown = false; }, 1000);
+            }
+          }
+        } else { optimalMessageShown = false; }
+      }
+    
+      const baseDecayRates = { charge: 0.2, durability: 0.1, complexity: 0.15 };
+      const modeModifiers = {
+        default: { charge: 1, durability: 1, complexity: 1 },
+        flight: { charge: 2, durability: 1.5, complexity: 0.5 },
+        analysis: { charge: 1.5, durability: 1, complexity: 2 },
+        defense: { charge: 1.5, durability: 2, complexity: 1.5 }
+      };
+    
+      function updateState() {
+        if (!stateDecayInterval) return;
+        const currentMode = $("#modeButtonsContainer button.active").attr("id") || "default";
+        const modifiers = modeModifiers[currentMode] || modeModifiers.default;
+        const currentRates = window.baseDecayRates || baseDecayRates;
+        if (!chargePauseTimer) {
+          charge = Math.max(0, charge - (currentRates.charge * modifiers.charge));
+          if (charge <= 0) { charge = 0; chargePauseTimer = setTimeout(() => { chargePauseTimer = null; }, PAUSE_DURATION); }
+        }
+        if (!durabilityPauseTimer) {
+          durability = Math.max(0, durability - (currentRates.durability * modifiers.durability));
+          if (durability <= 0) { durability = 0; durabilityPauseTimer = setTimeout(() => { durabilityPauseTimer = null; }, PAUSE_DURATION); }
+        }
+        if (!complexityPauseTimer) {
+          complexity = Math.min(100, complexity + (currentRates.complexity * modifiers.complexity));
+          if (complexity >= 100) { complexity = 100; complexityPauseTimer = setTimeout(() => { complexityPauseTimer = null; }, PAUSE_DURATION); }
+        }
+        updateBars();
+        checkCriticalLevels();
+      }
+    
+      function checkCriticalLevels() {
+        if (charge <= 20) { updateBotThoughts("Eidos: Running low on power! Need to recharge soon...", false); }
+        if (durability <= 30) { updateBotThoughts("Eidos: My systems need maintenance!", false); }
+        if (complexity >= 80) { updateBotThoughts("Eidos: Code complexity is getting high, should optimize soon!", false); }
+        if (charge <= 0) { $("#off").click(); updateBotThoughts("Eidos: Emergency shutdown - power depleted!", true); }
+      }
+    
+      function toggleMinigameUI(show) {
+        if (show) {
+          $("#state-overview").addClass("show");
+          $("#minigame-buttons").addClass("show");
+          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 1000); updateBars(); }
+        } else {
+          $("#state-overview").removeClass("show");
+          $("#minigame-buttons").removeClass("show");
+          $(".overlay").hide();
+          if (stateDecayInterval) { clearInterval(stateDecayInterval); stateDecayInterval = null; }
+        }
+      }
+    
+      $("#recharge-btn").click(function () {
+        if (minigameActive) return;
+        minigameActive = true;
+        $("#recharge-overlay").css("display", "flex");
+        $("#full-battery").css("opacity", "0");
+        $("#empty-battery").css("opacity", "1");
+        $("#recharge-message").text("");
+      });
+    
+      $("#repair-btn").click(function () {
+        if (minigameActive) return;
+        minigameActive = true;
+        $("#repair-overlay").css("display", "flex");
+        $("#repair-slider").val(0);
+        $("#repair-message").text("");
+      });
+    
+      $("#recharge-btn-minigame").click(function () {
+        $("#full-battery").css("opacity", "1");
+        $("#empty-battery").css("opacity", "0");
+        charge = 100;
+        chargePauseTimer = setTimeout(() => { chargePauseTimer = null; }, PAUSE_DURATION);
+        updateBars();
+        $("#recharge-message").text("Successfully recharged!");
+        setTimeout(() => { $("#recharge-overlay").hide(); minigameActive = false; }, 1500);
+      });
+    
+      $("#loose-bolt").click(function () {
+        if ($(this).hasClass("rotating")) return;
+        $(this).addClass("rotating");
+        durability = 100;
+        durabilityPauseTimer = setTimeout(() => { durabilityPauseTimer = null; }, PAUSE_DURATION);
+        updateBars();
+        $("#repair-message").text("Successfully repaired!");
+        setTimeout(() => {
+          $("#repair-overlay").hide();
+          $(this).removeClass("rotating").css("transform", "");
+          minigameActive = false;
+        }, 1500);
+      });
+    
+      function initBlocksGame() {
+        $("#blocks-game").empty();
+        selectedBlock = null;
+        const blockTemplates = [
+          { text: "let x = 0", color: "#00ff99" },
+          { text: "x += 1", color: "#f1e255" },
+          { text: "if(x > 0)", color: "#f57c19" },
+          { text: "x *= 2", color: "#00ccff" },
+          { text: "x--", color: "#ff99cc" },
+          { text: "x = null", color: "#ffcc00" },
+          { text: "x >> 1", color: "#9966ff" },
+          { text: "x << 1", color: "#66ff99" },
+          { text: "!x", color: "#ff6600" },
+          { text: "~x", color: "#ff3366" }
+        ];
+        const numPairs = Math.max(2, Math.floor(complexity / 20));
+        const selectedBlocks = blockTemplates.sort(() => Math.random() - 0.5).slice(0, numPairs);
+        const gameBlocks = [...selectedBlocks, ...selectedBlocks].sort(() => Math.random() - 0.5).map((block, i) => ({ ...block, id: `block-${i}`, matched: false }));
+        gameBlocks.forEach(block => {
+          $("#blocks-game").append(`
+                <div class="block" id="${block.id}" 
+                     data-text="${block.text}" 
+                     style="border-color: ${block.color}; color: ${block.color}">
+                  ${block.text}
+                </div>
+              `);
+        });
+        window.gameState = { blocks: gameBlocks, matchedPairs: 0, totalPairs: numPairs, refactorReward: Math.min(25, 10 + (numPairs * 3)) };
+      }
+    
+      $("#refactor-btn").click(function () {
+        if (minigameActive) return;
+        minigameActive = true;
+        $("#refactor-overlay").css("display", "flex");
+        $("#refactor-message").text("Match the code blocks to optimize!");
+        initBlocksGame();
+      });
+    
+      $(document).on("click", ".block", function () {
+        if ($(this).hasClass("matched")) return;
+        const blockId = $(this).attr("id");
+        const block = window.gameState.blocks.find(b => b.id === blockId);
+        if (!block || block.matched) return;
+        if (!selectedBlock) {
+          selectedBlock = $(this);
+          selectedBlock.addClass("selected");
+        } else {
+          const firstBlock = window.gameState.blocks.find(b => b.id === selectedBlock.attr("id"));
+          if (firstBlock.text === block.text && selectedBlock.attr("id") !== blockId) {
+            firstBlock.matched = true;
+            block.matched = true;
+            selectedBlock.addClass("matched").removeClass("selected");
+            $(this).addClass("matched");
+            window.gameState.matchedPairs++;
+            if (window.gameState.matchedPairs === window.gameState.totalPairs) {
+              complexity = Math.max(0, complexity - window.gameState.refactorReward);
+              $("#refactor-message").text("Code successfully optimized!");
+              setTimeout(() => {
+                $("#refactor-overlay").hide();
+                $("#refactor-message").text("");
+                minigameActive = false;
+                updateBars();
+              }, 1500);
+            }
+            selectedBlock = null;
+          } else {
+            const currentSelection = selectedBlock;
+            setTimeout(() => { currentSelection.removeClass("selected"); selectedBlock = null; }, 500);
+          }
+        }
+      });
+    
+      $("#on").click(function () { toggleMinigameUI(true); });
+      $("#off").click(function () {
+        toggleMinigameUI(false);
+        if (chargePauseTimer) clearTimeout(chargePauseTimer);
+        if (durabilityPauseTimer) clearTimeout(durabilityPauseTimer);
+        if (complexityPauseTimer) clearTimeout(complexityPauseTimer);
+        chargePauseTimer = null; durabilityPauseTimer = null; complexityPauseTimer = null;
+      });
+    
+      function loadSavedState() {
+        const savedState = localStorage.getItem('eidosState');
+        if (savedState) {
+          const state = JSON.parse(savedState);
+          charge = state.charge; durability = state.durability; complexity = state.complexity;
+          updateBars();
+        }
+      }
+    
+      function resetState() {
+        charge = 80; durability = 70; complexity = 50;
+        updateBars();
+        localStorage.removeItem('eidosState');
+      }
+    
+      updateBars(); initBlocksGame(); loadSavedState();
+    
+      class TinkererGame {
+        constructor() {
+          this.$game = $('#tinkererGame');
+          this.$canvas = this.$game.find('#gameCanvas');
+          this.canvas = this.$canvas[0];
+          this.ctx = this.canvas.getContext('2d');
+          this.inventory = [];
+          this.analyzedParts = new Set();
+          this.discoveredBlueprints = new Set();
+          this.discoveryProgress = {};
+          this.filterPart = "None";
+          this.selectedDevice = "Random";
+          this.selectedMechanism = "Random";
+          this.analyzeMode = false;
+          this.hoveredItem = null;
+          this.partsList = ["Rope","Wheel","Beam","Pivot","Cog","Spring","Wire","Circuit","Screw","Nut","Bolt","Valve","Piston","Hydraulic Fluid","Gear","Sensor","Microchip","Resistor","Capacitor","Lever Arm","Panel","Switch","Memory Chip","Flywheel","Scrap","Display","Storm Core","Belt","Chain","CPU","Lightbulb","LED","Hinge","Lens","Button","Dial","Cable"];
+          this.allBlueprints = [
+            { name: "Sun-Powered Compound Gear Assembly", type: "mechanism", parts: ["Gear","Cog","Flywheel"], analysisRequired: 3 },
+            { name: "Reactive Spring-Loaded Lever", type: "mechanism", parts: ["Beam","Spring","Pivot"], analysisRequired: 3 },
+            { name: "Sand-Sifting Optical Sensor Unit", type: "mechanism", parts: ["Sensor","Lens","LED"], analysisRequired: 3 },
+            { name: "Desert-Grade Digital Circuit Board", type: "mechanism", parts: ["Circuit","Memory Chip","Wire"], analysisRequired: 3 },
+            { name: "Heavy-Duty Hydraulic Press Mechanism", type: "mechanism", parts: ["Piston","Valve","Hydraulic Fluid"], analysisRequired: 3 },
+            { name: "Adaptive Illumination Module", type: "mechanism", parts: ["Lightbulb","LED","Switch"], analysisRequired: 3 },
+            { name: "Integrated Control Circuit", type: "mechanism", parts: ["CPU","Circuit","Resistor","Capacitor"], analysisRequired: 4 },
+            { name: "Flexible Articulated Joint", type: "mechanism", parts: ["Lever Arm","Hinge","Pivot"], analysisRequired: 3 },
+            { name: "Precision Rotational Encoder", type: "mechanism", parts: ["Wheel","Sensor","Cable"], analysisRequired: 3 },
+            { name: "Robust Chain Drive Mechanism", type: "mechanism", parts: ["Chain","Belt","Gear"], analysisRequired: 3 },
+            { name: "Survivor's Display Module", type: "mechanism", parts: ["Display","Circuit","Memory Chip"], analysisRequired: 3 },
+            { name: "Tactical Button Assembly", type: "mechanism", parts: ["Button","Dial","Screw"], analysisRequired: 3 },
+            { name: "Resource Tracker", type: "device", tier: "simple", parts: ["Sun-Powered Compound Gear Assembly","Precision Rotational Encoder"], analysisRequired: 3 },
+            { name: "Remote Refinery", type: "device", tier: "simple", parts: ["Reactive Spring-Loaded Lever","Sun-Powered Compound Gear Assembly"], analysisRequired: 3 },
+            { name: "Tactical Resource Transport", type: "device", tier: "simple", parts: ["Adaptive Illumination Module","Integrated Control Circuit","Tactical Button Assembly"], analysisRequired: 4 },
+            { name: "Scavenger Drone", type: "device", tier: "advanced", parts: ["Integrated Control Circuit","Desert-Grade Digital Circuit Board","Sand-Sifting Optical Sensor Unit","Flexible Articulated Joint","Sun-Powered Compound Gear Assembly"], analysisRequired: 6 },
+            { name: "Craft Bot", type: "device", tier: "advanced", parts: ["Integrated Control Circuit","Desert-Grade Digital Circuit Board","Tactical Button Assembly","Flexible Articulated Joint"], analysisRequired: 5 },
+            { name: "Filter Module", type: "device", tier: "advanced", parts: ["Integrated Control Circuit","Desert-Grade Digital Circuit Board","Tactical Button Assembly","Flexible Articulated Joint"], analysisRequired: 5 },
+            { name: "Recipe Module", type: "device", tier: "advanced", parts: ["Integrated Control Circuit","Desert-Grade Digital Circuit Board"], analysisRequired: 4 }
+          ];
+          this.renderCache = { fontScale: 12, lineHeight: 16, columnPositions: null, lastInventoryHash: '', dpr: window.devicePixelRatio || 1, counts: { partCounts: {}, mechCounts: {}, devCounts: {} } };
+          this.$analyzeToggle = $('<button>').addClass('analyze-toggle').text('🔍 Analyze Mode');
+          this.$hoverInfo = $('<div>').addClass('hover-info');
+          this.blueprints = [];
+          this.mechanismNames = [];
+          this.deviceNames = [];
+          this.updateAvailableBlueprints();
+          this.loadGameState();
+          this.loadDiscoveredBlueprints();
+          this.setupControls();
+          this.setupResetButton();
+          this.$canvas.on('mousemove', (e) => this.handleCanvasHover(e));
+          this.$canvas.on('click', (e) => this.handleCanvasClick(e));
+        }
+        
+        setupControls() {
+          const $controls = this.$game.find('#controls');
+          $controls.empty();
+          const $selectRow = $('<div>').addClass('select-row').appendTo($controls);
+          const $buttonRow = $('<div>').addClass('button-row').appendTo($controls);
+          const $mechSelect = $('<select>').appendTo($selectRow);
+          $('<option>').val('Random').text('Random Mechanism').appendTo($mechSelect);
+          this.blueprints.filter(bp => bp.type === "mechanism").forEach(bp => { $('<option>').val(bp.name).text(bp.name).appendTo($mechSelect); });
+          $mechSelect.on('change', e => this.selectedMechanism = e.target.value);
+          this.selectedMechanism = "Random";
+          const $deviceSelect = $('<select>').appendTo($selectRow);
+          $('<option>').val('Random').text('Random Device').appendTo($deviceSelect);
+          this.blueprints.filter(bp => bp.type === "device").forEach(bp => { $('<option>').val(bp.name).text(`${bp.name} (${bp.tier})`).appendTo($deviceSelect); });
+          $deviceSelect.on('change', e => this.selectedDevice = e.target.value);
+          this.selectedDevice = "Random";
+          this.$analyzeToggle.appendTo($selectRow);
+          this.$analyzeToggle.on('click', () => this.toggleAnalyzeMode());
+          this.$hoverInfo.appendTo(this.$game);
+          const $filterSelect = $('<select>').appendTo($selectRow);
+          $('<option>').val('None').text('No Filter').appendTo($filterSelect);
+          this.partsList.forEach(part => { $('<option>').val(part).text(`Filter: ${part}`).appendTo($filterSelect); });
+          $filterSelect.on('change', e => this.filterPart = e.target.value);
+          $filterSelect.hide();
+          $('<button>').text('View Analysis Progress').click(() => {
+            const progressHtml = this.allBlueprints.filter(bp => !this.discoveredBlueprints.has(bp.name)).map(bp => {
+              if (bp.type === "mechanism") {
+                const analyzedCount = bp.parts.filter(p => this.analyzedParts.has(p)).length;
+                const progress = (analyzedCount / bp.analysisRequired) * 100;
+                return `<div class="progress-item">
+                          ${bp.name}: ${analyzedCount}/${bp.analysisRequired} parts analyzed (${Math.round(progress)}%)
+                        </div>`;
+              } else {
+                const progress = (this.discoveryProgress[bp.name] / bp.analysisRequired) * 100;
+                return `<div class="progress-item">
+                          ${bp.name}: ${this.discoveryProgress[bp.name]}/${bp.analysisRequired} analyses (${Math.round(progress)}%)
+                        </div>`;
+              }
+            }).join('');
+            $("#analysis-results .progress-items").html(progressHtml);
+            $("#analysis-results").show();
+          }).appendTo($buttonRow);
+          const $scavengeBtn = $('<button>').text('Scavenge').on('mousedown touchstart', () => this.startScavenging()).on('mouseup mouseleave touchend', () => this.stopScavenging());
+          $scavengeBtn.appendTo($buttonRow);
+          $('<button>').text('Craft Mechanism').click(() => this.craftMechanism()).appendTo($buttonRow);
+          $('<button>').text('Assemble Device').click(() => this.assembleDevice()).appendTo($buttonRow);
+          const $recipeBtn = $('<button>').text('Show Recipes').hide().click(() => this.toggleRecipes()).appendTo($buttonRow);
+          $('<div>').attr('id','recipeModule').hide().appendTo(this.$game);
+          this.$filterSelect = $filterSelect;
+          this.$recipeBtn = $recipeBtn;
+          this.$recipeModule = this.$game.find('#recipeModule');
+          $('#cancel-item-selection').click(() => { $('#item-selection-overlay').hide(); $('#analysis-type-overlay').css('display','flex'); });
+        }
+        
+        setupResetButton() {
+          document.getElementById('resetTinkerer').addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+              localStorage.removeItem('tinkererGameState');
+              this.inventory = [];
+              this.analyzedParts = new Set();
+              this.filterPart = "None";
+              this.selectedDevice = "Random";
+              this.updateDisplay();
+              this.showMessage('Progress has been reset.');
+            }
+          });
+        }
+        
+        startScavenging() {
+          if (this.scavengeInterval) return;
+          this.scavenge();
+          this.lastScavengeTime = Date.now();
+          this.scavengeInterval = setInterval(() => {
+            const now = Date.now();
+            if (now - this.lastScavengeTime >= this.SCAVENGE_DELAY) { this.scavenge(); this.lastScavengeTime = now; }
+          }, 50);
+        }
+        
+        stopScavenging() {
+          if (this.scavengeInterval) { clearInterval(this.scavengeInterval); this.scavengeInterval = null; }
+        }
+        
+        resizeCanvas() {
+          const containerWidth = this.$canvas.parent().width();
+          const containerHeight = this.$canvas.height();
+          const dpr = window.devicePixelRatio || 1;
+          this.canvas.style.width = `${containerWidth}px`;
+          this.canvas.style.height = `${containerHeight}px`;
+          this.canvas.width = Math.floor(containerWidth * dpr);
+          this.canvas.height = Math.floor(containerHeight * dpr);
+          this.ctx.scale(dpr, dpr);
+          this.ctx.textBaseline = 'middle';
+          this.ctx.textAlign = 'left';
+          this.render();
+        }
+        
+        scavenge() {
+          const weighted = this.countItems(this.inventory)["Filter Module"] > 0 && this.filterPart !== "None" ? this.partsList.concat([this.filterPart]) : this.partsList;
+          const part = weighted[Math.floor(Math.random() * weighted.length)];
+          this.inventory.push(part);
+          this.showMessage(`Scavenged: ${part}`);
+          this.render();
+          this.saveGameState();
+          this.updateDisplay();
+        }
+        
+        countItems(arr) {
+          return arr.reduce((acc, item) => { acc[item] = (acc[item] || 0) + 1; return acc; }, {});
+        }
+        
+        removeRequiredParts(required) {
+          for (const part in required) {
+            for (let i = 0; i < required[part]; i++) {
+              const idx = this.inventory.indexOf(part);
+              if (idx > -1) this.inventory.splice(idx, 1);
+            }
+          }
+          this.saveGameState();
+          this.updateDisplay();
+        }
+        
+        craftMechanism() {
+          if (this.selectedMechanism !== "Random") {
+            const bp = this.blueprints.find(bp => bp.type === "mechanism" && bp.name === this.selectedMechanism);
+            if (!bp) return this.showMessage("Selected mechanism not found.");
+            const rawParts = this.inventory.filter(item => this.partsList.includes(item));
+            const available = this.countItems(rawParts);
+            const required = this.countItems(bp.parts);
+            if (Object.entries(required).every(([part, qty]) => available[part] >= qty)) {
+              $("#crafting-animation-container").show();
+              $("#crafting-message").text("Crafting mechanism...");
+              setTimeout(() => {
+                this.removeRequiredParts(required);
+                this.inventory.push(bp.name);
+                this.showMessage(`Crafted mechanism: ${bp.name}`);
+                $("#crafting-animation-container").hide();
+                this.setupControls();
+              }, 1500);
+            } else {
+              const missing = Object.entries(required).filter(([part, qty]) => !available[part] || available[part] < qty).map(([part, qty]) => `${part} (need ${qty})`).join(", ");
+              this.showMessage(`Missing parts: ${missing}`);
+            }
+          } else {
+            const rawParts = this.inventory.filter(item => this.partsList.includes(item));
+            const available = this.countItems(rawParts);
+            const mechBlueprints = this.blueprints.filter(bp => bp.type === "mechanism");
+            const craftable = mechBlueprints.filter(bp => {
+              const req = this.countItems(bp.parts);
+              return Object.entries(req).every(([part, qty]) => available[part] >= qty);
+            });
+            if (craftable.length > 0) {
+              $("#crafting-animation-container").show();
+              $("#crafting-message").text("Crafting mechanism...");
+              setTimeout(() => {
+                const bp = craftable[Math.floor(Math.random() * craftable.length)];
+                const req = this.countItems(bp.parts);
+                this.removeRequiredParts(req);
+                this.inventory.push(bp.name);
+                this.showMessage(`Crafted mechanism: ${bp.name}`);
+                $("#crafting-animation-container").hide();
+                this.setupControls();
+              }, 1500);
+            } else { this.showMessage('Not enough raw parts to craft any mechanism.'); }
+          }
+          this.render();
+          this.saveGameState();
+          this.updateDisplay();
+        }
+        
+        assembleDevice() {
+          if (this.selectedDevice !== "Random") {
+            const bp = this.blueprints.find(bp => bp.type === "device" && bp.name === this.selectedDevice);
+            if (!bp) { this.showMessage("Selected device not found."); return; }
+            const available = this.countItems(this.inventory);
+            const required = this.countItems(bp.parts);
+            if (Object.entries(required).every(([part, qty]) => available[part] >= qty)) {
+              $("#assembly-animation-container").show();
+              $("#assembly-message").text("Assembling device...");
+              setTimeout(() => {
+                this.removeRequiredParts(required);
+                this.inventory.push(bp.name);
+                this.showMessage(`Assembled device (${bp.tier}): ${bp.name}`);
+                $("#assembly-animation-container").hide();
+                this.applyEidosEffects();
+                this.setupControls();
+              }, 1500);
+            } else {
+              const missing = Object.entries(required).filter(([part, qty]) => !available[part] || available[part] < qty).map(([part, qty]) => `${part} (need ${qty})`).join(", ");
+              this.showMessage(`Missing mechanisms: ${missing}`);
+            }
+          } else {
+            const devices = this.blueprints.filter(bp => bp.type === "device").sort((a, b) => this.tierOrder(a.tier) - this.tierOrder(b.tier) || a.name.localeCompare(b.name));
+            const available = this.countItems(this.inventory);
+            const craftableDevice = devices.find(bp => {
+              const required = this.countItems(bp.parts);
+              return Object.entries(required).every(([part, qty]) => available[part] >= qty);
+            });
+            if (craftableDevice) {
+              $("#assembly-overlay").css("display", "flex");
+              $("#assembly-message").text("Assembling device...");
+              setTimeout(() => {
+                const required = this.countItems(craftableDevice.parts);
+                this.removeRequiredParts(required);
+                this.inventory.push(craftableDevice.name);
+                this.showMessage(`Assembled device (${craftableDevice.tier}): ${craftableDevice.name}`);
+                $("#assembly-overlay").hide();
+                this.applyEidosEffects();
+                this.setupControls();
+              }, 1500);
+            } else { this.showMessage('Not enough mechanisms to assemble any device.'); }
+          }
+          this.render();
+          this.saveGameState();
+          this.updateDisplay();
+        }
+        
+        scheduleAutoScavenge() {
+          const delay = 5000 / (this.countItems(this.inventory)["Scavenger Drone"] || 1);
+          setTimeout(() => { this.autoScavenge(); this.scheduleAutoScavenge(); }, delay);
+        }
+        
+        autoCraft() {
+          const botCount = this.countItems(this.inventory)["Craft Bot"] || 0;
+          if (botCount > 0) {
+            const prev = this.inventory.length;
+            this.craftMechanism();
+            if (this.inventory.length > prev) { this.showMessage("Craft Bot auto-crafted a mechanism!"); }
+          }
+          this.render();
+        }
+        
+        scheduleAutoCraft() {
+          const delay = 5000 / (this.countItems(this.inventory)["Craft Bot"] || 1);
+          setTimeout(() => { this.autoCraft(); this.scheduleAutoCraft(); }, delay);
+        }
+        
+        toggleRecipes() {
+          if (this.$recipeModule.is(':hidden')) {
+            let html = "<h3>Mechanism Recipes:</h3><ul>";
+            this.blueprints.filter(bp => bp.type === "mechanism").forEach(bp => { html += `<li><strong>${bp.name}</strong>: ${bp.parts.join(", ")}</li>`; });
+            html += "</ul><h3>Device Recipes:</h3><ul>";
+            this.blueprints.filter(bp => bp.type === "device").forEach(bp => { html += `<li><strong>${bp.name}</strong> (Tier: ${bp.tier}): ${bp.parts.join(", ")}</li>`; });
+            html += "</ul>";
+            this.$recipeModule.html(html).show();
+            this.$recipeBtn.text("Hide Recipes");
+          } else {
+            this.$recipeModule.hide();
+            this.$recipeBtn.text("Show Recipes");
+          }
+        }
+        
+        render() {
+          const now = Date.now();
+          if (this.lastRenderTime && now - this.lastRenderTime < 50) return;
+          this.lastRenderTime = now;
+          if (!this.renderCache) { this.renderCache = { fontScale: 12, lineHeight: 16, columnPositions: null, lastInventoryHash: '', dpr: window.devicePixelRatio || 1, counts: { partCounts: {}, mechCounts: {}, devCounts: {} } }; }
+          const currentInventoryHash = this.calculateInventoryHash();
+          const inventoryChanged = currentInventoryHash !== this.renderCache.lastInventoryHash;
+          if (inventoryChanged) {
+            const discoveredParts = new Set(this.inventory.filter(item => this.partsList.includes(item)));
+            this.renderCache.fontScale = Math.max(12, Math.min(14, Math.floor(16 - (discoveredParts.size / 3))));
+            this.renderCache.lineHeight = this.renderCache.fontScale + 4;
+            this.renderCache.lastInventoryHash = currentInventoryHash;
+          }
+          const headerHeight = 20, padding = 15, columnPadding = 20;
+          const scaledWidth = this.canvas.width / this.renderCache.dpr;
+          const scaledHeight = this.canvas.height / this.renderCache.dpr;
+          if (!this.renderCache.columnPositions || inventoryChanged) {
+            const { columnWidth, positions } = this.calculateColumnPositions(scaledWidth, padding, columnPadding);
+            this.renderCache.columnWidth = columnWidth;
+            this.renderCache.columnPositions = positions;
+          }
+          this.ctx.clearRect(0, 0, scaledWidth, scaledHeight);
+          this.ctx.font = `${this.renderCache.fontScale}px "Courier New"`;
+          let { partCounts, mechCounts, devCounts } = this.renderCache.counts;
+          if (inventoryChanged) {
+            const parts = this.inventory.filter(item => this.partsList.includes(item));
+            const mechanisms = this.inventory.filter(item => this.mechanismNames.includes(item));
+            const devices = this.inventory.filter(item => this.deviceNames.includes(item));
+            partCounts = this.countItems(parts);
+            mechCounts = this.countItems(mechanisms);
+            devCounts = this.countItems(devices);
+            this.renderCache.counts = { partCounts, mechCounts, devCounts };
+          }
+          const { col1X, col2X, col3X } = this.renderCache.columnPositions;
+          const drawSection = (title, items, startX) => {
+            this.ctx.fillStyle = '#00ff99';
+            this.ctx.fillText(title, startX, padding + this.renderCache.fontScale / 2);
+            Object.entries(items).forEach(([item, count], i) => {
+              const text = `${item} x${count}${!this.analyzedParts.has(item) ? ' 🔍' : ''}`;
+              if (!this.analyzedParts.has(item)) { this.ctx.fillStyle = this.hoveredItem?.name === item ? '#f1e255' : '#f57c19'; }
+              else { this.ctx.fillStyle = '#00ff99'; }
+              this.ctx.fillText(text, startX, padding + headerHeight + (i * this.renderCache.lineHeight));
+            });
+          };
+          drawSection('Raw Parts:', partCounts, col1X);
+          drawSection('Mechanisms:', mechCounts, col2X);
+          drawSection('Devices:', devCounts, col3X);
+          this.ctx.fillStyle = '#00ff99';
+          if (inventoryChanged) {
+            const hasFilterModule = this.countItems(this.inventory)["Filter Module"] > 0;
+            if (hasFilterModule) { this.$filterSelect.show(); } else { this.$filterSelect.hide().val("None"); this.filterPart = "None"; }
+            const hasRecipeModule = this.countItems(this.inventory)["Recipe Module"] > 0;
+            if (hasRecipeModule) { this.$recipeBtn.show(); } else { this.$recipeBtn.hide(); this.$recipeModule.hide(); this.$recipeBtn.text("Show Recipes"); }
+          }
+        }
+        
+        showMessage(text) {
+          const $message = this.$game.find('#message');
+          $message.text(text);
+          clearTimeout(this.messageTimeout);
+          this.messageTimeout = setTimeout(() => { $message.text(''); }, 2000);
+        }
+        
+        saveDiscoveredBlueprints() {
+          localStorage.setItem('discoveredBlueprints', JSON.stringify(Array.from(this.discoveredBlueprints)));
+          localStorage.setItem('analyzedParts', JSON.stringify(Array.from(this.analyzedParts)));
+          localStorage.setItem('discoveryProgress', JSON.stringify(this.discoveryProgress));
+        }
+        
+        loadDiscoveredBlueprints() {
+          const savedBlueprints = localStorage.getItem('discoveredBlueprints');
+          const savedParts = localStorage.getItem('analyzedParts');
+          const savedProgress = localStorage.getItem('discoveryProgress');
+          if (savedBlueprints) { this.discoveredBlueprints = new Set(JSON.parse(savedBlueprints)); }
+          if (savedParts) { this.analyzedParts = new Set(JSON.parse(savedParts)); }
+          if (savedProgress) { this.discoveryProgress = JSON.parse(savedProgress); }
+          this.updateAvailableBlueprints();
+        }
+        
+        updateAvailableBlueprints() {
+          this.blueprints = this.allBlueprints.filter(bp => this.discoveredBlueprints.has(bp.name));
+          this.mechanismNames = this.blueprints.filter(bp => bp.type === "mechanism").map(bp => bp.name);
+          this.deviceNames = this.blueprints.filter(bp => bp.type === "device").map(bp => bp.name);
+          this.setupControls();
+          this.render();
+        }
+        
+        analyzePart(selectedItem) {
+          const [type, name] = selectedItem.split(':');
+          if (this.analyzedParts.has(name)) { this.showMessage(`${name} has already been analyzed.`); return; }
+          this.$game.removeClass('show');
+          $('#toggleTinkerer').text('Show Game');
+          clearTimers();
+          $("#analysis").click();
+          this.analyzedParts.add(name);
+          const relatedBlueprints = this.allBlueprints.filter(bp => {
+            if (!this.discoveredBlueprints.has(bp.name)) {
+              if (type === 'part') { return bp.parts.includes(name); }
+              else if (type === 'mechanism') { return bp.type === 'device' && bp.parts.includes(name); }
+              else if (type === 'device') { return bp.type === 'device' && bp.tier === 'advanced' && !this.discoveredBlueprints.has(bp.name); }
+            }
+            return false;
+          });
+          this.saveDiscoveredBlueprints();
+          const progressMessages = [];
+          setTimeout(async () => {
+            for (const bp of relatedBlueprints) {
+              if (type === 'part' && bp.type === 'mechanism') {
+                const analyzedPartsCount = bp.parts.filter(p => this.analyzedParts.has(p)).length;
+                if (analyzedPartsCount >= bp.analysisRequired) { this.discoveredBlueprints.add(bp.name); progressMessages.push(`New mechanism blueprint discovered: ${bp.name}!`); }
+                else { const remaining = bp.analysisRequired - analyzedPartsCount; progressMessages.push(`Analysis progress for ${bp.name}: ${remaining} more part(s) needed`); }
+              } else if ((type === 'part' || type === 'mechanism') && bp.type === 'device') {
+                this.discoveryProgress[bp.name]++;
+                if (this.discoveryProgress[bp.name] >= bp.analysisRequired) { this.discoveredBlueprints.add(bp.name); progressMessages.push(`New device blueprint discovered: ${bp.name}!`); }
+                else { const remaining = bp.analysisRequired - this.discoveryProgress[bp.name]; progressMessages.push(`Analysis progress for ${bp.name}: ${remaining} more analyses needed`); }
+              } else if (type === 'device' && bp.type === 'device' && bp.tier === 'advanced') {
+                this.discoveryProgress[bp.name] += 2;
+                if (this.discoveryProgress[bp.name] >= bp.analysisRequired) { this.discoveredBlueprints.add(bp.name); progressMessages.push(`New advanced device blueprint discovered: ${bp.name}!`); }
+                else { const remaining = Math.ceil((bp.analysisRequired - this.discoveryProgress[bp.name]) / 2); progressMessages.push(`Analysis progress for ${bp.name}: ${remaining} more device analyses needed`); }
+              }
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            $("#default").click();
+            this.updateAvailableBlueprints();
+            $("#analysis-results").show();
+            $("#analysis-results .result-message").text("Analysis complete!");
+            const progressHtml = this.allBlueprints.filter(bp => !this.discoveredBlueprints.has(bp.name)).map(bp => {
+              if (bp.type === "mechanism") {
+                const analyzedCount = bp.parts.filter(p => this.analyzedParts.has(p)).length;
+                const progress = (analyzedCount / bp.analysisRequired) * 100;
+                return `<div class="progress-item">
+                          <div class="blueprint-name mechanism">${bp.name}</div>
+                          <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
+                          </div>
+                          <div class="progress-text">
+                            <span>${analyzedCount}/${bp.analysisRequired} parts analyzed</span>
+                            <span class="percentage">${Math.round(progress)}%</span>
+                          </div>
+                        </div>`;
+              } else {
+                const progress = (this.discoveryProgress[bp.name] / bp.analysisRequired) * 100;
+                return `<div class="progress-item">
+                          <div class="blueprint-name device">${bp.name}</div>
+                          <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
+                          </div>
+                          <div class="progress-text">
+                            <span>${this.discoveryProgress[bp.name]}/${bp.analysisRequired} analyses</span>
+                            <span class="percentage">${Math.round(progress)}%</span>
+                          </div>
+                        </div>`;
+              }
+            }).join('');
+            $("#analysis-results .progress-items").html(progressHtml);
+            const historyHtml = `
+                  <h3>Discovery History</h3>
+                  ${progressMessages.map(msg => {
+                    const isDiscovery = msg.includes('discovered');
+                    return `<div class="history-entry ${isDiscovery ? 'discovery' : 'progress'}">${msg}</div>`;
+                  }).join('')}
+                `;
+            $("#analysis-results .result-history").html(historyHtml);
+          }, 3000);
+          this.saveGameState();
+          this.updateDisplay();
+        }
+        
+        applyEidosEffects() {
+          const devices = this.inventory.filter(item => this.deviceNames.includes(item));
+          let effects = { charge: 1, durability: 1, complexity: 1, all: 1 };
+          devices.forEach(deviceName => {
+            const device = this.allBlueprints.find(bp => bp.name === deviceName);
+            if (device && device.eidosEffect) {
+              const { type, effect, value } = device.eidosEffect;
+              if (type === 'all') { effects.charge *= value; effects.durability *= value; effects.complexity *= value; }
+              else { effects[type] *= value; }
+            }
+          });
+          window.baseDecayRates = {
+            charge: 0.2 * effects.charge * effects.all,
+            durability: 0.1 * effects.durability * effects.all,
+            complexity: 0.15 * effects.complexity * effects.all
+          };
+        }
+        
+        saveGameState() {
+          const gameState = { inventory: this.inventory, analyzedParts: Array.from(this.analyzedParts), filterPart: this.filterPart, selectedDevice: this.selectedDevice };
+          localStorage.setItem('tinkererGameState', JSON.stringify(gameState));
+        }
+        
+        loadGameState() {
+          const savedState = localStorage.getItem('tinkererGameState');
+          if (savedState) {
+            const gameState = JSON.parse(savedState);
+            this.inventory = gameState.inventory || [];
+            this.analyzedParts = new Set(gameState.analyzedParts || []);
+            this.filterPart = gameState.filterPart || "None";
+            this.selectedDevice = gameState.selectedDevice || "Random";
+            this.updateDisplay();
+          }
+        }
+        
+        updateDisplay() {
+          const partsFoundElement = document.getElementById('partsFound');
+          if (partsFoundElement) { partsFoundElement.textContent = this.inventory.filter(item => this.partsList.includes(item)).length; }
+          const devicesBuiltElement = document.getElementById('devicesBuilt');
+          if (devicesBuiltElement) { devicesBuiltElement.textContent = this.inventory.filter(item => this.blueprints.some(bp => bp.type === 'device' && bp.name === item)).length; }
+        }
+        
+        toggleAnalyzeMode() {
+          this.analyzeMode = !this.analyzeMode;
+          this.$analyzeToggle.toggleClass('active');
+          this.$canvas.toggleClass('analyze-mode');
+          this.render();
+        }
+        
+        handleCanvasHover(e) {
+          if (!this.analyzeMode) return;
+          const rect = this.canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const dpr = window.devicePixelRatio || 1;
+          const padding = 15, columnPadding = 20, headerHeight = 20, lineHeight = 16;
+          const availableWidth = (this.canvas.width / dpr) - (padding * 2) - (columnPadding * 2);
+          const columnWidth = availableWidth / 3;
+          const col1X = padding, col2X = padding + columnWidth + columnPadding, col3X = padding + (columnWidth * 2) + (columnPadding * 2);
+          let hoveredItem = null;
+          const isInTextArea = (checkX, checkY, textX, textY, width) => { return x >= textX && x <= textX + width && y >= textY - 8 && y <= textY + 8; };
+          const parts = this.inventory.filter(item => this.partsList.includes(item));
+          Object.entries(this.countItems(parts)).forEach(([part, count], i) => {
+            const textY = padding + headerHeight + (i * lineHeight);
+            if (isInTextArea(x, y, col1X, textY, columnWidth) && !this.analyzedParts.has(part)) { hoveredItem = { type: 'part', name: part }; }
+          });
+          const mechanisms = this.inventory.filter(item => this.mechanismNames.includes(item));
+          Object.entries(this.countItems(mechanisms)).forEach(([mech, count], i) => {
+            const textY = padding + headerHeight + (i * lineHeight);
+            if (isInTextArea(x, y, col2X, textY, columnWidth) && !this.analyzedParts.has(mech)) { hoveredItem = { type: 'mechanism', name: mech }; }
+          });
+          const devices = this.inventory.filter(item => this.deviceNames.includes(item));
+          Object.entries(this.countItems(devices)).forEach(([dev, count], i) => {
+            const textY = padding + headerHeight + (i * lineHeight);
+            if (isInTextArea(x, y, col3X, textY, columnWidth) && !this.analyzedParts.has(dev)) { hoveredItem = { type: 'device', name: dev }; }
+          });
+          if (hoveredItem) {
+            this.$hoverInfo.html(`Click to analyze ${hoveredItem.name}`).css({ left: e.clientX + 10 + 'px', top: e.clientY + 10 + 'px' }).show();
+          } else { this.$hoverInfo.hide(); }
+          this.hoveredItem = hoveredItem;
+        }
+        
+        handleCanvasClick(e) {
+          if (!this.analyzeMode || !this.hoveredItem) return;
+          const { type, name } = this.hoveredItem;
+          this.analyzePart(`${type}:${name}`);
+        }
+        
+        calculateInventoryHash() {
+          return JSON.stringify({
+            parts: this.inventory.filter(item => this.partsList.includes(item)),
+            mechanisms: this.inventory.filter(item => this.mechanismNames.includes(item)),
+            devices: this.inventory.filter(item => this.deviceNames.includes(item))
+          });
+        }
+        
+        calculateColumnPositions(width, padding, columnPadding) {
+          const availableWidth = width - (padding * 2) - (columnPadding * 2);
+          const columnWidth = availableWidth / 3;
+          return { columnWidth, positions: { col1X: padding, col2X: padding + columnWidth + columnPadding, col3X: padding + (columnWidth * 2) + (columnPadding * 2) } };
+        }
+      }
+      
+      const game = new TinkererGame();
+      $('#toggleTinkerer').click(function () {
+        $('#tinkererGame').toggleClass('show');
+        $(this).text($('#tinkererGame').hasClass('show') ? 'Hide Game' : 'Show Game');
+        if ($('#tinkererGame').hasClass('show')) { game.resizeCanvas(); }
+      });
+      $('#closeGame').click(function () {
+        $('#tinkererGame').removeClass('show');
+        $('#toggleTinkerer').text('Show Game');
+      });
+      $(window).on('resize', function () {
+        if ($('#tinkererGame').hasClass('show')) { game.resizeCanvas(); }
+      });
+      $('#analysis-results .close-btn').click(function () {
+        $('#analysis-results').hide();
+      });
+      
+      let stats = { petCount: 0, activeStartTime: null, modeChanges: 0, messageCount: 0, partsFound: 0, devicesBuilt: 0 };
+      
+      function loadStats() {
+        const savedStats = localStorage.getItem('eidosStats');
+        if (savedStats) { stats = { ...stats, ...JSON.parse(savedStats) }; updateStatsDisplay(); }
+      }
+      
+      function saveStats() { localStorage.setItem('eidosStats', JSON.stringify(stats)); }
+      
+      function updateStatsDisplay() {
+        document.getElementById('petCount').textContent = stats.petCount;
+        document.getElementById('modeChanges').textContent = stats.modeChanges;
+        document.getElementById('messageCount').textContent = stats.messageCount;
+        document.getElementById('partsFound').textContent = stats.partsFound;
+        document.getElementById('devicesBuilt').textContent = stats.devicesBuilt;
+        if (stats.activeStartTime) {
+          const activeMinutes = Math.floor((Date.now() - stats.activeStartTime) / 60000);
+          document.getElementById('activeTime').textContent = `${activeMinutes}m`;
+        }
+      }
+      
+      setInterval(updateStatsDisplay, 60000);
+      loadStats();
+      
+      $("#creature").dblclick(function () {
+        if ($("#modeButtonsContainer button:visible").length > 0) {
+          stats.petCount++;
+          saveStats();
+          updateStatsDisplay();
+          var current = getCurrentStateImage();
+          if ($("#flight").hasClass("active")) {
+            changeCreatureImage("img/flyhappy.gif");
+            updateBotThoughts("Eidos: So happy up here!", false);
+            speak("So happy up here!");
+            setTimeout(function () { changeCreatureImage("img/flight.gif"); }, 1000);
+          } else {
+            changeCreatureImage("img/happy.webp");
+            updateBotThoughts("Eidos: Yay!", false);
+            speak("Yay!");
+            setTimeout(function () { changeCreatureImage(current); }, 1000);
+          }
+        }
+      });
+      
+      $("#modeButtonsContainer button").click(function () {
+        if ($(this).attr('id') !== 'on') { stats.modeChanges++; saveStats(); updateStatsDisplay(); }
+      });
+      
+      speakCustomBtn.addEventListener("click", () => {
+        const message = customMessage.value.trim();
+        if (message) { stats.messageCount++; saveStats(); updateStatsDisplay(); updateBotThoughts(`Eidos: ${message}`, true); customMessage.value = ''; }
+      });
+      
+      $("#on").click(function () {
+        stats.activeStartTime = Date.now();
+        saveStats();
+      });
+      
+      $("#bot").dblclick(function () {
+        petCount++;
+        localStorage.setItem('petCount', petCount);
+        $("#petCount").text(petCount);
+        updateBotThoughts("Eidos: Yay!", false);
+        speak("Yay!");
+      });
+      
+      function initializePetTracking() {
+        petCount = parseInt(localStorage.getItem('petCount')) || 0;
+        $("#petCount").text(petCount);
+        $("#bot").dblclick(function () {
+          petCount++;
+          localStorage.setItem('petCount', petCount);
+          $("#petCount").text(petCount);
+          updateBotThoughts("Eidos: Yay!", false);
+        });
+      }
+      
+      const backgrounds = [
+        { id: 'botBg', name: 'Workshop' },
+        { id: 'surface', name: 'Surface' },
+        { id: 'cavern', name: 'Cavern' },
+        { id: 'ruins', name: 'Ruins' },
+        { id: 'grove', name: 'Grove' },
+        { id: 'abyss', name: 'Abyss' },
+        { id: 'oasis', name: 'Oasis' }
+      ];
+      
+      let currentBgIndex = 0;
+      const savedBg = localStorage.getItem('selectedBackground');
+      if (savedBg) {
+        const savedIndex = backgrounds.findIndex(bg => bg.id === savedBg);
+        if (savedIndex !== -1) { currentBgIndex = savedIndex; document.body.setAttribute('data-bg', backgrounds[currentBgIndex].id); }
+      }
+      
+      document.getElementById('cycleBackground').addEventListener('click', () => {
+        currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
+        const newBg = backgrounds[currentBgIndex];
+        document.body.setAttribute('data-bg', newBg.id);
+        localStorage.setItem('selectedBackground', newBg.id);
+        const $message = $('#botThoughts');
+        const originalText = $message.text();
+        $message.text(`Eidos: Exploring the ${newBg.name}...`);
+        setTimeout(() => { $message.text(originalText); }, 2000);
+      });
+      
+      $("#repair-slider").on('input', function () {
+        if (parseInt(this.value) === 100) {
+          this.classList.add('success');
+          $("#loose-bolt").addClass("rotating");
+          durability = 100;
+          durabilityPauseTimer = setTimeout(() => { durabilityPauseTimer = null; }, PAUSE_DURATION);
+          updateBars();
+          $("#repair-message").text("Successfully repaired!");
+          setTimeout(() => {
+            $("#repair-overlay").hide();
+            this.classList.remove('success');
+            this.value = 0;
+            $("#loose-bolt").removeClass("rotating");
+            minigameActive = false;
+          }, 1500);
+        }
+      });
+      
+      $("#repair-btn").click(function () {
+        if (minigameActive) return;
+        minigameActive = true;
+        $("#repair-overlay").css("display", "flex");
+        $("#repair-slider").val(0);
+        $("#repair-message").text("");
+      });
+    });
+    </script>
+    
+</body>
+</html>
