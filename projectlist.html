@@ -3,156 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects</title>
+  <meta name="description" content="Projects - Nulltech Designs Portfolio">
+  <title>Projects - Nulltech Designs</title>
   <!-- Global CSS -->
   <link rel="stylesheet" href="css/main.css">
-  <!-- Load Orbitron for headings -->
+  <!-- Load Orbitron from Google Fonts for headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- GLOBAL HEADER -->
-  <div class="header">
-    <!-- Hamburger Menu Toggle -->
-    <div class="menu-toggle" onclick="toggleNav()">☰</div>
-    <!-- Wordmark or Logo -->
-    <div class="wordmark">
-      <a href="index.html">
-        <img src="img/NT_wordmark_r.svg" alt="Nulltech">
-      </a>
-    </div>
-    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
-    <div id="colorIndicator">
-      <img src="img/NT_scarab_w.svg" alt="Scarab">
-    </div>
-  </div>
-  
-  <!-- Global Side Navigation -->
-  <nav class="nav" id="cyberNav">
-    <a href="index.html">Home</a>
-    <a href="projectlist.html">Projects</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-  
-  <!-- Global Settings Gear Button & Panel -->
-  <div class="nav-buttons">
-    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
-  </div>
-    <!-- Global Settings Panel -->
-    <div id="settingsPanel">
-      <label for="themePicker">Theme Color:</label>
-      <input type="color" id="themePicker" value="#00ffff">
-      
-      <!-- Presets Section -->
-      <div id="themePresets">
-        <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
-        <span class="preset" data-color="#3CDB57" style="background-color: #3CDB57;" title="Scarab Green"></span>
-        <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
-        <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
-        <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- GLOBAL HEADER -->
+    <header class="header">
+      <!-- Hamburger Menu Toggle -->
+      <div class="menu-toggle" onclick="toggleNav()">☰</div>
+      <!-- Wordmark or Logo -->
+      <div class="wordmark">
+        <a href="index.html">
+          <img src="img/nt_wordmark_r.svg" alt="Nulltech">
+        </a>
       </div>
-    </div>
-  
-  <!-- Page-Specific Content -->
-  <div class="page-content">
-    <!-- Vertical Tier Navigation (Side Scroll Indicator) -->
-    <div class="nav-bar" id="projects-nav">
-      <a href="#projects-section" id="tier1-link"><img src="img/project_icon.svg" alt="Projects"></a>
+      <!-- Color Indicator -->
+      <div id="colorIndicator">
+        <img src="img/nt_scarab_w.svg" alt="Scarab">
+      </div>
+    </header>
+    
+    <!-- Global Side Navigation -->
+    <nav class="nav" id="cyberNav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="projectlist.html" aria-current="page">Projects</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    
+    <!-- Global Settings -->
+    <div class="nav-buttons">
+      <button id="settingsButton" onclick="toggleSettings()" aria-label="Toggle settings">⚙️</button>
     </div>
     
-    <!-- Projects Section with Nested Accordion -->
-    <div id="projects-section" class="tier"">
-      <div>
-        <div class="tier-title"><img src="img/project_icon.svg" alt="Projects" class="tier-icon"><h1>Projects</h1><img src="img/project_icon.svg" alt="Projects" class="tier-icon"></div>
-        <div class="tier-content">
-          <!-- Wrap all accordion items in one container -->
-          <div class="accordion">
-            <!-- Project: Access Ability -->
-            <div class="accordion-item">
-              <button class="accordion-header">Access Ability</button>
-              <div class="accordion-content">
-                <ul>
-                  <li><a href="aA.html#overview">Overview</a></li>
-                  <li><a href="aA.html#description">Description</a></li>
-                  <li><a href="aA.html#rationale">Rationale</a></li>
-                  <li><a href="aA.html" class="learn-more">See More →</a></li>
-                </ul>
-              </div>
-            </div>
-            <!-- Project: Path of the Ancients -->
-            <div class="accordion-item">
-              <button class="accordion-header">Path of the Ancients</button>
-              <div class="accordion-content">
-                <ul>
-                  <li><a href="path.html#overview">Overview</a></li>
-                  <li><a href="path.html#description">Description</a></li>
-                  <li><a href="path.html#rationale">Rationale</a></li>
-                  <li><a href="path.html" class="learn-more">See More →</a></li>
-                </ul>
-              </div>
-            </div>
-            <!-- Project: The United Science of Colour -->
-            <div class="accordion-item">
-              <button class="accordion-header">The Unified Science of Colour</button>
-              <div class="accordion-content">
-                <ul>
-                  <li><a href="usc.html#overview">Overview</a></li>
-                  <li><a href="usc.html#description">Description</a></li>
-                  <li><a href="usc.html#rationale">Rationale</a></li>
-                  <li><a href="usc.html" class="learn-more">See More →</a></li>
-                </ul>
-              </div>
-            </div>
-            <!-- Project: TecTonic -->
-            <div class="accordion-item">
-              <button class="accordion-header">TecTonic</button>
-              <div class="accordion-content">
-                <ul>
-                  <li><a href="tecTonic.html#overview">Overview</a></li>
-                  <li><a href="tecTonic.html#description">Description</a></li>
-                  <li><a href="tecTonic.html#rationale">Rationale</a></li>
-                  <li><a href="tecTonic.html" class="learn-more">See More →</a></li>
-                </ul>
-              </div>
-            </div>
-            <!-- Project: Nulltech Apparel -->
-            <div class="accordion-item">
-              <button class="accordion-header">Nulltech Apparel</button>
-              <div class="accordion-content">
-                <ul>
-                  <li><a href="apparel.html#overview">Overview</a></li>
-                  <li><a href="apparel.html#description">Description</a></li>
-                  <li><a href="apparel.html#rationale">Rationale</a></li>
-                  <li><a href="apparel.html" class="learn-more">See More →</a></li>
-                </ul>
-              </div>
-            </div>
+    <!-- Settings Panel -->
+    <aside id="settingsPanel" aria-label="Theme settings">
+      <label for="themePicker">Theme Color:</label>
+      <input type="color" id="themePicker" value="#00ffff">
+      <div id="themePresets" role="group" aria-label="Theme presets">
+        <button class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></button>
+        <button class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></button>
+        <button class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></button>
+        <button class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></button>
+        <button class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="projects-container">
+      <h1 class="page-title">
+        <img src="img/project_icon.svg" alt="" class="title-icon">
+        Projects
+        <img src="img/project_icon.svg" alt="" class="title-icon">
+      </h1>
+      
+      <div class="projects-grid">
+        <!-- Access Ability -->
+        <article class="project-item" data-project="access-ability">
+          <img src="img/aa_icon.svg" alt="" class="project-icon">
+          <h2>The Access Ability App</h2>
+          <p>Inclusive digital environments for all</p>
+          <div class="project-links">
+            <a href="access-ability.html#overview">Overview</a>
+            <a href="access-ability.html#description">Description</a>
+            <a href="access-ability.html#rationale">Rationale</a>
+            <a href="access-ability.html" class="learn-more">See More →</a>
+          </div>
+        </article>
+
+        <!-- Path of the Ancients -->
+        <article class="project-item" data-project="path-ancients">
+          <img src="img/path_icon.svg" alt="" class="project-icon">
+          <h2>Path of the Ancients</h2>
+          <p>A narrative-driven card game experience</p>
+          <div class="project-links">
+            <a href="path-ancients.html#overview">Overview</a>
+            <a href="path-ancients.html#description">Description</a>
+            <a href="path-ancients.html#rationale">Rationale</a>
+            <a href="path-ancients.html" class="learn-more">See More →</a>
+          </div>
+        </article>
+
+        <!-- Unified Science of Color -->
+        <article class="project-item" data-project="unified-color">
+          <img src="img/usc_icon.svg" alt="" class="project-icon">
+          <h2>Unified Science of Color</h2>
+          <p>Exploring the science and art of color</p>
+          <div class="project-links">
+            <a href="unified-color.html#overview">Overview</a>
+            <a href="unified-color.html#description">Description</a>
+            <a href="unified-color.html#rationale">Rationale</a>
+            <a href="unified-color.html" class="learn-more">See More →</a>
+          </div>
+        </article>
+
+        <!-- TecTonic -->
+        <article class="project-item" data-project="tectonic">
+          <img src="img/tt_icon.svg" alt="" class="project-icon">
+          <h2>TecTonic Energy Drink</h2>
+          <p>Revolutionary energy drink branding</p>
+          <div class="project-links">
+            <a href="tectonic.html#overview">Overview</a>
+            <a href="tectonic.html#description">Description</a>
+            <a href="tectonic.html#rationale">Rationale</a>
+            <a href="tectonic.html" class="learn-more">See More →</a>
+          </div>
+        </article>
+
+        <!-- Nulltech Apparel -->
+        <article class="project-item" data-project="nulltech-apparel">
+          <img src="img/nt_scarab_w.svg" alt="" class="project-icon">
+          <h2>Nulltech Apparel Line</h2>
+          <p>Contemporary symbolic clothing line</p>
+          <div class="project-links">
+            <a href="nulltech-apparel.html#overview">Overview</a>
+            <a href="nulltech-apparel.html#description">Description</a>
+            <a href="nulltech-apparel.html#rationale">Rationale</a>
+            <a href="nulltech-apparel.html" class="learn-more">See More →</a>
+          </div>
+        </article>
+      </div>
+    </main>
+    
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+      <div class="lightbox-content">
+        <div class="lightbox-media-section">
+          <div class="lightbox-media-container">
+            <div class="lightbox-carousel"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-prev">&lt;</button>
+            <div class="carousel-indicators"></div>
+            <button class="carousel-next">&gt;</button>
           </div>
         </div>
+        <div class="lightbox-details">
+          <h2 class="lightbox-title"></h2>
+          <p class="lightbox-description"></p>
+          <div class="lightbox-accordion">
+            <details class="lightbox-accordion-item">
+              <summary>Overview</summary>
+              <div class="lightbox-accordion-content">
+                <div class="overview-content"></div>
+              </div>
+            </details>
+            <details class="lightbox-accordion-item">
+              <summary>Description</summary>
+              <div class="lightbox-accordion-content">
+                <div class="description-content"></div>
+              </div>
+            </details>
+            <details class="lightbox-accordion-item">
+              <summary>Rationale</summary>
+              <div class="lightbox-accordion-content">
+                <div class="rationale-content"></div>
+              </div>
+            </details>
+            <details class="lightbox-accordion-item">
+              <summary>Key Features</summary>
+              <div class="lightbox-accordion-content">
+                <div class="features-content"></div>
+              </div>
+            </details>
+          </div>
+          <div class="lightbox-links"></div>
+        </div>
+        <button class="prev-project">&lt;</button>
+        <button class="next-project">&gt;</button>
+        <button class="close-lightbox">&times;</button>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="social-links">
+        <h2>Find Me On</h2>
+        <nav aria-label="Social media links">
+          <a href="https://instagram.com/nulltech_designs" target="_blank" rel="noopener" aria-label="Instagram">
+            <img src="img/instagram.svg" alt="" width="40" height="40" loading="lazy">
+          </a>
+          <a href="https://behance.net/alexanderkouliy" target="_blank" rel="noopener" aria-label="Behance">
+            <img src="img/behance.svg" alt="" width="40" height="40" loading="lazy">
+          </a>
+          <a href="https://youtube.com/@NulltechDesigns" target="_blank" rel="noopener" aria-label="YouTube">
+            <img src="img/youtube.svg" alt="" width="40" height="40" loading="lazy">
+          </a>
+          <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <img src="img/linkedin.svg" alt="" width="40" height="40" loading="lazy">
+          </a>
+        </nav>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script src="js/lightbox.js"></script>
+    <script src="js/main.js"></script>
   </div>
-  
-  <!-- GLOBAL FOOTER (Optional Social Media Links) -->
-  <footer class="footer">
-    <div class="social-links">
-      <h2>Find Me On</h2>
-      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
-        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
-      </a>
-      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
-        <img src="img/behance.svg" alt="Behance" width="40" height="40">
-      </a>
-      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
-        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
-      </a>
-      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
-        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
-      </a>
-    </div>
-  </footer>
-  
-  <!-- GLOBAL JAVASCRIPT -->
-  <script src="js/main.js"></script>
 </body>
 </html>
