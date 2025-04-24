@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Path of the Ancients</title>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Project-specific CSS -->
+  <link rel="stylesheet" href="css/projects.css">
+  <!-- Load Orbitron for headings -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- GLOBAL HEADER -->
+  <div class="header">
+    <!-- Hamburger Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">☰</div>
+    <!-- Wordmark or Logo -->
+    <div class="wordmark">
+      <a href="index.html">
+        <img src="img/nt_wordmark_r.svg" alt="Nulltech">
+      </a>
+    </div>
+    <!-- Color Indicator (Border reflects theme color; clickable if theme is white) -->
+    <div id="colorIndicator">
+      <img src="img/nt_scarab_w.svg" alt="Scarab">
+    </div>
+  </div>
+  
+  <!-- GLOBAL SIDE NAVIGATION -->
+  <nav class="nav" id="cyberNav">
+    <a href="index.html">Home</a>
+    <a href="projectlist.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="nav-buttons">
+    <div id="settingsButton" onclick="toggleSettings()">⚙️</div>
+  </div>
+  <div id="settingsPanel">
+    <label for="themePicker">Theme Color:</label>
+    <input type="color" id="themePicker" value="#8df33f">
+    <div id="themePresets">
+      <span class="preset" data-color="#27202B" style="background-color: #27202B;" title="Nullspace"></span>
+      <span class="preset" data-color="#8df33f" style="background-color: #8df33f;" title="Scarab Green"></span>
+      <span class="preset" data-color="#AAD48A" style="background-color: #AAD48A;" title="Pulse Lime"></span>
+      <span class="preset" data-color="#EFEC8F" style="background-color: #EFEC8F;" title="Solar Flare"></span>
+      <span class="preset" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></span>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <img src="img/pota_aotf_logo.webp" alt="Path of the Ancients Logo" class="hero-logo">
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content pota-content">
+    <!-- Quick Links -->
+    <div class="quick-links">
+      <a href="cards/card-gen.html" class="quick-link" target="_blank">
+        <span class="link-icon">🎴</span>
+        Create Custom Cards
+      </a>
+      <a href="coinflip.html" class="quick-link" target="_blank">
+        <span class="link-icon">🎲</span>
+        Token Flipper
+      </a>
+    </div>
+
+    <!-- Game Overview -->
+    <section class="pota-section">
+      <h2 class="section-title">Game Overview</h2>
+      <div class="section-content">
+        <div class="content-text">
+          <p><strong>Path of the Ancients</strong> is a narrative-driven, lore-based deck-building game set in the brutal and mysterious Arena of the Forgotten. Combining dynamic PvPvE combat, strategic deck interactions, and an immersive world of elemental forces—Storm, Void, and Balance—the game challenges players to survive and master chaos while uncovering ancient secrets.</p>
+        </div>
+        <div class="content-image">
+          <img src="img/pota_cards.webp" alt="Path of the Ancients Cards" class="feature-image">
+        </div>
+      </div>
+    </section>
+
+    <!-- Class Decks -->
+    <section class="pota-section">
+      <h2 class="section-title">Class Decks</h2>
+      <div class="deck-grid">
+        <div class="deck-card stormborn" onclick="openDeckInfo('stormborn')">
+          <img src="img/storm.webp" alt="Stormborn Deck" class="deck-image">
+          <h3>Stormborn</h3>
+        </div>
+        <div class="deck-card veilbound" onclick="openDeckInfo('veilbound')">
+          <img src="img/void.webp" alt="Veilbound Deck" class="deck-image">
+          <h3>Veilbound</h3>
+        </div>
+        <div class="deck-card edgewalker" onclick="openDeckInfo('edgewalker')">
+          <img src="img/eye.webp" alt="Edgewalker Deck" class="deck-image">
+          <h3>Edgewalker</h3>
+        </div>
+        <div class="deck-card echo-husk" onclick="openDeckInfo('echo-husk')">
+          <img src="img/echo.webp" alt="Echo Husk Deck" class="deck-image">
+          <h3>Echo Husk</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deck Info Modals -->
+    <div id="deckInfoModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" onclick="closeDeckInfo()">&times;</span>
+        <div id="stormborn-info" class="deck-info">
+          <h2>Stormborn</h2>
+          <p>Wielders of raw emotional power, channeling the primal force of creation itself. Born from the Seeker's unbridled pain, they manifest both destructive chaos and transformative energy.</p>
+          <h3>Key Traits</h3>
+          <ul>
+            <li>Emotional Amplification</li>
+            <li>Creative Chaos</li>
+            <li>Transformative Energy</li>
+            <li>Primal Power</li>
+          </ul>
+        </div>
+        <div id="veilbound-info" class="deck-info">
+          <h2>Veilbound</h2>
+          <p>Masters of the Void's perfect order, harnessing reality stabilization and dimensional control. Their power stems from the ancient art of emotional suppression and precise manipulation.</p>
+          <h3>Key Traits</h3>
+          <ul>
+            <li>Reality Stabilization</li>
+            <li>Emotional Suppression</li>
+            <li>Perfect Order</li>
+            <li>Dimensional Control</li>
+          </ul>
+        </div>
+        <div id="edgewalker-info" class="deck-info">
+          <h2>Edgewalker</h2>
+          <p>Following in the Wanderer's footsteps, they walk the razor's edge between Storm and Void. These sacred guides embody the delicate balance of chaos and control.</p>
+          <h3>Key Traits</h3>
+          <ul>
+            <li>Balance Mastery</li>
+            <li>Adaptive Strategy</li>
+            <li>Dual Energy Control</li>
+            <li>Path Walking</li>
+          </ul>
+        </div>
+        <div id="echo-husk-info" class="deck-info">
+          <h2>Echo Husk</h2>
+          <p>Remnants of the ancient civilization's experiments, they wield both Storm and Void in unpredictable ways, echoing the pain that birthed these primal forces.</p>
+          <h3>Key Traits</h3>
+          <ul>
+            <li>Chaotic Manifestation</li>
+            <li>Ancient Technology</li>
+            <li>Experimental Power</li>
+            <li>Unstable Energy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Features -->
+    <section class="pota-section">
+      <h2 class="section-title">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>Dynamic PvPvE</h3>
+          <p>Face both fellow champions and the Arena's ancient guardians in a constantly evolving battlefield shaped by Storm and Void energies.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Flip Token System</h3>
+          <p>Channel the unpredictable nature of the Arena through a unique token system that can turn the tide of battle in an instant.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Arena Cards</h3>
+          <p>Confront the ever-changing manifestations of the Arena's power, where every hazard tells a story of the ancient world's fall.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lore Section -->
+    <section class="pota-section lore-section">
+      <h2 class="section-title">Deep Lore</h2>
+      <div class="section-content reversed">
+        <div class="content-text">
+          <p>Enter a world shaped by the eternal struggle between Storm and Void, primordial forces from long ago. The Arena of the Forgotten stands as a testament to the ancient civilization's hubris, where they sought to control the very forces of creation. Now, in this shattered realm, champions harness these primal energies, each card and ability echoing the wisdom and warnings of a fallen age.</p>
+          <p>The Storm, born of unbearable emotion, brings both creative chaos and destructive power. The Void, emerging from the desperate need for control, offers order but demands sacrifice. Between these forces walk the Edgewalkers, ancient guides who understand that true power comes not from dominance, but from balance.</p>
+        </div>
+        <div class="content-image">
+          <img src="img/pota_lorecard.webp" alt="Path of the Ancients Lore" class="feature-image">
+        </div>
+      </div>
+    </section>
+
+    <!-- Arena Section -->
+    <section class="pota-section arena-section">
+      <h2 class="section-title">The Arena</h2>
+      <div class="section-content">
+        <div class="content-text">
+          <p>The Arena of the Forgotten is more than a battlefield, it is a living echo of the ancient world's fall. Here, where the boundaries between Storm and Void grow thin, champions face not only each other but the very forces that shaped reality. Will you embrace the Storm's chaos, submit to the Void's control, or find your own balance between these timeless forces?</p>
+        </div>
+        <div class="content-image">
+          <img src="img/pota_arena.webp" alt="Path of the Ancients Arena" class="feature-image">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="social-links">
+      <h2>Find Me On</h2>
+      <a href="https://instagram.com/nulltech_designs" target="_blank" aria-label="Instagram">
+        <img src="img/instagram.svg" alt="Instagram" width="40" height="40">
+      </a>
+      <a href="https://behance.net/alexanderkouliy" target="_blank" aria-label="Behance">
+        <img src="img/behance.svg" alt="Behance" width="40" height="40">
+      </a>
+      <a href="https://youtube.com/@NulltechDesigns" target="_blank" aria-label="YouTube">
+        <img src="img/youtube.svg" alt="YouTube" width="40" height="40">
+      </a>
+      <a href="https://linkedin.com/in/alexander-kouliy-12b4a8228/" target="_blank" aria-label="LinkedIn">
+        <img src="img/linkedin.svg" alt="LinkedIn" width="40" height="40">
+      </a>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="js/particles.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/projects.js"></script>
+</body>
+</html>
