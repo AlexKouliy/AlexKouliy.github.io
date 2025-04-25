@@ -308,7 +308,7 @@
     #speakCustom{width:100%;padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;}
     #speakCustom:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
     #minigame-buttons button{padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;width:150px;}
-    #minigame-buttons button:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
+    #minigame-buttons button:hover { background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
     #recharge-btn-minigame,#repair-btn-minigame,#refactor-btn-minigame{padding:10px 15px;background:#f57c19!important;color:#201e1e!important;border:none!important;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:14px;transition:all 0.3s ease;font-weight:bold;box-shadow:0 0 8px rgba(245,124,25,0.3)!important;}
     #recharge-btn-minigame:hover,#repair-btn-minigame:hover,#refactor-btn-minigame:hover{background:#f1e255!important;transform:scale(1.05);box-shadow:0 0 15px rgba(241,226,85,0.3)!important;}
     #refactor-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(32,30,30,0.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1100;padding:20px;font-family:'Orbitron',sans-serif;}
@@ -368,20 +368,37 @@
     #minigame-buttons button:hover { background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
     /* Update recharge, repair, and refactor buttons in minigames */
     #recharge-btn-minigame:hover,#repair-btn-minigame:hover,#refactor-btn-minigame:hover {background: #f1e255 !important;transform: scale(1.05);box-shadow: 0 0 15px rgba(241, 226, 85, 0.3) !important;}
-    /* Add new repair slider styles */
-    #repair-slider {width: 200px;height: 20px;-webkit-appearance: none;appearance: none;background: #201e1e;outline: none;border-radius: 10px;margin: 20px 0;border: 2px solid #f57c19;transition: all 0.3s ease;}
-    #repair-slider::-webkit-slider-thumb {-webkit-appearance: none;appearance: none;width: 30px;height: 30px;background: #f57c19;border-radius: 50%;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 0 10px rgba(245, 124, 25, 0.3);}
-    #repair-slider::-webkit-slider-thumb:hover {background: #f1e255;transform: scale(1.1);box-shadow: 0 0 15px rgba(241, 226, 85, 0.5);}
-    #repair-slider::-moz-range-thumb {width: 30px;height: 30px;background: #f57c19;border-radius: 50%;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 0 10px rgba(245, 124, 25, 0.3);border: none;}
-    #repair-slider::-moz-range-thumb:hover {background: #f1e255;transform: scale(1.1);box-shadow: 0 0 15px rgba(241, 226, 85, 0.5);}
-    #repair-slider::-webkit-slider-runnable-track {height: 20px;border-radius: 10px;}
-    #repair-slider::-moz-range-track {height: 20px;border-radius: 10px;}
-    #repair-slider.success {border-color: #00ff99;}
-    #repair-slider.success::-webkit-slider-thumb {background: #00ff99;box-shadow: 0 0 15px rgba(0, 255, 153, 0.5);}
-    #repair-slider.success::-moz-range-thumb {background: #00ff99;box-shadow: 0 0 15px rgba(0, 255, 153, 0.5);}
+    #repair-hold-button {width: 120px;height: 120px;border-radius: 50%;background: #f57c19;border: none;cursor: pointer;position: relative;transition: all 0.3s ease;box-shadow: 0 0 15px rgba(245, 124, 25, 0.3);display: flex;align-items: center;justify-content: center;font-family: 'Orbitron', sans-serif;font-size: 16px;color: #201e1e;font-weight: bold;flex-shrink: 0;}
+    #repair-hold-button .wrench-icon {font-size: 3.5em;transition: transform 0.3s ease;line-height: 1;display: flex;align-items: center;justify-content: center;}
+    #repair-hold-button.holding .wrench-icon {animation: wrench-spin 1s linear infinite;}
+    @keyframes wrench-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #repair-hold-button:hover {background: #f1e255;transform: scale(1.05);box-shadow: 0 0 20px rgba(241, 226, 85, 0.5);}
+    #repair-hold-button:active {transform: scale(0.95);}
+    #repair-hold-button::before {content: '';position: absolute;width: 100%;height: 100%;border-radius: 50%;border: 4px solid transparent;border-top-color: #f1e255;animation: spin 1s linear infinite;opacity: 0;transition: opacity 0.3s ease;}
+    #repair-hold-button.holding::before {opacity: 1;}
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #repair-progress {position: absolute;width: 100%;height: 100%;border-radius: 50%;background: conic-gradient(#f1e255 0%, transparent 0%);transition: background 0.1s linear;}
+    #repair-hold-button.success {background: #00ff99;box-shadow: 0 0 20px rgba(0, 255, 153, 0.5);}
+    /* Add styles for the button text */
+    #repair-hold-button .button-text {position: absolute;bottom: 15px;font-size: 12px;width: 100%;text-align: center;}
+    /* Update the repair button container and text styles */
+    .repair-container {display: flex;align-items: center;gap: 20px;margin: 20px 0;}
+    #repair-hold-button {width: 120px;height: 120px;border-radius: 50%;background: #f57c19;border: none;cursor: pointer;position: relative;transition: all 0.3s ease;box-shadow: 0 0 15px rgba(245, 124, 25, 0.3);display: flex;align-items: center;justify-content: center;font-family: 'Orbitron', sans-serif;font-size: 16px;color: #201e1e;font-weight: bold;flex-shrink: 0;}
+    #repair-hold-button .button-text {display: none;}
+    .repair-instruction {font-size: 18px;color: #edeeda;font-family: 'Orbitron', sans-serif;text-shadow: 0 0 10px rgba(245, 124, 25, 0.3);}
+    /* Add styles for block selection and matching */
+    .block {transition: all 0.3s ease;opacity: 1;}
+    .block.selected {transform: scale(1.1);box-shadow: 0 0 15px rgba(245, 124, 25, 0.5);z-index: 1;}
+    .block.matched {opacity: 0;pointer-events: none;transform: scale(0.8);}
   </style>
 </head>
-<body data-bg="botBg">
+<body data-bg="botbg">
   <!-- Add background cycle button -->
   <button id="cycleBackground">🌍</button>
 
@@ -525,10 +542,14 @@
   <div class="overlay" id="repair-overlay">
     <div class="minigame-container">
       <h2>Repair Minigame</h2>
-      <p>Slide to repair Eidos</p>
-      <div id="bolt-game">
-        <div id="loose-bolt">🔧</div>
-        <input type="range" id="repair-slider" min="0" max="100" value="0">
+      <p>Hold the button to repair Eidos</p>
+      <div class="repair-container">
+        <button id="repair-hold-button">
+          <div id="repair-progress"></div>
+          <span class="wrench-icon">🔧</span>
+          <span class="button-text">Hold to Repair</span>
+        </button>
+        <span class="repair-instruction">Hold to Repair</span>
       </div>
       <div class="minigame-message" id="repair-message"></div>
     </div>
@@ -916,18 +937,23 @@
         } else { optimalMessageShown = false; }
       }
     
-      const baseDecayRates = { charge: 0.2, durability: 0.1, complexity: 0.15 };
-      const modeModifiers = {
+      const baseDecayRates = { 
+        charge: 0.033,    // Will decrease by 1% every 5 minutes
+        durability: 0.033, // Will decrease by 1% every 5 minutes
+        complexity: 0.033  // Will increase by 1% every 5 minutes
+      };
+    
+      const modeMultipliers = {
         default: { charge: 1, durability: 1, complexity: 1 },
-        flight: { charge: 2, durability: 1.5, complexity: 0.5 },
-        analysis: { charge: 1.5, durability: 1, complexity: 2 },
-        defense: { charge: 1.5, durability: 2, complexity: 1.5 }
+        flight: { charge: 1.5, durability: 1.2, complexity: 0.8 },
+        analysis: { charge: 1.2, durability: 1, complexity: 1.5 },
+        defense: { charge: 1.2, durability: 1.5, complexity: 1.2 }
       };
     
       function updateState() {
         if (!stateDecayInterval) return;
         const currentMode = $("#modeButtonsContainer button.active").attr("id") || "default";
-        const modifiers = modeModifiers[currentMode] || modeModifiers.default;
+        const modifiers = modeMultipliers[currentMode] || modeMultipliers.default;
         const currentRates = window.baseDecayRates || baseDecayRates;
         if (!chargePauseTimer) {
           charge = Math.max(0, charge - (currentRates.charge * modifiers.charge));
@@ -956,7 +982,7 @@
         if (show) {
           $("#state-overview").addClass("show");
           $("#minigame-buttons").addClass("show");
-          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 300000); updateBars(); }
+          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 1000); updateBars(); }
         } else {
           $("#state-overview").removeClass("show");
           $("#minigame-buttons").removeClass("show");
@@ -978,8 +1004,9 @@
         if (minigameActive) return;
         minigameActive = true;
         $("#repair-overlay").css("display", "flex");
-        $("#repair-slider").val(0);
         $("#repair-message").text("");
+        $("#repair-hold-button").removeClass("success holding");
+        $("#repair-progress").css("background", "conic-gradient(#f1e255 0%, transparent 0%)");
       });
     
       $("#recharge-btn-minigame").click(function () {
@@ -1049,6 +1076,7 @@
         const blockId = $(this).attr("id");
         const block = window.gameState.blocks.find(b => b.id === blockId);
         if (!block || block.matched) return;
+        
         if (!selectedBlock) {
           selectedBlock = $(this);
           selectedBlock.addClass("selected");
@@ -1060,6 +1088,7 @@
             selectedBlock.addClass("matched").removeClass("selected");
             $(this).addClass("matched");
             window.gameState.matchedPairs++;
+            
             if (window.gameState.matchedPairs === window.gameState.totalPairs) {
               complexity = Math.max(0, complexity - window.gameState.refactorReward);
               $("#refactor-message").text("Code successfully optimized!");
@@ -1073,7 +1102,10 @@
             selectedBlock = null;
           } else {
             const currentSelection = selectedBlock;
-            setTimeout(() => { currentSelection.removeClass("selected"); selectedBlock = null; }, 500);
+            setTimeout(() => { 
+              currentSelection.removeClass("selected"); 
+              selectedBlock = null; 
+            }, 500);
           }
         }
       });
@@ -1799,30 +1831,38 @@
         setTimeout(() => { $message.text(originalText); }, 2000);
       });
       
-      $("#repair-slider").on('input', function () {
-        if (parseInt(this.value) === 100) {
-          this.classList.add('success');
-          $("#loose-bolt").addClass("rotating");
-          durability = 100;
-          durabilityPauseTimer = setTimeout(() => { durabilityPauseTimer = null; }, PAUSE_DURATION);
-          updateBars();
-          $("#repair-message").text("Successfully repaired!");
-          setTimeout(() => {
-            $("#repair-overlay").hide();
-            this.classList.remove('success');
-            this.value = 0;
-            $("#loose-bolt").removeClass("rotating");
-            minigameActive = false;
-          }, 1500);
-        }
+      let repairProgress = 0;
+      let repairInterval;
+
+      $("#repair-hold-button").on('mousedown touchstart', function() {
+        $(this).addClass("holding");
+        repairProgress = 0;
+        repairInterval = setInterval(() => {
+          repairProgress += 2;
+          $("#repair-progress").css("background", `conic-gradient(#f1e255 ${repairProgress}%, transparent ${repairProgress}%)`);
+          
+          if (repairProgress >= 100) {
+            clearInterval(repairInterval);
+            $(this).addClass("success");
+            durability = 100;
+            durabilityPauseTimer = setTimeout(() => { durabilityPauseTimer = null; }, PAUSE_DURATION);
+            updateBars();
+            $("#repair-message").text("Successfully repaired!");
+            setTimeout(() => {
+              $("#repair-overlay").hide();
+              $(this).removeClass("success holding");
+              $("#repair-progress").css("background", "conic-gradient(#f1e255 0%, transparent 0%)");
+              minigameActive = false;
+            }, 1500);
+          }
+        }, 20);
       });
-      
-      $("#repair-btn").click(function () {
-        if (minigameActive) return;
-        minigameActive = true;
-        $("#repair-overlay").css("display", "flex");
-        $("#repair-slider").val(0);
-        $("#repair-message").text("");
+
+      $("#repair-hold-button").on('mouseup mouseleave touchend', function() {
+        $(this).removeClass("holding");
+        clearInterval(repairInterval);
+        repairProgress = 0;
+        $("#repair-progress").css("background", "conic-gradient(#f1e255 0%, transparent 0%)");
       });
     });
     </script>
