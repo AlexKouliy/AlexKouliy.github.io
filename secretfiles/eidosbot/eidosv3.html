@@ -956,7 +956,7 @@
         if (show) {
           $("#state-overview").addClass("show");
           $("#minigame-buttons").addClass("show");
-          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 1000); updateBars(); }
+          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 300000); updateBars(); }
         } else {
           $("#state-overview").removeClass("show");
           $("#minigame-buttons").removeClass("show");
