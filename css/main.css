@@ -44,8 +44,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family-primary); }
 a { display: flex; justify-content: right; color: var(--color-primary); text-decoration: none; transition: var(--transition-standard); text-align: right; margin-right: var(--spacing-sm); }
 a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow: var(--shadow-glow); }
-#container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: 1000; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; pointer-events: auto; }
-#container.fade-out { opacity: 0; pointer-events: none; }
+#container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: 1000; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, pointer-events 0s 0.5s; pointer-events: auto; }
+#container.fade-out { opacity: 0; pointer-events: none; transition: opacity 0.5s ease, pointer-events 0s; }
 .door { position: absolute; top: 0; width: 50%; height: 100%; transition: transform 1s ease; }
 #leftDoor { left: 0; background: var(--color-door-left); }
 #rightDoor { right: 0; background: var(--color-door-right); }
