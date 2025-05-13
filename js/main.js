@@ -19,19 +19,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const openButton = document.getElementById("openButton");
   if (openButton) {
     const handleEnter = () => {
+      console.log("Enter button triggered"); // Debug log
       const container = document.getElementById("container");
       if (container) {
         container.classList.add("open", "fade-out");
         setTimeout(() => container.style.display = "none", 1000);
       }
     };
-    
-    // Add both click and touch event listeners
-    openButton.addEventListener("click", handleEnter);
-    openButton.addEventListener("touchstart", (e) => {
-      e.preventDefault(); // Prevent double-firing on devices that support both touch and click
+
+    // Add pointer events for better touch/mouse handling
+    openButton.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      console.log("Pointer event detected"); // Debug log
+      openButton.style.transform = "scale(0.95)"; // Visual feedback
       handleEnter();
-    }, { passive: false });
+    });
+
+    openButton.addEventListener("pointerup", () => {
+      openButton.style.transform = "scale(1)";
+    });
+
+    openButton.addEventListener("pointerleave", () => {
+      openButton.style.transform = "scale(1)";
+    });
+
+    // Fallback for older browsers
+    openButton.addEventListener("click", (e) => {
+      console.log("Click event detected"); // Debug log
+      handleEnter();
+    });
   }
   
   // Toggle Tier Content
@@ -170,4 +186,3 @@ const themePresets = {
   'orange': '#ff9e00',
   'pink': '#ff2d6d'
 };
-
