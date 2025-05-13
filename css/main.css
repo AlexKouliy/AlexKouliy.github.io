@@ -55,6 +55,7 @@ a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow
 #openButton:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.3); background: var(--color-primary-hover); }
 #openButton:active, #openButton:focus { transform: translateX(-50%) scale(0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.2); outline: none; }
 @media (hover: none) { #openButton:hover { transform: translateX(-50%); box-shadow: 0 2px 4px rgba(0,0,0,0.2); } #openButton:active { transform: translateX(-50%) scale(0.95); background: var(--color-primary-hover); } }
+@media (max-width: 768px) { #openButton { bottom: 25vh; padding: 0.8rem 2rem; font-size: var(--font-size-base); min-width: 100px; min-height: 40px; } }
 #doorLogo { display: block; margin: 0 auto 2rem; max-width: min(90vw,20rem); width: 100%; height: auto; z-index: 11; position: relative; }
 body { margin: 0; font-family: var(--font-family-primary); background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 h1, .menu-toggle { font-family: var(--font-family-heading); }
