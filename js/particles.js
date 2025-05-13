@@ -26,8 +26,18 @@ class ParticleSystem {
     window.addEventListener('resize', () => this.resize());
     document.addEventListener('mousemove', e => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; });
     document.addEventListener('mouseleave', () => { this.mouse.x = this.mouse.y = null; });
-    document.addEventListener('touchstart', e => { e.preventDefault(); this.mouse.x = e.touches[0].clientX; this.mouse.y = e.touches[0].clientY; }, { passive: false });
-    document.addEventListener('touchmove', e => { e.preventDefault(); this.mouse.x = e.touches[0].clientX; this.mouse.y = e.touches[0].clientY; }, { passive: false });
+    
+    // Only prevent default touch events if container is present
+    const handleTouch = (e) => {
+      if (document.getElementById('container')) {
+        e.preventDefault();
+      }
+      this.mouse.x = e.touches[0].clientX;
+      this.mouse.y = e.touches[0].clientY;
+    };
+    
+    document.addEventListener('touchstart', handleTouch, { passive: false });
+    document.addEventListener('touchmove', handleTouch, { passive: false });
     document.addEventListener('touchend', () => { this.mouse.x = this.mouse.y = null; });
   }
   resize() {
@@ -111,13 +121,13 @@ class ParticleSystem {
 // Page-specific particle configurations
 const pageConfigs = {
   'index.html': {
-    particleCount: window.innerWidth < 768 ? 50 : 100,
-    baseSize: window.innerWidth < 768 ? 1.5 : 2,
-    baseSpeed: window.innerWidth < 768 ? 1 : 1.5,
-    baseOpacity: window.innerWidth < 768 ? 0.5 : 0.7,
-    enableLinks: true,
-    linkDistance: window.innerWidth < 768 ? 150 : 200,
-    linkOpacity: window.innerWidth < 768 ? 0.2 : 0.25,
+      particleCount: window.innerWidth < 768 ? 50 : 100,
+      baseSize: window.innerWidth < 768 ? 1.5 : 2,
+      baseSpeed: window.innerWidth < 768 ? 1 : 1.5,
+      baseOpacity: window.innerWidth < 768 ? 0.5 : 0.7,
+      enableLinks: true,
+      linkDistance: window.innerWidth < 768 ? 150 : 200,
+      linkOpacity: window.innerWidth < 768 ? 0.2 : 0.25,
     mouseForce: 0, // No mouse interaction on index
     mouseRadius: 0
   },
@@ -140,7 +150,7 @@ const pageConfigs = {
     enableLinks: true,
     linkDistance: window.innerWidth < 768 ? 180 : 250,
     linkOpacity: window.innerWidth < 768 ? 0.25 : 0.35,
-    mouseForce: 1.5,
+      mouseForce: 1.5,
     mouseRadius: 250
   },
   'projectlist.html': {
@@ -209,3 +219,4 @@ const particleSettings = {
   },
   retina_detect: true
 };
+
