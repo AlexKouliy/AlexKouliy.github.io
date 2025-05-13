@@ -33,6 +33,7 @@
 .accordion-content p,.access-content .accordion-content p{padding:0;margin:0 0 1rem 0;}
 .accordion-content ul,.access-content .accordion-content ul{margin:1rem 0 0 1.5rem;padding:0;}
 .accordion-content li,.access-content .accordion-content li{padding:0 0 0 1.25rem;margin:0.5rem 0;list-style:disc;}
+.accordion-content li::before,.access-content .accordion-content li::before{content:none;display:none;}
 .accordion-content .feature-image { max-width: 100%; height: auto; margin: 1rem 0; border-radius: var(--border-radius); border: 1px solid var(--theme-color); display: block; }
 .access-content .accordion-content { max-height: none; overflow: visible; transition: all 0.3s ease-out; padding: 0 1rem; }
 .access-content .accordion-content.active { max-height: none; padding: 1rem; }
