@@ -23,7 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("container");
       if (container) {
         container.classList.add("open", "fade-out");
-        setTimeout(() => container.style.display = "none", 1000);
+        setTimeout(() => {
+          container.remove(); // Use remove() instead of display:none
+          // Re-enable scrolling on body
+          document.body.style.overflow = "auto";
+          // Dispatch a custom event to notify that the container is removed
+          document.dispatchEvent(new CustomEvent("containerRemoved"));
+        }, 1000);
       }
     };
 
