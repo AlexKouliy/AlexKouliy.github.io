@@ -44,8 +44,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 a { display: flex; justify-content: right; color: var(--color-primary); text-decoration: none; transition: var(--transition-standard); text-align: right; margin-right: var(--spacing-sm); }
 a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow: var(--shadow-glow); }
-#container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: 1000; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
-.fade-out { opacity: 0; }
+#container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: 1000; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; pointer-events: auto; }
+#container.fade-out { opacity: 0; pointer-events: none; }
 .door { position: absolute; top: 0; width: 50%; height: 100%; transition: transform 1s ease; }
 #leftDoor { left: 0; background: var(--color-door-left); }
 #rightDoor { right: 0; background: var(--color-door-right); }
@@ -95,7 +95,7 @@ a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow
 }
 
 #doorLogo { display: block; margin: 0 auto 2rem; max-width: min(90vw,20rem); width: 100%; height: auto; z-index: 11; position: relative; }
-body { margin: 0; font-family: "Courier New",Courier,monospace; background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; }
+body { margin: 0; font-family: "Courier New",Courier,monospace; background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 h1, .menu-toggle { font-family: 'Orbitron',sans-serif; }
 h3 { margin-top: 10px; }
 .header { display: flex; justify-content: space-between; align-items: center; padding: 0.625em; background: var(--bg-overlay); position: fixed; width: 100%; top: 0; z-index: 90; backdrop-filter: blur(10px); }
