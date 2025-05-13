@@ -51,11 +51,11 @@ a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow
 #rightDoor { right: 0; background: var(--color-door-right); }
 #container.open .door { transform: translateX(-100%); }
 #container.open #rightDoor { transform: translateX(100%); }
-#openButton { position: absolute; bottom: 33vh; left: 50%; transform: translateX(-50%); z-index: 10; padding: 1rem 2.5rem; font-family: var(--font-family-primary); font-size: var(--font-size-lg); font-weight: bold; background: var(--color-primary); color: var(--color-text-dark); border: none; cursor: pointer; transition: all 0.2s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent; min-width: 120px; min-height: 44px; border-radius: var(--border-radius); box-shadow: 0 2px 4px rgba(0,0,0,0.2); user-select: none; -webkit-user-select: none; }
-#openButton:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.3); background: var(--color-primary-hover); }
-#openButton:active, #openButton:focus { transform: translateX(-50%) scale(0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.2); outline: none; }
-@media (hover: none) { #openButton:hover { transform: translateX(-50%); } #openButton:active { transform: translateX(-50%) scale(0.95); background: var(--color-primary-hover); } }
-@media (max-width: 768px) { #openButton { bottom: 25vh; padding: 0.8rem 2rem; font-size: var(--font-size-base); min-width: 100px; min-height: 40px; } }
+#openButton { position: absolute; bottom: 33vh; left: 50%; z-index: 10; padding: 1rem 2.5rem; font-family: var(--font-family-primary); font-size: var(--font-size-lg); font-weight: bold; background: var(--color-primary); color: var(--color-text-dark); border: none; cursor: pointer; transition: all 0.2s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent; min-width: 120px; min-height: 44px; border-radius: var(--border-radius); box-shadow: 0 2px 4px rgba(0,0,0,0.2); user-select: none; -webkit-user-select: none; margin-left: -60px; }
+#openButton:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.3); background: var(--color-primary-hover); }
+#openButton:active, #openButton:focus { transform: scale(0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.2); outline: none; }
+@media (hover: none) { #openButton:hover { transform: none; } #openButton:active { transform: scale(0.95); background: var(--color-primary-hover); } }
+@media (max-width: 768px) { #openButton { bottom: 25vh; padding: 0.8rem 2rem; font-size: var(--font-size-base); min-width: 100px; min-height: 40px; margin-left: -50px; } }
 #doorLogo { display: block; margin: 0 auto 2rem; max-width: min(90vw,20rem); width: 100%; height: auto; z-index: 11; position: relative; }
 body { margin: 0; font-family: var(--font-family-primary); background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 h1, .menu-toggle { font-family: var(--font-family-heading); }
