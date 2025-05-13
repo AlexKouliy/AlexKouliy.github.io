@@ -44,7 +44,7 @@ class Lightbox {
           { type: "youtube", src: "https://www.youtube.com/embed/Bj0HBJoYjEw", alt: "Gameplay Demo" }
         ],
         overview: "An immersive PvPvE card game that combines ancient mythology with strategic gameplay.",
-        description: "A strategic card game weaving ancient mythologies with modern mechanics.",
+        description: "Path of the Ancients: Arena of the Forgotten is a fast-paced tactical card arena game set in a world shaped by memory, emotion, and myth. You play as a fallen champion awakening in the Arena, a timeless battleground where the Storm and Void still echo. Choose your class, master your deck, and outwit both players and forgotten creatures in a cycle of survival, strategy, and rebirth. Every move tells a story—every battle, a chance to remember who you were… or become something new.",
         rationale: "Engaging players with ancient cultures via strategic gameplay.",
         features: "Unique card mechanics, rich lore system, strategic gameplay, stunning visuals.",
         link: "path-ancients.html"
