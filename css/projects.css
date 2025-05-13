@@ -72,3 +72,4 @@
 .access-content .accordion-content ul { margin-top: 1rem; }
 .access-content .accordion-content li { margin: 0.5rem 0; padding-left: 1.5rem; position: relative; }
 .access-content .accordion-content li::before { content: "•"; color: var(--theme-color); position: absolute; left: 0; }
+.tagline-section .article-image{width:100%;max-width:100%;display:block;margin:0 auto;}
