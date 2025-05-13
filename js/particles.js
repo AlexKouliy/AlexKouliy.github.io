@@ -18,6 +18,7 @@ class ParticleSystem {
     this.particles = [];
     this.mouse = { x: null, y: null, radius: this.options.mouseRadius, force: this.options.mouseForce };
     this.touchHandler = null;
+    this.passiveTouchHandler = null;
     this.setupEventListeners();
     this.resize();
     this.init();
@@ -28,7 +29,7 @@ class ParticleSystem {
     document.addEventListener('mousemove', e => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; });
     document.addEventListener('mouseleave', () => { this.mouse.x = this.mouse.y = null; });
     
-    // Create a bound touch handler that we can remove later
+    // Create touch handlers that we can remove later
     this.touchHandler = (e) => {
       const container = document.getElementById('container');
       // Only prevent default if container exists and isn't fading out
@@ -36,33 +37,35 @@ class ParticleSystem {
         e.preventDefault();
       }
       if (e.touches && e.touches[0]) {
-        this.mouse.x = e.touches[0].clientX;
-        this.mouse.y = e.touches[0].clientY;
+        const rect = this.canvas.getBoundingClientRect();
+        this.mouse.x = e.touches[0].clientX - rect.left;
+        this.mouse.y = e.touches[0].clientY - rect.top;
       }
     };
 
-    // Add touch event listeners with passive: false to allow preventDefault
-    document.addEventListener('touchstart', this.touchHandler, { passive: false });
-    document.addEventListener('touchmove', this.touchHandler, { passive: false });
-    document.addEventListener('touchend', () => { this.mouse.x = this.mouse.y = null; });
+    this.passiveTouchHandler = (e) => {
+      if (e.touches && e.touches[0]) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.mouse.x = e.touches[0].clientX - rect.left;
+        this.mouse.y = e.touches[0].clientY - rect.top;
+      }
+    };
+
+    // Add touch event listeners to canvas only
+    this.canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
+    this.canvas.addEventListener('touchmove', this.touchHandler, { passive: false });
+    this.canvas.addEventListener('touchend', () => { this.mouse.x = this.mouse.y = null; });
 
     // Listen for container removal to clean up touch events
     document.addEventListener('containerRemoved', () => {
-      // Remove the old touch handlers
-      document.removeEventListener('touchstart', this.touchHandler);
-      document.removeEventListener('touchmove', this.touchHandler);
+      // Remove the old touch handlers from canvas
+      this.canvas.removeEventListener('touchstart', this.touchHandler);
+      this.canvas.removeEventListener('touchmove', this.touchHandler);
       
-      // Add new passive touch handlers for normal interaction
-      const passiveTouchHandler = (e) => {
-        if (e.touches && e.touches[0]) {
-          this.mouse.x = e.touches[0].clientX;
-          this.mouse.y = e.touches[0].clientY;
-        }
-      };
-      
-      document.addEventListener('touchstart', passiveTouchHandler, { passive: true });
-      document.addEventListener('touchmove', passiveTouchHandler, { passive: true });
-      document.addEventListener('touchend', () => { this.mouse.x = this.mouse.y = null; }, { passive: true });
+      // Add new passive touch handlers to canvas
+      this.canvas.addEventListener('touchstart', this.passiveTouchHandler, { passive: true });
+      this.canvas.addEventListener('touchmove', this.passiveTouchHandler, { passive: true });
+      this.canvas.addEventListener('touchend', () => { this.mouse.x = this.mouse.y = null; }, { passive: true });
     });
   }
   resize() {
