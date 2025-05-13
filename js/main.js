@@ -18,13 +18,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // Sliding Doors Overlay
   const openButton = document.getElementById("openButton");
   if (openButton) {
-    openButton.addEventListener("click", () => {
+    const handleEnter = () => {
       const container = document.getElementById("container");
       if (container) {
         container.classList.add("open", "fade-out");
         setTimeout(() => container.style.display = "none", 1000);
       }
-    });
+    };
+    
+    // Add both click and touch event listeners
+    openButton.addEventListener("click", handleEnter);
+    openButton.addEventListener("touchstart", (e) => {
+      e.preventDefault(); // Prevent double-firing on devices that support both touch and click
+      handleEnter();
+    }, { passive: false });
   }
   
   // Toggle Tier Content
