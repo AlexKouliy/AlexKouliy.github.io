@@ -29,16 +29,33 @@ class ParticleSystem {
     
     // Only prevent default touch events if container is present
     const handleTouch = (e) => {
-      if (document.getElementById('container')) {
+      const container = document.getElementById('container');
+      if (container && !container.classList.contains('fade-out')) {
         e.preventDefault();
       }
       this.mouse.x = e.touches[0].clientX;
       this.mouse.y = e.touches[0].clientY;
     };
     
+    // Add touch event listeners with passive: false to allow preventDefault
     document.addEventListener('touchstart', handleTouch, { passive: false });
     document.addEventListener('touchmove', handleTouch, { passive: false });
     document.addEventListener('touchend', () => { this.mouse.x = this.mouse.y = null; });
+
+    // Listen for container removal to ensure touch events work after
+    document.addEventListener('containerRemoved', () => {
+      // Re-enable touch events by removing and re-adding with passive: true
+      document.removeEventListener('touchstart', handleTouch);
+      document.removeEventListener('touchmove', handleTouch);
+      document.addEventListener('touchstart', (e) => {
+        this.mouse.x = e.touches[0].clientX;
+        this.mouse.y = e.touches[0].clientY;
+      }, { passive: true });
+      document.addEventListener('touchmove', (e) => {
+        this.mouse.x = e.touches[0].clientX;
+        this.mouse.y = e.touches[0].clientY;
+      }, { passive: true });
+    });
   }
   resize() {
     this.canvas.width = this.canvas.offsetWidth;
@@ -219,4 +236,3 @@ const particleSettings = {
   },
   retina_detect: true
 };
-
