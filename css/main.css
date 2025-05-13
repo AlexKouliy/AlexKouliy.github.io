@@ -51,8 +51,49 @@ a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow
 #rightDoor { right: 0; background: var(--color-door-right); }
 #container.open .door { transform: translateX(-100%); }
 #container.open #rightDoor { transform: translateX(100%); }
-#openButton { position: absolute; bottom: 33vh; left: 50%; transform: translateX(-50%); z-index: 10; padding: 0.625em 2.25em; font-family: "Courier New",Courier,monospace; font-size: var(--font-size-lg); font-weight: bold; background: var(--color-primary); color: var(--color-text-dark); border: none; cursor: crosshair; transition: var(--transition-standard); }
-#openButton:hover { background: var(--color-primary-hover); scale: 1.02; }
+#openButton { 
+  position: absolute; 
+  bottom: 33vh; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  z-index: 10; 
+  padding: 1rem 2.5rem; 
+  font-family: "Courier New",Courier,monospace; 
+  font-size: var(--font-size-lg); 
+  font-weight: bold; 
+  background: var(--color-primary); 
+  color: var(--color-text-dark); 
+  border: none; 
+  cursor: pointer; 
+  transition: all 0.2s ease; 
+  touch-action: manipulation; 
+  -webkit-tap-highlight-color: transparent; 
+  min-width: 120px; 
+  min-height: 44px; 
+  border-radius: var(--border-radius); 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+  user-select: none; 
+  -webkit-user-select: none; 
+}
+
+#openButton:active, 
+#openButton:focus { 
+  transform: translateX(-50%) scale(0.95); 
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+  outline: none; 
+}
+
+@media (hover: none) {
+  #openButton:hover { 
+    transform: translateX(-50%); 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+  }
+  #openButton:active { 
+    transform: translateX(-50%) scale(0.95); 
+    background: var(--color-primary-hover); 
+  }
+}
+
 #doorLogo { display: block; margin: 0 auto 2rem; max-width: min(90vw,20rem); width: 100%; height: auto; z-index: 11; position: relative; }
 body { margin: 0; font-family: "Courier New",Courier,monospace; background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; }
 h1, .menu-toggle { font-family: 'Orbitron',sans-serif; }
