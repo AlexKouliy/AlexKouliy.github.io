@@ -22,8 +22,8 @@ class Lightbox {
           { type: "image", src: "img/aa_ad.webp", alt: "Access Ability Advertisement" },
           { type: "image", src: "img/aa_icon.svg", alt: "Access Ability Logo" },
           { type: "image", src: "img/aa_site.webp", alt: "Access Ability Website" },
-          { type: "image", src: "img/aa_style.webp", alt: "Access Ability Style Guide" },
-          { type: "youtube", src: "https://www.youtube.com/embed/BGgB-V616p0", alt: "Access Ability Demo" }
+          { type: "image", src: "img/aa3.webp", alt: "Access Ability Style Guide" },
+          { type: "youtube", src: "https://www.youtube.com/embed/TkEA8fdjh-M", alt: "Access Ability Demo" }
         ],
         overview: "A comprehensive platform providing resources and tools for neurodiverse individuals, focusing on accessibility and inclusion.",
         description: "A platform that combines innovative design with accessibility features to create an inclusive digital environment for neurodiverse users.",
@@ -43,10 +43,10 @@ class Lightbox {
           { type: "image", src: "img/path_icon.svg", alt: "Path of the Ancients Logo" },
           { type: "youtube", src: "https://www.youtube.com/embed/Bj0HBJoYjEw", alt: "Gameplay Demo" }
         ],
-        overview: "An immersive PvPvE card game that combines ancient mythology with strategic, fast paced gameplay.",
-        description: "Path of the Ancients: Arena of the Forgotten is a fast-paced tactical card arena game set in a world shaped by memory, emotion, and myth. You play as a fallen champion awakening in the Arena, a timeless battleground where the Storm and Void still echo. Choose your class, master your deck, and outwit both players and forgotten creatures in a cycle of survival, strategy, and rebirth. Every move tells a story—every battle, a chance to remember who you were… or become something new.",
-        rationale: "Arena of the Forgotten began as a creative homage to games like Slay the Spire and Dungeon Mayhem, born from a love of fast, strategic card-based combat. But as it evolved, it uncovered a unique design gap: the lack of emotionally resonant, lore-driven PvPvE card games that balance tactical gameplay with mythic storytelling. Most card games fall into either PvE roguelikes or rigid PvP structures—rarely both. Arena of the Forgotten solves this by blending player-versus-player and player-versus-environment mechanics in a way that feels dynamic, personal, and narratively meaningful. It invites players not just to fight, but to remember who they are, adapt through ever-changing trials, and forge identity through combat. By bridging this genre divide, Arena creates a space for emotional immersion, strategic depth, and creative expression—especially for neurodivergent players who crave meaning, flexibility, and agency in how they play and engage with story.",
-        features: "Arena of the Forgotten is a fast-paced tactical card game featuring four unique class decks—Stormborn, Veilbound, Edgewalker, and Echo Husk—each with its own strategy and playstyle. Players battle in a dynamic PvPvE system where both opponents and environmental threats shape the match. A Flip Token mechanic determines if the Arena’s effects activate each round, creating unpredictable shifts in gameplay. Designed for quick turns and deep strategy, the game blends mythic lore with expandable mechanics for ongoing evolution.",
+        overview: "An immersive PvPvE card game that combines ancient mythology with strategic gameplay.",
+        description: "A strategic card game weaving ancient mythologies with modern mechanics.",
+        rationale: "Engaging players with ancient cultures via strategic gameplay.",
+        features: "Unique card mechanics, rich lore system, strategic gameplay, stunning visuals.",
         link: "path-ancients.html"
       },
       "unified-color": {
