@@ -938,9 +938,9 @@
       }
     
       const baseDecayRates = { 
-        charge: 0.033,    // Will decrease by 1% every 5 minutes
-        durability: 0.033, // Will decrease by 1% every 5 minutes
-        complexity: 0.033  // Will increase by 1% every 5 minutes
+        charge: 0.033,    // Will decrease by 1% every 30 minutes
+        durability: 0.033, // Will decrease by 1% every 30 minutes
+        complexity: 0.033  // Will increase by 1% every 30 minutes
       };
     
       const modeMultipliers = {
@@ -982,7 +982,7 @@
         if (show) {
           $("#state-overview").addClass("show");
           $("#minigame-buttons").addClass("show");
-          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 1000); updateBars(); }
+          if (!stateDecayInterval) { stateDecayInterval = setInterval(updateState, 60000); updateBars(); }
         } else {
           $("#state-overview").removeClass("show");
           $("#minigame-buttons").removeClass("show");
