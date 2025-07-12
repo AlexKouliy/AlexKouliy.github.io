@@ -975,7 +975,11 @@
         if (charge <= 20) { updateBotThoughts("Eidos: Running low on power! Need to recharge soon...", false); }
         if (durability <= 30) { updateBotThoughts("Eidos: My systems need maintenance!", false); }
         if (complexity >= 80) { updateBotThoughts("Eidos: Code complexity is getting high, should optimize soon!", false); }
-        if (charge <= 0) { $("#off").click(); updateBotThoughts("Eidos: Emergency shutdown - power depleted!", true); }
+        // Only trigger emergency shutdown if charge is 0 AND we're not in an optimal state
+        if (charge <= 0 && !(charge >= 99 && durability >= 99 && complexity <= 1)) { 
+          $("#off").click(); 
+          updateBotThoughts("Eidos: Emergency shutdown - power depleted!", true); 
+        }
       }
     
       function toggleMinigameUI(show) {
