@@ -348,7 +348,7 @@ details p { padding: var(--spacing-sm); line-height: 1.6; }
 @media (min-width: 600px) and (max-width: 1024px) {
   #container {flex-direction: column;justify-content: center;align-items: center;padding: 3vh 0 0 0;}
   #doorLogo {max-width: 60vw;width: 100%;margin-bottom: 2.5rem;margin-top: 2rem;position: static;}
-  #openButton {position: static;display: block;margin: 0 auto 2.5rem auto;min-width: 110px;min-height: 44px;font-size: 1.1rem;padding: 1rem 2.5rem;z-index: 10;transform: none;}
+   #openButton {position: static;display: block;margin: 0 auto 2.5rem auto;min-width: 110px;min-height: 44px;font-size: 1.1rem;padding: 2rem 2.5rem;z-index: 10;transform: none;}
   .tagline-section {max-width: 90vw;margin: 0 auto;padding-left: clamp(2rem, 5vw, 5rem);padding-right: clamp(2rem, 5vw, 5rem);box-sizing: border-box;}
   .tagline-image {max-width: 100%;margin: 1.5rem auto 2.5rem auto;display: block;padding-left: clamp(1rem, 3vw, 3rem);padding-right: clamp(1rem, 3vw, 3rem);}
 }
