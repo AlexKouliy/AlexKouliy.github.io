@@ -7,11 +7,36 @@
   <meta name="keywords" content="Alexander Kouliy, Nulltech founder, design biography, VCAD honors graduate, Care-Centered Design origin, CCD pioneer, ethical UX leader, trauma-informed designer, neurodivergent advocate">
   <meta name="author" content="Alexander Kouliy">
   <title>About - Nulltech Designs</title>
+  <link rel="canonical" href="https://alexkouliy.github.io/about.html">
+
+  <!-- opengraph -->
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="About Alex Kouliy – Nulltech Designs">
+  <meta property="og:description" content="Designer, researcher, and founder of Care-Centered Design (CCD).">
+  <meta property="og:image" content="https://alexkouliy.github.io/img/profile.webp">
+  <meta property="og:url" content="https://alexkouliy.github.io/about.html">
+  
   <!-- schema.org -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "AboutPage",
+    
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://alexkouliy.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "About",
+          "item": "https://alexkouliy.github.io/about.html"
+        }
+      ]
     
       "name": "About Alex Kouliy — Nulltech",
       "url": "https://alexkouliy.github.io/about.html",
@@ -126,12 +151,12 @@
     <!-- Wordmark or Logo -->
     <div class="wordmark">
       <a href="index.html">
-        <img src="img/nt_wordmark_r.svg" alt="Nulltech">
+        <img src="img/nt_wordmark_r.svg" alt="Nulltech Wordmark logo">
       </a>
     </div>
     <!-- Color Indicator -->
     <div id="colorIndicator">
-      <img src="img/nt_scarab_w.svg" alt="Scarab">
+      <img src="img/nt_scarab_w.svg" alt="Nulltech Scarab icon">
     </div>
   </div>
   
@@ -164,54 +189,64 @@
   </aside>
   
   <!-- About Grid -->
-  <main class="about-wrapper">
-    <!-- About the Artist -->
-    <article class="about-article">
-      <header class="article-header">
-        <img src="img/artist_icon.svg" alt="" class="article-icon">
-        <h2 class="article-title">About the Artist</h2>
-      </header>
-      <img src="img/artist.webp" alt="About the Artist" class="article-image">
-      <div class="article-content">
-        <p>Hi! I'm Alex—a Bulgarian-Canadian multidisciplinary graphic designer, worldbuilder, and storyteller with a passion for accessibility, immersive storytelling, and the exploration of lost history. My journey has taken me from the deserts of Qatar to the mountains of Canada, blending a mix of cultures, histories, and design philosophies that shape how I create.</p>
-        <p>My fascination with design is deeply rooted in ancient worlds and modern technology, from reviving my Thracian heritage to imagining forgotten civilizations, and uncovering untold stories. I see design as more than just visuals; it's a way to bridge the past and the future, turning myth into interactive experiences and making the unseen accessible.</p>
-        <p>I first stumbled into graphic design through a continuing education course at ACAD (now AUArts) and later transitioned into a Bachelor of Fine Arts in Drawing at the same institution. But life took a detour, undiagnosed ADHD and a lack of direction pulled me away from art. After an 18-month hiatus, everything changed when I met my loving partner and creative collaborator, Alli, who encouraged me to reclaim my creative path.</p>
-        <p>Enrolling at VCAD reignited my fire. Within my first term, I rediscovered my passion for bold visual storytelling; within two, I found my purpose in accessible design. By the third, I had fallen back in love with interactive storytelling, blending design, technology, and ancient narratives into something new. By the fourth term, it was all about bringing it together—refining my skills, experimenting with new mediums, and crafting experiences that leave a lasting impact. I completed the program as an honors graduate, carrying forward the discipline, clarity, and resilience that shaped my current body of work.</p>
-        <p>Whether through graphic design, worldbuilding, or accessibility-focused interfaces, I aim to unearth lost knowledge, breathe life into forgotten stories, and create interactive experiences that help others see the world—and themselves—in new ways.</p>
-      </div>
-    </article>
+  <main class="about-wrapper" role="main">
+    <h1 class="visually-hidden">About Alexander Kouliy – Nulltech Designs</h1>
 
+    <!-- About the Artist -->
+    <section aria-labelledby="artist-title">
+      <article class="about-article">
+        <header class="article-header">
+          <img src="img/artist_icon.svg" alt="" role="presentation" class="article-icon">
+          <h2 class="article-title" id="artist-title">About the Artist</h2>
+        </header>
+        <img src="img/artist.webp" alt="Alex Kouliy vector portrait" class="article-image" loading="lazy">
+        <div class="article-content">
+          <p>Hi! I'm Alex—a Bulgarian-Canadian multidisciplinary graphic designer, worldbuilder, and storyteller with a passion for accessibility, immersive storytelling, and the exploration of lost history. My journey has taken me from the deserts of Qatar to the mountains of Canada, blending a mix of cultures, histories, and design philosophies that shape how I create.</p>
+          <p>My fascination with design is deeply rooted in ancient worlds and modern technology, from reviving my Thracian heritage to imagining forgotten civilizations, and uncovering untold stories. I see design as more than just visuals; it's a way to bridge the past and the future, turning myth into interactive experiences and making the unseen accessible.</p>
+          <p>I first stumbled into graphic design through a continuing education course at ACAD (now AUArts) and later transitioned into a Bachelor of Fine Arts in Drawing at the same institution. But life took a detour, undiagnosed ADHD and a lack of direction pulled me away from art. After an 18-month hiatus, everything changed when I met my loving partner and creative collaborator, Alli, who encouraged me to reclaim my creative path.</p>
+          <p>Enrolling at VCAD reignited my fire. Within my first term, I rediscovered my passion for bold visual storytelling; within two, I found my purpose in accessible design. By the third, I had fallen back in love with interactive storytelling, blending design, technology, and ancient narratives into something new. By the fourth term, it was all about bringing it together—refining my skills, experimenting with new mediums, and crafting experiences that leave a lasting impact. I completed the program as an honors graduate, carrying forward the discipline, clarity, and resilience that shaped my current body of work.</p>
+          <p>Whether through graphic design, worldbuilding, or accessibility-focused interfaces, I aim to unearth lost knowledge, breathe life into forgotten stories, and create interactive experiences that help others see the world—and themselves—in new ways.</p>
+        </div>
+      </article>
+    </section>
+    
     <!-- About the Process -->
-    <article class="about-article">
-      <header class="article-header">
-        <img src="img/process_icon.svg" alt="" class="article-icon">
-        <h2 class="article-title">About the Process</h2>
-      </header>
-      <div class="article-content">
-        <p>At the core of my workflow is the ORCM methodology—a systematic approach to efficiency that transforms both code and design. Through Optimization, I enhance performance while maintaining functionality, using modern practices and data-driven improvements. Refactoring brings clarity through better organization and clean architecture, while Condensation distills complex elements to their essential form without sacrificing meaning. Finally, Minification reduces technical footprint while preserving core functionality, resulting in lean, efficient solutions.</p>
-        <p>This methodology guides my work across all mediums, from crafting vector graphics and 3D assets to developing efficient code and responsive interfaces. Each project becomes an exercise in balancing innovation with practicality, ensuring that every element serves a clear purpose while maintaining the highest standards of quality and accessibility.</p>
-      </div>
-    </article>
+    <section aria-labelledby="process-title">
+      <article class="about-article">
+        <header class="article-header">
+          <img src="img/process_icon.svg" alt="" role="presentation" class="article-icon">
+          <h2 class="article-title" id="process-title">About the Process</h2>
+        </header>
+        <div class="article-content">
+          <p>At the core of my workflow is the ORCM methodology—a systematic approach to efficiency that transforms both code and design. Through Optimization, I enhance performance while maintaining functionality, using modern practices and data-driven improvements. Refactoring brings clarity through better organization and clean architecture, while Condensation distills complex elements to their essential form without sacrificing meaning. Finally, Minification reduces technical footprint while preserving core functionality, resulting in lean, efficient solutions.</p>
+          <p>This methodology guides my work across all mediums, from crafting vector graphics and 3D assets to developing efficient code and responsive interfaces. Each project becomes an exercise in balancing innovation with practicality, ensuring that every element serves a clear purpose while maintaining the highest standards of quality and accessibility.</p>
+        </div>
+      </article>
+    </section>
 
     <!-- About the Brand -->
-    <article class="about-article">
-      <header class="article-header">
-        <img src="img/brand_icon.svg" alt="" class="article-icon">
-        <h2 class="article-title">About the Brand</h2>
-      </header>
-      <div class="article-content">
-        <p>Nulltech Designs is rooted in the idea of embracing the unexpected, inspired by "null results" in quantum mechanics where the absence of an expected outcome often leads to discovery. The brand's logo, a green scarab inspired by the Cetonia Aurata, symbolizes transformation, renewal, and the persistence of life in both its universal and personal meanings.</p>
-        <p>In ancient cultures, the scarab represented the cycle of creation and rebirth, echoing my own belief in the power of design to reinvent, adapt, and endure. This deeply personal symbol also reflects summers spent in the Bulgarian mountains with my grandfather, where a scarab became a lasting connection to his memory.</p>
-        <p>Through Nulltech, I aim to create accessible, innovative, and purposeful solutions that honor the transformative journey of design and leave a lasting impact.</p>
-      </div>
-    </article>
+    <section aria-labelledby="brand-title">
+      <article class="about-article">
+        <header class="article-header">
+          <img src="img/brand_icon.svg" alt="" role="presentation" class="article-icon">
+          <h2 class="article-title" id="brand-title">About the Brand</h2>
+        </header>
+        <div class="article-content">
+          <p>Nulltech Designs is rooted in the idea of embracing the unexpected, inspired by "null results" in quantum mechanics where the absence of an expected outcome often leads to discovery. The brand's logo, a green scarab inspired by the Cetonia Aurata, symbolizes transformation, renewal, and the persistence of life in both its universal and personal meanings.</p>
+          <p>In ancient cultures, the scarab represented the cycle of creation and rebirth, echoing my own belief in the power of design to reinvent, adapt, and endure. This deeply personal symbol also reflects summers spent in the Bulgarian mountains with my grandfather, where a scarab became a lasting connection to his memory.</p>
+          <p>Through Nulltech, I aim to create accessible, innovative, and purposeful solutions that honor the transformative journey of design and leave a lasting impact.</p>
+        </div>
+      </article>
+    </section>
 
     <!-- Brand Tagline -->
-    <article class="about-article tagline-section">
-      <div class="article-content">
-        <img src="img/tagline.webp" alt="Nulltech Tagline" class="article-image">
-      </div>
-    </article>
+    <section aria-labelledby="tagline-title">
+      <article class="about-article tagline-section">
+        <div class="article-content">
+          <img src="img/tagline.webp" alt="Nulltech Tagline, Design, Refine, Redefine" class="article-image">
+        </div>
+      </article>
+    </section>
   </main>
   
   <!-- Footer -->
@@ -244,6 +279,7 @@
 
 </body>
 </html>
+
 
 
 
