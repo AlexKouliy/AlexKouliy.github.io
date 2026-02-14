@@ -14,24 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const tp = document.getElementById("themePicker");
     if (tp) tp.value = storedTheme;
   }
-  
-  // Sliding Doors Overlay
-  const openButton = document.getElementById("openButton");
-  if (openButton) {
-    const handleEnter = () => {
-      console.log("Enter button triggered"); // Debug log
-      const container = document.getElementById("container");
-      if (container) {
-        container.classList.add("open", "fade-out");
-        setTimeout(() => {
-          container.remove(); // Use remove() instead of display:none
-          // Re-enable scrolling on body
-          document.body.style.overflow = "auto";
-          // Dispatch a custom event to notify that the container is removed
-          document.dispatchEvent(new CustomEvent("containerRemoved"));
-        }, 1000);
-      }
-    };
 
     // Add pointer events for better touch/mouse handling
     openButton.addEventListener("pointerdown", (e) => {
@@ -192,3 +174,4 @@ const themePresets = {
   'orange': '#ff9e00',
   'pink': '#ff2d6d'
 };
+
