@@ -45,6 +45,7 @@ a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow
 body { margin: 0; font-family: var(--font-family-primary); background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 h1, .menu-toggle { font-family: var(--font-family-heading); }
 h3 { margin-top: 10px; }
+.sr-only {position: absolute;width: 1px;height: 1px;padding: 0;margin: -1px;overflow: hidden;clip: rect(0,0,0,0);white-space: nowrap;border: 0;}
 .header { display: flex; justify-content: space-between; align-items: center; padding: 0.625em; background: var(--bg-overlay); position: fixed; width: 100%; top: 0; z-index: 90; backdrop-filter: blur(10px); }
 .wordmark { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; }
 .wordmark img { height: 4rem; width: auto; }
@@ -329,5 +330,6 @@ details p { padding: var(--spacing-sm); line-height: 1.6; }
 
 /* Touch Device Optimizations */
 @media (hover: none) { .nav a:hover, .quick-link:hover, .contact-button:hover, .submit-button:hover, .deck-card:hover, .feature-card:hover { transform: none; } .nav a:active, .quick-link:active, .contact-button:active, .submit-button:active, .deck-card:active, .feature-card:active { transform: scale(0.98); opacity: 0.9; } }
+
 
 
