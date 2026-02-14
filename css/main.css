@@ -4,8 +4,6 @@
   --color-white: #fff;
   --color-black: #000;
   --color-dark: #27202B;
-  --color-door-left: #342a38;
-  --color-door-right: #382f41;
   --color-text-primary: rgba(255,255,255,0.9);
   --color-text-dark: #292433;
   --bg-primary: var(--color-dark);
@@ -44,19 +42,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family-primary); }
 a { display: flex; justify-content: right; color: var(--color-primary); text-decoration: none; transition: var(--transition-standard); text-align: right; margin-right: var(--spacing-sm); }
 a:hover { transform: scale(1.02); color: var(--color-primary-hover); text-shadow: var(--shadow-glow); }
-#container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: 1000; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, pointer-events 0s 0.5s; pointer-events: auto; }
-#container.fade-out { opacity: 0; pointer-events: none; transition: opacity 0.5s ease, pointer-events 0s; }
-.door { position: absolute; top: 0; width: 50%; height: 100%; transition: transform 1s ease; }
-#leftDoor { left: 0; background: var(--color-door-left); }
-#rightDoor { right: 0; background: var(--color-door-right); }
-#container.open .door { transform: translateX(-100%); }
-#container.open #rightDoor { transform: translateX(100%); }
-#openButton { position: absolute; bottom: 33vh; left: 50%; z-index: 10; padding: 1rem 2.5rem; font-family: var(--font-family-primary); font-size: var(--font-size-lg); font-weight: bold; background: var(--color-primary); color: var(--color-text-dark); border: none; cursor: pointer; transition: all 0.2s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent; min-width: 120px; min-height: 44px; border-radius: var(--border-radius); box-shadow: 0 2px 4px rgba(0,0,0,0.2); user-select: none; -webkit-user-select: none; margin-left: -60px; }
-#openButton:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.3); background: var(--color-primary-hover); }
-#openButton:active, #openButton:focus { transform: scale(0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.2); outline: none; }
-@media (hover: none) { #openButton:hover { transform: none; } #openButton:active { transform: scale(0.95); background: var(--color-primary-hover); } }
-@media (max-width: 768px) { #openButton { bottom: 25vh; padding: 0.8rem 2rem; font-size: var(--font-size-base); min-width: 100px; min-height: 40px; margin-left: -50px; } }
-#doorLogo { display: block; margin: 0 auto 2rem; max-width: min(90vw,20rem); width: 100%; height: auto; z-index: 11; position: relative; }
 body { margin: 0; font-family: var(--font-family-primary); background: linear-gradient(to bottom,var(--bg-primary),#111); color: var(--color-text-primary); font-size: var(--font-size-base); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 h1, .menu-toggle { font-family: var(--font-family-heading); }
 h3 { margin-top: 10px; }
@@ -345,10 +330,4 @@ details p { padding: var(--spacing-sm); line-height: 1.6; }
 /* Touch Device Optimizations */
 @media (hover: none) { .nav a:hover, .quick-link:hover, .contact-button:hover, .submit-button:hover, .deck-card:hover, .feature-card:hover { transform: none; } .nav a:active, .quick-link:active, .contact-button:active, .submit-button:active, .deck-card:active, .feature-card:active { transform: scale(0.98); opacity: 0.9; } }
 
-@media (min-width: 600px) and (max-width: 1024px) {
-  #container {flex-direction: column;justify-content: center;align-items: center;padding: 3vh 0 0 0;}
-  #doorLogo {max-width: 40vw;width: 100%;margin-bottom: 2.5rem;margin-top: 2rem;position: static;}
-   #openButton {position: static;display: block;margin: 0 auto 2.5rem auto;min-width: 110px;min-height: 44px;font-size: 1.1rem;padding: 1rem 2.5rem;z-index: 10;transform: none;}
-  .tagline-section {max-width: 90vw;margin: 0 auto;padding-left: clamp(2rem, 5vw, 5rem);padding-right: clamp(2rem, 5vw, 5rem);box-sizing: border-box;}
-  .tagline-image {max-width: 100%;margin: 1.5rem auto 2.5rem auto;display: block;padding-left: clamp(1rem, 3vw, 3rem);padding-right: clamp(1rem, 3vw, 3rem);}
-}
+
