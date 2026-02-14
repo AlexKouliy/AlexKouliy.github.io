@@ -1,8 +1,96 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NetRunner</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- Title -->
+  <title>Netrunner — Cyberpunk Deckbuilder Roguelite</title>
+
+  <!-- Basic Meta -->
+  <meta name="author" content="Alexander Kouliy">
+  <meta name="description"
+        content="Netrunner — a fast-paced cyberpunk deckbuilder roguelite where you infiltrate systems, outmaneuver AI defenses, and rewrite the grid. Built by Alexander Kouliy as part of the Nulltech Secret Arcade.">
+  <meta name="keywords"
+        content="Netrunner game, cyberpunk deckbuilder, roguelike card game, deckbuilding roguelite, hacking game, cyber infiltration game, Nulltech Secret Arcade, Alexander Kouliy, Eidos, Neuropunk design, procedural deckbuilding, terminal fantasy, card-based hacking simulation">
+
+  <link rel="canonical" href="https://alexkouliy.github.io/secretfiles/netrunner.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Netrunner — Cyberpunk Deckbuilder Roguelite">
+  <meta property="og:description"
+        content="A high-speed digital infiltration deckbuilder set in a neon systemscape. Hack, adapt, and survive the grid.">
+  <meta property="og:type" content="game">
+  <meta property="og:url" content="https://alexkouliy.github.io/secretfiles/netrunner.html">
+  <meta property="og:image" content="https://alexkouliy.github.io/img/netrunner_cover.webp">
+  <meta property="og:site_name" content="Nulltech: Secret Arcade">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Netrunner — Cyberpunk Deckbuilder Roguelite">
+  <meta name="twitter:description" content="Infiltrate the neon grid in this fast tactical deckbuilder by Nulltech Designs.">
+  <meta name="twitter:image" content="https://alexkouliy.github.io/img/netrunner_cover.webp">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+
+    "name": "Netrunner",
+    "alternateName": "Nulltech: Netrunner",
+    "url": "https://alexkouliy.github.io/secretfiles/netrunner.html",
+    "image": "https://alexkouliy.github.io/img/netrunner_cover.webp",
+
+    "description": "A fast-paced cyberpunk deckbuilder roguelite where players infiltrate systems, defeat AI firewalls, and build adaptive card strategies. Developed by designer and worldbuilder Alexander Kouliy for the Nulltech Secret Arcade.",
+
+    "genre": [
+      "Deckbuilder",
+      "Roguelite",
+      "Cyberpunk",
+      "Strategy"
+    ],
+
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game, Roguelike, Deckbuilding",
+    "operatingSystem": "Web Browser",
+
+    "author": {
+      "@type": "Person",
+      "name": "Alexander Kouliy",
+      "url": "https://alexkouliy.github.io/"
+    },
+
+    "publisher": {
+      "@type": "Organization",
+      "name": "Nulltech Designs",
+      "url": "https://alexkouliy.github.io/",
+      "logo": "https://alexkouliy.github.io/img/nt_icon.webp"
+    },
+
+    "inLanguage": "en",
+
+    "isPartOf": {
+      "@type": "CreativeWorkSeries",
+      "name": "Nulltech Secret Arcade",
+      "description": "A collection of experimental digital games exploring symbolic recursion, neuropunk design, and care-centered interactive systems.",
+      "url": "https://alexkouliy.github.io/secret-arcade.html"
+    },
+
+    "potentialAction": {
+      "@type": "PlayAction",
+      "target": "https://alexkouliy.github.io/secretfiles/netrunner.html"
+    }
+  }
+  </script>
+
+  <!-- Dependencies (your original includes) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+  <!-- Global & Project CSS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
     :root {
       --bg-color: #050a10;
