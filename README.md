@@ -1,7 +1,7 @@
 # Alex Kouliy — Portfolio & Design Systems  
 *Care-Centered Design • UI/UX • Accessibility • Branding • Game Design*
 
-Welcome to the source repository for **alexkouliy.github.io**, a living portfolio showcasing my multidisciplinary work across UI/UX, accessibility, branding systems, game design, and theoretical design frameworks such as **Care-Centered Design (CCD)** and **Emotional Resonance Theory (ERT)**.
+Welcome to the source repository for **alexkouliy.github.io**, a living portfolio showcasing my multidisciplinary work across UI/UX, accessibility, branding systems, game design, and theoretical design frameworks such as **Care-Centered Design (CCD)** and **Emotional Field Dynamics (EFD)** that I've developed with the help of my long-term creative and life partner Allison Kemp.
 
 This site functions as both a professional portfolio and an evolving design laboratory, where new projects, research, and interactive experiments are added over time.
 
